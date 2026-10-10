@@ -1,0 +1,79 @@
+# Cookbook
+
+A self-hosted recipe book for a family recipe collection. It stores recipes with
+ingredients, instructions, a photo and tags, and provides browsing and search.
+Recipes can be collected from any source and adjusted to taste.
+
+The app is built for two kinds of users:
+
+- Cooks in the kitchen, who open a recipe on an iPad and follow it while
+  cooking.
+- Claude, through a built-in MCP server that can read, create and edit recipes.
+  Claude imports recipes from web pages, photos and text, and adjusts existing
+  recipes on request ("use oat cream instead of regular", "scale to 6
+  servings"). Claude also reads the ingredients of the planned dishes to build a
+  weekly shopping list.
+
+The user interface supports i18n. Only Finnish is implemented at the start.
+
+## Features
+
+The requirements for each area of the app are in [`specs/`](specs/README.md).
+
+## Data model
+
+- **Recipe**: title, description, servings, preparation time, ingredients,
+  instructions, photo and source. A recipe can have many tags.
+- **Ingredient**: amount, unit and name, in a fixed order within the recipe.
+  Ingredients can be grouped, for example "Dough" and "Filling".
+- **Step**: one instruction in the cooking view, in a fixed order.
+- **Tag**: a free-form category, such as "dessert", "vegetarian" or "Christmas".
+- **Revision**: a full snapshot of a recipe after each save, with the author
+  (a family member or Claude) and an optional note on what changed.
+
+## Design notes
+
+**The app has no recipe importer.** Importing is the hardest part of most
+recipe apps, because every site formats recipes differently. Claude reads the
+source and calls the MCP tool that creates the recipe, so the app only stores
+structured data.
+
+**Search runs in PostgreSQL.** Full-text search (`tsvector` with the `finnish`
+configuration) and `pg_trgm` for fuzzy matching are enough for a few hundred
+recipes. No separate search service is needed.
+
+**One set of Zod schemas validates everything.** The editor form, the REST API
+and the MCP tools all use the same schemas. Zod also provides the TypeScript
+types and the JSON Schema that MCP tool definitions need.
+
+## Stack
+
+- **Runtime**: Node.js 24 LTS. It runs `.ts` files directly through type
+  stripping, so the server has no build step. Type stripping does not support
+  `enum` or `namespace`.
+- **HTTP server**: [Hono](https://hono.dev), with `@hono/node-server` and
+  `@hono/zod-validator`.
+- **Database**: PostgreSQL. The app reads the connection from `DATABASE_URL`.
+- **Database access**: hand-written SQL with
+  [`postgres`](https://github.com/porsager/postgres). Its tagged templates send
+  values as server-side parameters, so no custom SQL string interpolation is
+  needed.
+- **Migrations**: numbered `.sql` files.
+- **Validation**: [Zod](https://zod.dev) 4.
+- **MCP**: `@modelcontextprotocol/sdk`, with the streamable HTTP transport at
+  `/mcp`. Callers authenticate with a bearer token.
+- **Frontend**: React, built with Vite. The server serves the built files.
+- **Forms**: `react-hook-form` with the Zod resolver.
+- **Images**: stored as files on a mounted volume. The database stores the path.
+  The server resizes uploads with `sharp`.
+
+## Deployment
+
+The app runs as a single Docker image. A reverse proxy such as Caddy sits in
+front of it and handles TLS. PostgreSQL runs in its own container.
+
+The image needs:
+
+- `DATABASE_URL` for the PostgreSQL connection.
+- A volume for recipe images.
+- A secret token for the MCP endpoint.
