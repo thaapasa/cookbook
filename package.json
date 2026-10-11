@@ -12,6 +12,7 @@
     "start": "node --env-file-if-exists=.env src/server/main.ts",
     "migrate": "node --env-file-if-exists=.env src/server/migrate-cli.ts",
     "set-user": "node --env-file-if-exists=.env src/server/set-user-cli.ts",
+    "mcp-token": "node --env-file-if-exists=.env src/server/mcp-token-cli.ts",
     "typecheck": "tsc",
     "lint": "eslint .",
     "format": "prettier --write .",

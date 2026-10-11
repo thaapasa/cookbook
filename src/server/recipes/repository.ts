@@ -10,7 +10,8 @@ import {
 } from '../../shared/recipe.ts';
 import { sql } from '../db.ts';
 
-export type Author = { type: 'user'; userId: string } | { type: 'claude' };
+/** The user who saved a recipe, and whether it was saved in the app or through MCP. */
+export type Author = { userId: string; source: 'app' | 'mcp' };
 
 type Tx = postgres.TransactionSql<Record<string, never>>;
 
@@ -275,11 +276,8 @@ async function insertRevision(
   note: string | null,
 ): Promise<void> {
   await tx`
-    INSERT INTO revisions (recipe_id, author, user_id, note, snapshot)
-    VALUES (
-      ${recipeId}, ${author.type}, ${author.type === 'user' ? author.userId : null},
-      ${note}, ${tx.json(content)}
-    )
+    INSERT INTO revisions (recipe_id, source, user_id, note, snapshot)
+    VALUES (${recipeId}, ${author.source}, ${author.userId}, ${note}, ${tx.json(content)})
   `;
 }
 

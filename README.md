@@ -40,10 +40,11 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 - **Note**: a dated comment on a recipe by a user, such as how it turned out.
   Notes are not part of the recipe content and have no revisions.
 - **Tag**: a free-form category, such as "dessert", "vegetarian" or "Christmas".
-- **Revision**: a full snapshot of a recipe after each save, with the author
-  (a family member or Claude) and an optional note on what changed.
-- **User**: username, display name and password hash. Users are added with
-  `npm run set-user`.
+- **Revision**: a full snapshot of a recipe after each save, with the user,
+  the source of the change (the app or MCP) and an optional note on what
+  changed.
+- **User**: username, display name, password hash and a hash of the personal
+  MCP token. Users are added with `npm run set-user`.
 - **Session**: a login of a user. The database stores a hash of the session
   token, not the token.
 
@@ -77,7 +78,8 @@ types and the JSON Schema that MCP tool definitions need.
 - **Migrations**: numbered `.sql` files.
 - **Validation**: [Zod](https://zod.dev) 4.
 - **MCP**: `@modelcontextprotocol/sdk`, with the streamable HTTP transport at
-  `/mcp`. Callers authenticate with a bearer token.
+  `/mcp`. Callers authenticate with a user's personal MCP token as a bearer
+  token.
 - **Frontend**: React, built with Vite. The server serves the built files.
 - **UI components**: [React Aria Components](https://react-spectrum.adobe.com/react-aria/),
   unstyled. Also provides drag-and-drop reordering.
@@ -101,7 +103,6 @@ The image needs:
 - `DATABASE_URL` for the PostgreSQL connection.
 - A volume for recipe images, with its path in `IMAGES_DIR`. The default is
   `data/images`.
-- A secret token for the MCP endpoint.
 
 ## Development
 
@@ -118,6 +119,11 @@ Then install dependencies with `npm install` and run:
 - `npm run migrate`: applies pending migrations without starting the server.
 - `npm run set-user -- <username> "<display name>"`: creates a user, or sets the
   display name and password of an existing user. Asks for the password.
+- `npm run mcp-token -- <username>`: generates a personal MCP token for a user
+  and replaces the old one. Prints the token once.
+- With `--sql`, `set-user` and `mcp-token` print an SQL statement instead of
+  writing to the database, for example for the production database. They do
+  not need `DATABASE_URL` then.
 - `npm run seed`: adds test recipes and the user `demo` with the password
   `demo`. `npm run seed -- --reset` replaces all existing recipes and tags.
 - `npm run build`: builds the client into `dist/client`, which the server

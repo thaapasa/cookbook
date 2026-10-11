@@ -1,11 +1,18 @@
 // Creates a user, or updates the display name and password of an existing one.
-// Usage: npm run set-user -- <username> <display name>
-import { hashPassword } from './auth/password.ts';
-import { sql } from './db.ts';
+// Usage: npm run set-user -- <username> <display name> [--sql]
+// --sql prints an SQL statement for manual use instead of writing to the database.
+import { parseArgs } from 'node:util';
 
-const [username, displayName] = process.argv.slice(2);
-if (!username || !displayName) {
-  console.error('Usage: npm run set-user -- <username> <display name>');
+import { hashPassword } from './auth/password.ts';
+import { sqlString } from './sql-literal.ts';
+
+const { values, positionals } = parseArgs({
+  allowPositionals: true,
+  options: { sql: { type: 'boolean', default: false } },
+});
+const [username, displayName] = positionals;
+if (!username || !displayName || positionals.length > 2) {
+  console.error('Usage: npm run set-user -- <username> <display name> [--sql]');
   process.exit(1);
 }
 
@@ -15,14 +22,27 @@ if (!password || password !== (await readHidden('Repeat password: '))) {
   process.exit(1);
 }
 
-await sql`
-  INSERT INTO users (username, display_name, password_hash)
-  VALUES (${username}, ${displayName}, ${await hashPassword(password)})
-  ON CONFLICT (username) DO UPDATE
-  SET display_name = excluded.display_name, password_hash = excluded.password_hash
-`;
-console.log(`Saved user ${username}`);
-await sql.end();
+const passwordHash = await hashPassword(password);
+
+if (values.sql) {
+  console.log(
+    `INSERT INTO users (username, display_name, password_hash)\n` +
+      `VALUES (${sqlString(username)}, ${sqlString(displayName)}, ${sqlString(passwordHash)})\n` +
+      `ON CONFLICT (username) DO UPDATE\n` +
+      `SET display_name = excluded.display_name, password_hash = excluded.password_hash;`,
+  );
+} else {
+  // Imported here, so that --sql works without DATABASE_URL.
+  const { sql } = await import('./db.ts');
+  await sql`
+    INSERT INTO users (username, display_name, password_hash)
+    VALUES (${username}, ${displayName}, ${passwordHash})
+    ON CONFLICT (username) DO UPDATE
+    SET display_name = excluded.display_name, password_hash = excluded.password_hash
+  `;
+  console.log(`Saved user ${username}`);
+  await sql.end();
+}
 
 /** Reads a line from the terminal without echoing it. */
 function readHidden(prompt: string): Promise<string> {

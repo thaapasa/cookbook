@@ -1,19 +1,14 @@
-import { createHash, randomBytes } from 'node:crypto';
-
 import type { User } from '../../shared/auth.ts';
 import { sql } from '../db.ts';
+import { hashToken, newToken } from './tokens.ts';
 
 const sessionDays = 90;
 // Extend the session at most once a day, not on every request.
 const extendAfterMs = 24 * 60 * 60 * 1000;
 
-function hashToken(token: string): Buffer {
-  return createHash('sha256').update(token).digest();
-}
-
 /** Creates a session and returns the token for the cookie. */
 export async function createSession(userId: string): Promise<string> {
-  const token = randomBytes(32).toString('base64url');
+  const token = newToken();
   await sql`DELETE FROM sessions WHERE expires_at < now()`;
   await sql`
     INSERT INTO sessions (token_hash, user_id, expires_at)

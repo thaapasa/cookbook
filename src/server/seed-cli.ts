@@ -36,10 +36,10 @@ const [demo] = await sql<{ id: string }[]>`
 `;
 
 for (const [index, { notes = [], ...recipe }] of seedRecipes.entries()) {
-  const id = await createRecipe(
-    RecipeInput.parse(recipe),
-    index % 2 ? { type: 'user', userId: demo.id } : { type: 'claude' },
-  );
+  const id = await createRecipe(RecipeInput.parse(recipe), {
+    userId: demo.id,
+    source: index % 2 ? 'app' : 'mcp',
+  });
   for (const note of notes) {
     await sql`
       INSERT INTO notes (recipe_id, user_id, text, created_at, updated_at)

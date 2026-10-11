@@ -30,7 +30,7 @@ export const recipeRoutes = new Hono<AuthEnv>()
   })
   .post('/', requireUser, zValidator('json', SaveRecipeRequest), async (c) => {
     const { recipe, revisionNote } = c.req.valid('json');
-    const id = await createRecipe(recipe, { type: 'user', userId: c.var.user!.id }, revisionNote);
+    const id = await createRecipe(recipe, { userId: c.var.user!.id, source: 'app' }, revisionNote);
     return c.json({ id }, 201);
   })
   .get('/:id', zValidator('param', IdParam), async (c) => {
@@ -44,7 +44,7 @@ export const recipeRoutes = new Hono<AuthEnv>()
     zValidator('json', SaveRecipeRequest),
     async (c) => {
       const { recipe, revisionNote } = c.req.valid('json');
-      const author = { type: 'user', userId: c.var.user!.id } as const;
+      const author = { userId: c.var.user!.id, source: 'app' } as const;
       const updated = await updateRecipe(c.req.valid('param').id, recipe, author, revisionNote);
       return updated ? c.body(null, 204) : c.json({ error: 'Not found' }, 404);
     },
