@@ -1,8 +1,13 @@
+import { mkdir } from 'node:fs/promises';
+
 import postgres from 'postgres';
 import type { TestProject } from 'vitest/node';
 
 /** Creates the test database if it does not exist and applies the migrations. */
 export default async function setup(project: TestProject): Promise<void> {
+  // The app serves the client build from here and warns when it is missing.
+  await mkdir('dist/client', { recursive: true });
+
   const url = project.config.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL is not set for the server tests');
   const testUrl = new URL(url);
