@@ -7,3 +7,4 @@ undone. This covers changes from the editor and from Claude.
       optional note on what changed.
 - [ ] User can view the revision history of a recipe.
 - [ ] User can restore an earlier revision.
+- [ ] Adding, editing or removing a note does not create a revision.

@@ -25,10 +25,10 @@ The requirements for each area of the app are in [`specs/`](specs/README.md).
 Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 
 - **Recipe**: title, description, servings, active and total time,
-  ingredients, steps, notes, photo and source. Only the title is required.
-  Servings is free text, such as "4–6 annosta" or "1 pelti (24 palaa)". The
-  times are in minutes. Notes hold tips shown after the steps. The source is a
-  URL or free text. A recipe has at most one photo and can have many tags.
+  ingredients, steps, photo and source. Only the title is required. Servings
+  is free text, such as "4–6 annosta" or "1 pelti (24 palaa)". The times are in
+  minutes. The source is a URL or free text. A recipe has at most one photo and
+  can have many tags.
 - **Ingredient**: amount, name and note as free text, in a fixed order within
   the recipe. Only the name is required. The amount includes the unit and can
   be a range, such as "100–120 ml". The note holds extra details, such as a
@@ -37,6 +37,8 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 - **Step**: one instruction as a plain-text paragraph, in a fixed order within
   the recipe. Steps can be grouped like ingredients. Step groups and ingredient
   groups are not linked.
+- **Note**: a dated comment on a recipe by a user, such as how it turned out.
+  Notes are not part of the recipe content and have no revisions.
 - **Tag**: a free-form category, such as "dessert", "vegetarian" or "Christmas".
 - **Revision**: a full snapshot of a recipe after each save, with the author
   (a family member or Claude) and an optional note on what changed.

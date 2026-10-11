@@ -10,7 +10,9 @@ Shows a single recipe.
 - [ ] Ingredient groups are shown under their names.
 - [ ] The page shows the servings and the active and total time when they are
       set.
-- [ ] The description is shown above the ingredients and the notes after the
-      steps, when they are set.
+- [ ] The description is shown above the ingredients when it is set.
+- [ ] The page shows the notes of the recipe with their authors and dates,
+      newest first.
+- [ ] User can add a note from the page.
 - [ ] Step groups are shown under their names.
 - [ ] The source is shown as a link when it is a URL, otherwise as text.

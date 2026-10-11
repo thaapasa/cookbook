@@ -14,3 +14,4 @@ Editing recipes in the browser.
 - [ ] User can edit steps as a list of text fields, and add, remove and reorder
       them by dragging, also between groups.
 - [ ] User can add, remove, rename and reorder step groups.
+- [ ] User can edit and remove the notes of a recipe.
