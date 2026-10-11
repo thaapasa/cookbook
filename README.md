@@ -117,6 +117,8 @@ Then install dependencies with `npm install` and run:
 - `npm run migrate`: applies pending migrations without starting the server.
 - `npm run set-user -- <username> "<display name>"`: creates a user, or sets the
   display name and password of an existing user. Asks for the password.
+- `npm run seed`: adds test recipes and the user `demo` with the password
+  `demo`. `npm run seed -- --reset` replaces all existing recipes and tags.
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
 - `npm run typecheck`: checks types with `tsc`.

@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/figtree';
+@import '@fontsource-variable/bricolage-grotesque';
+
+@theme {
+  --font-sans: 'Figtree Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Segoe UI', system-ui, sans-serif;
+
+  --color-paper: #f5f6f2;
+  --color-card: #ffffff;
+  --color-ink: #18201b;
+  --color-ink-soft: #3d4640;
+  --color-muted: #5a635d;
+  --color-faint: #6b746e;
+  --color-disabled: #a3aaa4;
+  --color-line: #dde0d8;
+  --color-line-soft: #e4e7df;
+  --color-field: #cdd2c8;
+  --color-chip: #e6e9e0;
+  --color-accent: #c4472b;
+  --color-accent-strong: #b23f25;
+
+  /* Backgrounds for recipes without a photo. */
+  --color-photo-1: #e3e6da;
+  --color-photo-2: #efe2d6;
+  --color-photo-3: #dde6e4;
+  --color-photo-4: #ece6d3;
+  --color-photo-5: #e6dde3;
+  --color-photo-6: #dce4d5;
+}
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  ::placeholder {
+    color: var(--color-faint);
+  }
+}
