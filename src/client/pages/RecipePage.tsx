@@ -80,61 +80,64 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
 
   return (
     <>
-      <section className="grid items-end gap-x-12 gap-y-6 md:grid-cols-2">
-        <RecipePhoto
-          recipeId={recipe.id}
-          photoUrl={recipe.photoUrl}
-          label={t('recipe.photo')}
-          iconSize={56}
-          className="-mx-4 sm:mx-0 sm:rounded-3xl md:order-last"
-        />
-        <div className="flex min-w-0 flex-col gap-4.5">
-          {recipe.tags.length > 0 && (
-            <ul className="flex flex-wrap gap-2">
-              {recipe.tags.map((tag) => (
-                <li key={tag}>
-                  <Link
-                    to="/"
-                    search={{ tags: [tag] }}
-                    className="block rounded-full bg-chip px-3 py-1 text-sm font-medium text-ink no-underline hover:text-accent-strong"
-                  >
-                    {tag}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          <h1 className="font-display text-[clamp(44px,7vw,76px)] leading-[0.98] font-bold tracking-[-0.035em] break-words">
-            {recipe.title}
-          </h1>
-          {recipe.description && (
-            <p className="max-w-[34em] text-[17px] text-pretty text-ink-soft sm:text-[19px]">
-              {recipe.description}
-            </p>
-          )}
-          {facts.length > 0 && (
-            <dl className="flex flex-wrap gap-x-8 gap-y-3 text-[15px]">
-              {facts.map((fact) => (
-                <div key={fact.label} className="flex flex-col">
-                  <dt className="text-muted">{fact.label}</dt>
-                  <dd className="text-[17px] font-semibold">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {user && (
-            <div className="flex flex-wrap gap-2.5 pt-1.5">
-              <Link
-                to="/recipes/$recipeId/edit"
-                params={{ recipeId: recipe.id }}
-                className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
-              >
-                <PencilIcon />
-                {t('recipe.edit')}
-              </Link>
-              <DeleteRecipeButton recipe={recipe} />
-            </div>
-          )}
+      {/* On narrow screens the columns flatten so the photo and tags can go above the title. */}
+      <section className="flex flex-col gap-4.5 md:gap-7">
+        <h1 className="font-display text-[clamp(44px,6vw,68px)] leading-[1.02] font-bold tracking-[-0.035em] text-balance break-words hyphens-auto">
+          {recipe.title}
+        </h1>
+        <div className="contents md:grid md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] md:items-start md:gap-12">
+          <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
+            {recipe.tags.length > 0 && (
+              <ul className="-order-1 flex flex-wrap gap-2 md:order-none">
+                {recipe.tags.map((tag) => (
+                  <li key={tag}>
+                    <Link
+                      to="/"
+                      search={{ tags: [tag] }}
+                      className="block rounded-full bg-chip px-3 py-1 text-sm font-medium text-ink no-underline hover:text-accent-strong"
+                    >
+                      {tag}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {recipe.description && (
+              <p className="max-w-[34em] text-[17px] text-pretty text-ink-soft sm:text-[19px]">
+                {recipe.description}
+              </p>
+            )}
+            {facts.length > 0 && (
+              <dl className="flex flex-wrap gap-x-8 gap-y-3 text-[15px]">
+                {facts.map((fact) => (
+                  <div key={fact.label} className="flex flex-col">
+                    <dt className="text-muted">{fact.label}</dt>
+                    <dd className="text-[17px] font-semibold">{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {user && (
+              <div className="flex flex-wrap gap-2.5 pt-1.5">
+                <Link
+                  to="/recipes/$recipeId/edit"
+                  params={{ recipeId: recipe.id }}
+                  className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
+                >
+                  <PencilIcon />
+                  {t('recipe.edit')}
+                </Link>
+                <DeleteRecipeButton recipe={recipe} />
+              </div>
+            )}
+          </div>
+          <RecipePhoto
+            recipeId={recipe.id}
+            photoUrl={recipe.photoUrl}
+            label={t('recipe.photo')}
+            iconSize={56}
+            className="order-first -mx-4 mb-1.5 sm:mx-0 sm:rounded-3xl md:order-none md:mb-0"
+          />
         </div>
       </section>
 
