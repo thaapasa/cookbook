@@ -1,5 +1,7 @@
+import { RecipeInput } from '../../shared/recipe.ts';
 import { hashPassword } from '../auth/password.ts';
 import { sql } from '../db.ts';
+import { type Author, createRecipe } from '../recipes/repository.ts';
 
 /** Empties every table except `migrations`. Refuses to run outside a test database. */
 export async function resetDatabase(): Promise<void> {
@@ -15,11 +17,16 @@ export async function resetDatabase(): Promise<void> {
 }
 
 /** Adds a user and returns its id. */
-export async function createUser(username: string, password: string): Promise<string> {
+export async function createUser(username: string, password = 'secret'): Promise<string> {
   const [row] = await sql<{ id: string }[]>`
     INSERT INTO users (username, display_name, password_hash)
-    VALUES (${username}, ${username}, ${await hashPassword(password)})
+    VALUES (${username}, ${`${username} display`}, ${await hashPassword(password)})
     RETURNING id
   `;
   return row.id;
+}
+
+/** Adds a recipe with the given content and returns its id. */
+export function addRecipe(author: Author, input: RecipeInput): Promise<string> {
+  return createRecipe(RecipeInput.parse(input), author);
 }

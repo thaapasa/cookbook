@@ -129,7 +129,7 @@ Then install dependencies with `npm install` and run:
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
 - `npm test`: runs the tests with [Vitest](https://vitest.dev).
-  `npm run test:watch` reruns them on changes. Server tests use the database
+  `npm run test:watch` reruns them on changes. The tests use the database
   `<name>_test` next to the database in `DATABASE_URL`, and create and migrate
   it when needed. They need the local database running.
 - `npm run typecheck`: checks types with `tsc`.

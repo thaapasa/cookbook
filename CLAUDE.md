@@ -7,6 +7,17 @@ See `README.md` for the app and the stack.
 After editing code, run `npm run lint -- --fix`. It sorts imports and reports
 the remaining problems. Fix every error and warning.
 
+## Tests
+
+Run `npm test`. The goal is confidence that the app works, not full coverage.
+
+- No UI tests.
+- Service-level tests are the main focus. They call the server functions
+  against the test database and check the results.
+- Unit tests only where they bring value, such as parsing or security code.
+- API tests cover authentication, authorization and input validation, plus a
+  few requests that check that data goes in and comes out.
+
 ## Specs
 
 Requirements live in `specs/`, one file per app area. See `specs/README.md` for
