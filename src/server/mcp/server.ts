@@ -103,10 +103,14 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Set recipe photo',
       description:
-        'Sets the photo of a recipe and replaces the old one. The server resizes the image.',
+        'Sets the photo of a recipe and replaces the old one. The server detects the format from the data and resizes the image. Supported formats are JPEG, PNG, WebP, GIF, AVIF and TIFF. HEIC is not supported, so convert iPhone photos to JPEG first.',
       inputSchema: z.object({
         id: z.uuid(),
-        data: z.base64().describe('The image file as base64, such as JPEG, PNG or WebP.'),
+        data: z
+          .string()
+          .transform((s) => s.replace(/^data:[^,]*;base64,/, ''))
+          .pipe(z.base64())
+          .describe('The image file as base64, or as a base64 data URL.'),
       }),
     },
     async ({ id, data }) => {

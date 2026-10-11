@@ -151,6 +151,19 @@ describe('set_recipe_photo', () => {
     expect((await app.request(photoUrl!)).status).toBe(200);
   });
 
+  it('accepts a data URL', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const png = await sharp({
+      create: { width: 20, height: 20, channels: 3, background: '#48c' },
+    })
+      .png()
+      .toBuffer();
+
+    const data = `data:image/png;base64,${png.toString('base64')}`;
+    expect((await callTool('set_recipe_photo', { id, data })).isError).toBeFalsy();
+    expect((await getRecipe(id))?.photoUrl).toMatch(/\.webp$/);
+  });
+
   it('rejects data that is not an image', async () => {
     const id = await addRecipe(author, { title: 'Pulla' });
     const data = Buffer.from('not an image').toString('base64');
