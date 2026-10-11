@@ -22,7 +22,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['src/server/**', 'vite.config.ts'],
+    files: ['src/server/**', 'vite.config.ts', 'vitest.config.ts'],
     languageOptions: { globals: globals.node },
   },
   {

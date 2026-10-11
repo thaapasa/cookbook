@@ -128,6 +128,10 @@ Then install dependencies with `npm install` and run:
   `demo`. `npm run seed -- --reset` replaces all existing recipes and tags.
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
+- `npm test`: runs the tests with [Vitest](https://vitest.dev).
+  `npm run test:watch` reruns them on changes. Server tests use the database
+  `<name>_test` next to the database in `DATABASE_URL`, and create and migrate
+  it when needed. They need the local database running.
 - `npm run typecheck`: checks types with `tsc`.
 - `npm run lint`: checks the code with ESLint. `npm run lint -- --fix` also
   sorts imports.
