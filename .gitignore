@@ -20,3 +20,6 @@ coverage/
 # Editors and OS
 .idea/
 .DS_Store
+
+# Recipe images in development
+data/

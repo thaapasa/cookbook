@@ -53,6 +53,50 @@ export const CloseIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const PlusIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Stroke>
+);
+
+export const CheckIcon = (p: IconProps) => (
+  <Stroke strokeWidth={2.2} {...p}>
+    <path d="m5 12 5 5L20 7" />
+  </Stroke>
+);
+
+export const PencilIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M4 20h4L19 9l-4-4L4 16v4Z" />
+  </Stroke>
+);
+
+export const UploadIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 16V4M6 10l6-6 6 6M4 20h16" />
+  </Stroke>
+);
+
+export const TrashIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+  </Stroke>
+);
+
+/** Six dots, shown on drag handles. */
+export function GripIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      {[6, 12, 18].map((y) => (
+        <g key={y}>
+          <circle cx="9" cy={y} r="1.6" />
+          <circle cx="15" cy={y} r="1.6" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 /** A plate with a fork and a knife, shown in place of a missing photo. */
 export function PlateIcon({ size = 44 }: { size?: number }) {
   return (

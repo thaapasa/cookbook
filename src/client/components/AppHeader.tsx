@@ -1,13 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useRouterState } from '@tanstack/react-router';
+import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
-import { meQuery } from '../api.ts';
-import { LogoIcon } from './icons.tsx';
+import type { User } from '../../shared/auth.ts';
+import { logout, meQuery } from '../api.ts';
+import { LogoIcon, PlusIcon } from './icons.tsx';
 
 export function AppHeader() {
   const { t } = useTranslation();
-  const user = useQuery(meQuery).data?.user;
+  const me = useQuery(meQuery);
+  const user = me.data?.user;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <header className="border-b border-line">
@@ -16,18 +20,66 @@ export function AppHeader() {
           <LogoIcon />
           <span className="font-display text-[22px] font-bold tracking-tight">{t('app.name')}</span>
         </Link>
-        {user && (
-          <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-1">
-            <span
-              role="img"
-              aria-label={t('app.user', { name: user.displayName })}
-              className="grid size-11 place-items-center rounded-full border border-line bg-card text-[15px] font-semibold"
-            >
-              {user.displayName.charAt(0)}
-            </span>
-          </nav>
-        )}
+        <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-1">
+          {user ? (
+            <>
+              <Link
+                to="/recipes/new"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-white no-underline hover:text-white"
+              >
+                <PlusIcon />
+                {t('app.newRecipe')}
+              </Link>
+              <UserMenu user={user} />
+            </>
+          ) : (
+            me.isSuccess &&
+            pathname !== '/login' && (
+              <Link
+                to="/login"
+                search={{ redirect: pathname }}
+                className="inline-flex min-h-11 items-center px-3 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
+              >
+                {t('app.login')}
+              </Link>
+            )
+          )}
+        </nav>
       </div>
     </header>
+  );
+}
+
+function UserMenu({ user }: { user: User }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const signOut = useMutation({
+    mutationFn: logout,
+    onSuccess: () => queryClient.setQueryData(meQuery.queryKey, { user: null }),
+  });
+
+  return (
+    <MenuTrigger>
+      <Button
+        aria-label={t('app.user', { name: user.displayName })}
+        className="grid size-11 cursor-pointer place-items-center rounded-full border border-line bg-card text-[15px] font-semibold outline-accent"
+      >
+        {user.displayName.charAt(0)}
+      </Button>
+      <Popover
+        placement="bottom end"
+        className="min-w-48 rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_rgba(24,32,27,.12)]"
+      >
+        <div className="px-3 pt-2 pb-1 text-sm text-muted">{user.displayName}</div>
+        <Menu className="outline-none">
+          <MenuItem
+            onAction={() => signOut.mutate()}
+            className="flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-[15px] font-semibold outline-none data-focused:bg-chip"
+          >
+            {t('app.logout')}
+          </MenuItem>
+        </Menu>
+      </Popover>
+    </MenuTrigger>
   );
 }

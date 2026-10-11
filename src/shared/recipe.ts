@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /** Free text where an empty value is stored as `null`. */
-const OptionalText = z
+export const OptionalText = z
   .string()
   .trim()
   .nullish()
@@ -44,6 +44,14 @@ export const RecipeInput = z.object({
 });
 export type RecipeInput = z.input<typeof RecipeInput>;
 export type RecipeContent = z.output<typeof RecipeInput>;
+
+/** The body of a request that creates or updates a recipe. */
+export const SaveRecipeRequest = z.object({
+  recipe: RecipeInput,
+  /** What changed, shown in the revision history. */
+  revisionNote: OptionalText,
+});
+export type SaveRecipeRequest = z.input<typeof SaveRecipeRequest>;
 
 export type Note = {
   id: string;

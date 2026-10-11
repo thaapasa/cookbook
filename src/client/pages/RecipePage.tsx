@@ -6,11 +6,12 @@ import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
 import { addNote, ApiError, meQuery, recipeQuery } from '../api.ts';
-import { ChevronLeftIcon } from '../components/icons.tsx';
+import { secondaryButtonClass } from '../components/fieldStyles.ts';
+import { ChevronLeftIcon, PencilIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatDate, useFormatMinutes } from '../format.ts';
 
-const route = getRouteApi('/recipes/$recipeId');
+const route = getRouteApi('/_main/recipes/$recipeId');
 
 const sectionHeading = 'font-display text-[26px] font-bold tracking-[-0.02em] sm:text-[28px]';
 const groupHeading = 'text-[13px] font-semibold tracking-[0.08em] text-muted uppercase';
@@ -47,6 +48,7 @@ export function RecipePage() {
 function RecipeContent({ recipe }: { recipe: Recipe }) {
   const { t } = useTranslation();
   const formatMinutes = useFormatMinutes();
+  const user = useQuery(meQuery).data?.user;
   const facts = [
     { label: t('recipe.servings'), value: recipe.servings },
     {
@@ -108,6 +110,18 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                 </div>
               ))}
             </dl>
+          )}
+          {user && (
+            <div className="flex flex-wrap gap-2.5 pt-1.5">
+              <Link
+                to="/recipes/$recipeId/edit"
+                params={{ recipeId: recipe.id }}
+                className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
+              >
+                <PencilIcon />
+                {t('recipe.edit')}
+              </Link>
+            </div>
           )}
         </div>
       </section>
@@ -239,7 +253,13 @@ function Notes({ recipe }: { recipe: Recipe }) {
       {user ? (
         <NoteForm recipeId={recipe.id} />
       ) : (
-        <p className="text-sm text-muted">{t('recipe.loginToAddNote')}</p>
+        <Link
+          to="/login"
+          search={{ redirect: `/recipes/${recipe.id}` }}
+          className="self-start text-sm text-muted underline-offset-3 hover:text-accent-strong"
+        >
+          {t('recipe.loginToAddNote')}
+        </Link>
       )}
     </section>
   );

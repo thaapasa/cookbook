@@ -1,7 +1,14 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import type { User } from '../shared/auth.ts';
-import type { Note, NoteInput, Recipe, RecipeList, TagCount } from '../shared/recipe.ts';
+import type { LoginRequest, User } from '../shared/auth.ts';
+import type {
+  Note,
+  NoteInput,
+  Recipe,
+  RecipeList,
+  SaveRecipeRequest,
+  TagCount,
+} from '../shared/recipe.ts';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -15,10 +22,13 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...init,
-    headers: { 'content-type': 'application/json', ...init?.headers },
+    headers:
+      init?.body instanceof FormData
+        ? init.headers
+        : { 'content-type': 'application/json', ...init?.headers },
   });
   if (!res.ok) throw new ApiError(res.status);
-  return (await res.json()) as T;
+  return (res.status === 204 ? undefined : await res.json()) as T;
 }
 
 export type RecipeListParams = { q?: string; tags?: string[]; page?: number };
@@ -56,4 +66,46 @@ export function addNote(recipeId: string, input: NoteInput): Promise<Note> {
     method: 'POST',
     body: JSON.stringify(input),
   });
+}
+
+export function updateNote(recipeId: string, noteId: string, input: NoteInput): Promise<void> {
+  return request(`/api/recipes/${recipeId}/notes/${noteId}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteNote(recipeId: string, noteId: string): Promise<void> {
+  return request(`/api/recipes/${recipeId}/notes/${noteId}`, { method: 'DELETE' });
+}
+
+export function login(input: LoginRequest): Promise<User> {
+  return request<User>('/api/auth/login', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export function logout(): Promise<void> {
+  return request('/api/auth/logout', { method: 'POST' });
+}
+
+/** Creates a recipe and returns its id. */
+export async function createRecipe(input: SaveRecipeRequest): Promise<string> {
+  const { id } = await request<{ id: string }>('/api/recipes', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+  return id;
+}
+
+export function updateRecipe(recipeId: string, input: SaveRecipeRequest): Promise<void> {
+  return request(`/api/recipes/${recipeId}`, { method: 'PUT', body: JSON.stringify(input) });
+}
+
+export function uploadPhoto(recipeId: string, photo: File): Promise<void> {
+  const body = new FormData();
+  body.set('photo', photo);
+  return request(`/api/recipes/${recipeId}/photo`, { method: 'PUT', body });
+}
+
+export function deletePhoto(recipeId: string): Promise<void> {
+  return request(`/api/recipes/${recipeId}/photo`, { method: 'DELETE' });
 }

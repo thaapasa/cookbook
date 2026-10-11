@@ -15,7 +15,7 @@ import {
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatMinutes } from '../format.ts';
 
-const route = getRouteApi('/');
+const route = getRouteApi('/_main/');
 
 export function RecipeListPage() {
   const { t } = useTranslation();

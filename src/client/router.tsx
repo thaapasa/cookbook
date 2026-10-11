@@ -2,15 +2,28 @@ import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/re
 import { z } from 'zod';
 
 import { AppHeader } from './components/AppHeader.tsx';
+import { EditorPage } from './pages/EditorPage.tsx';
+import { LoginPage } from './pages/LoginPage.tsx';
 import { RecipeListPage } from './pages/RecipeListPage.tsx';
 import { RecipePage } from './pages/RecipePage.tsx';
 
 const rootRoute = createRootRoute({
   component: () => (
     <div className="min-h-screen">
-      <AppHeader />
       <Outlet />
     </div>
+  ),
+});
+
+/** Pages with the app header. The editor has its own header. */
+const mainRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: '_main',
+  component: () => (
+    <>
+      <AppHeader />
+      <Outlet />
+    </>
   ),
 });
 
@@ -21,20 +34,52 @@ const RecipeListSearch = z.object({
 });
 
 const recipeListRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => mainRoute,
   path: '/',
   validateSearch: RecipeListSearch,
   component: RecipeListPage,
 });
 
 const recipeRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => mainRoute,
   path: '/recipes/$recipeId',
   component: RecipePage,
 });
 
+const LoginSearch = z.object({
+  // Only paths within the app, so that the login page cannot redirect elsewhere.
+  redirect: z
+    .string()
+    .regex(/^\/(?![/\\])/)
+    .optional()
+    .catch(undefined),
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => mainRoute,
+  path: '/login',
+  validateSearch: LoginSearch,
+  component: LoginPage,
+});
+
+const newRecipeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/new',
+  component: EditorPage,
+});
+
+const editRecipeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/$recipeId/edit',
+  component: EditorPage,
+});
+
 export const router = createRouter({
-  routeTree: rootRoute.addChildren([recipeListRoute, recipeRoute]),
+  routeTree: rootRoute.addChildren([
+    mainRoute.addChildren([recipeListRoute, recipeRoute, loginRoute]),
+    newRecipeRoute,
+    editRecipeRoute,
+  ]),
   scrollRestoration: true,
 });
 

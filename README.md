@@ -99,7 +99,8 @@ front of it and handles TLS. PostgreSQL runs in its own container.
 The image needs:
 
 - `DATABASE_URL` for the PostgreSQL connection.
-- A volume for recipe images.
+- A volume for recipe images, with its path in `IMAGES_DIR`. The default is
+  `data/images`.
 - A secret token for the MCP endpoint.
 
 ## Development

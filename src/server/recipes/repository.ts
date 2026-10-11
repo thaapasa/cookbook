@@ -188,6 +188,21 @@ export async function addNote(
   return (await listNotes(recipeId)).find((n) => n.id === row.id) ?? null;
 }
 
+/** Changes the text of a note. Returns `false` if the note does not exist. */
+export async function updateNote(recipeId: string, noteId: string, text: string): Promise<boolean> {
+  const result = await sql`
+    UPDATE notes SET text = ${text}, updated_at = now()
+    WHERE id = ${noteId} AND recipe_id = ${recipeId}
+  `;
+  return result.count > 0;
+}
+
+/** Deletes a note. Returns `false` if the note does not exist. */
+export async function deleteNote(recipeId: string, noteId: string): Promise<boolean> {
+  const result = await sql`DELETE FROM notes WHERE id = ${noteId} AND recipe_id = ${recipeId}`;
+  return result.count > 0;
+}
+
 /** Creates a recipe and its first revision. Returns the recipe id. */
 export async function createRecipe(
   content: RecipeContent,
@@ -205,15 +220,67 @@ export async function createRecipe(
     `;
     await insertContent(tx, id, content);
     await refreshSearch(tx, id);
-    await tx`
-      INSERT INTO revisions (recipe_id, author, user_id, note, snapshot)
-      VALUES (
-        ${id}, ${author.type}, ${author.type === 'user' ? author.userId : null},
-        ${revisionNote}, ${tx.json(content)}
-      )
-    `;
+    await insertRevision(tx, id, content, author, revisionNote);
     return id;
   });
+}
+
+/** Replaces the content of a recipe and adds a revision. Returns `false` if the recipe does not exist. */
+export async function updateRecipe(
+  id: string,
+  content: RecipeContent,
+  author: Author,
+  revisionNote: string | null = null,
+): Promise<boolean> {
+  return sql.begin(async (tx) => {
+    const updated = await tx`
+      UPDATE recipes SET
+        title = ${content.title}, description = ${content.description},
+        servings = ${content.servings}, active_minutes = ${content.activeMinutes},
+        total_minutes = ${content.totalMinutes}, source = ${content.source}, updated_at = now()
+      WHERE id = ${id}
+    `;
+    if (!updated.count) return false;
+    await tx`DELETE FROM recipe_tags WHERE recipe_id = ${id}`;
+    await tx`DELETE FROM ingredient_groups WHERE recipe_id = ${id}`;
+    await tx`DELETE FROM step_groups WHERE recipe_id = ${id}`;
+    await insertContent(tx, id, content);
+    await refreshSearch(tx, id);
+    await insertRevision(tx, id, content, author, revisionNote);
+    return true;
+  });
+}
+
+/**
+ * Sets the photo path of a recipe, or clears it with `null`. Returns the previous path,
+ * or `undefined` if the recipe does not exist.
+ */
+export async function setPhotoPath(
+  id: string,
+  photoPath: string | null,
+): Promise<string | null | undefined> {
+  const [row] = await sql<{ previous: string | null }[]>`
+    UPDATE recipes r SET photo_path = ${photoPath}
+    FROM recipes old WHERE old.id = r.id AND r.id = ${id}
+    RETURNING old.photo_path AS previous
+  `;
+  return row ? row.previous : undefined;
+}
+
+async function insertRevision(
+  tx: Tx,
+  recipeId: string,
+  content: RecipeContent,
+  author: Author,
+  note: string | null,
+): Promise<void> {
+  await tx`
+    INSERT INTO revisions (recipe_id, author, user_id, note, snapshot)
+    VALUES (
+      ${recipeId}, ${author.type}, ${author.type === 'user' ? author.userId : null},
+      ${note}, ${tx.json(content)}
+    )
+  `;
 }
 
 async function insertContent(tx: Tx, recipeId: string, content: RecipeContent): Promise<void> {

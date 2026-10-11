@@ -13,6 +13,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:3000',
       '/mcp': 'http://localhost:3000',
+      '/images': 'http://localhost:3000',
     },
   },
 });
