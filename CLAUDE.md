@@ -2,6 +2,11 @@
 
 See `README.md` for the app and the stack.
 
+## Linting
+
+After editing code, run `npm run lint -- --fix`. It sorts imports and reports
+the remaining problems. Fix every error and warning.
+
 ## Specs
 
 Requirements live in `specs/`, one file per app area. See `specs/README.md` for

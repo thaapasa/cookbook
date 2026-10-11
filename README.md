@@ -105,8 +105,8 @@ The image needs:
 ## Development
 
 Start the local database with `docker compose up -d`. Copy `.env.example` to
-`.env` for the matching `DATABASE_URL`. Set `DB_PORT` to use a port other than
-15432.
+`.env` for the matching `DATABASE_URL`. Set `DB_PORT` to use a port other
+than 15432.
 
 Then install dependencies with `npm install` and run:
 
@@ -120,3 +120,7 @@ Then install dependencies with `npm install` and run:
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
 - `npm run typecheck`: checks types with `tsc`.
+- `npm run lint`: checks the code with ESLint. `npm run lint -- --fix` also
+  sorts imports.
+- `npm run format`: formats files with Prettier. `npm run format:check` only
+  checks them.

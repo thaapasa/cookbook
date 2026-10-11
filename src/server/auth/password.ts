@@ -32,7 +32,9 @@ export async function verifyPassword(password: string, phc: string): Promise<boo
   if (algorithm !== 'argon2id' || version !== 'v=19' || !paramString || !salt || !hash) {
     return false;
   }
-  const p = Object.fromEntries(paramString.split(',').map((kv) => kv.split('=')));
+  const p = Object.fromEntries(
+    paramString.split(',').map((kv) => kv.split('=') as [string, string]),
+  );
   const expected = Buffer.from(hash, 'base64url');
   const actual = await argon2Async('argon2id', {
     message: password,
