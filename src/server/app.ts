@@ -1,16 +1,22 @@
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
+import { csrf } from 'hono/csrf';
 
+import { type AuthEnv, authRoutes, sessionMiddleware } from './auth/routes.ts';
 import { sql } from './db.ts';
 
 const clientDir = 'dist/client';
 
-export const app = new Hono();
+export const app = new Hono<AuthEnv>();
+
+app.use('/api/*', csrf(), sessionMiddleware);
 
 app.get('/api/health', async (c) => {
   await sql`SELECT 1`;
   return c.json({ status: 'ok' });
 });
+
+app.route('/api/auth', authRoutes);
 
 app.all('/api/*', (c) => c.notFound());
 

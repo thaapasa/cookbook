@@ -6,5 +6,6 @@ if (!url) {
 }
 
 export const sql = postgres(url, {
+  transform: postgres.camel,
   onnotice: () => {},
 });

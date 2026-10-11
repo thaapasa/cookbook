@@ -32,6 +32,10 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 - **Tag**: a free-form category, such as "dessert", "vegetarian" or "Christmas".
 - **Revision**: a full snapshot of a recipe after each save, with the author
   (a family member or Claude) and an optional note on what changed.
+- **User**: username, display name and password hash. Users are added with
+  `npm run set-user`.
+- **Session**: a login of a user. The database stores a hash of the session
+  token, not the token.
 
 ## Design notes
 
@@ -93,6 +97,8 @@ Then install dependencies with `npm install` and run:
 - `npm run dev:client`: the Vite dev server, which proxies `/api` and `/mcp` to
   the server.
 - `npm run migrate`: applies pending migrations without starting the server.
+- `npm run set-user -- <username> "<display name>"`: creates a user, or sets the
+  display name and password of an existing user. Asks for the password.
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
 - `npm run typecheck`: checks types with `tsc`.
