@@ -1,7 +1,7 @@
 # Cookbook
 
 A self-hosted recipe book for a family recipe collection. It stores recipes with
-ingredients, instructions, a photo and tags, and provides browsing and search.
+ingredients, steps, a photo and tags, and provides browsing and search.
 Recipes can be collected from any source and adjusted to taste.
 
 The app is built for two kinds of users:
@@ -24,11 +24,19 @@ The requirements for each area of the app are in [`specs/`](specs/README.md).
 
 Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 
-- **Recipe**: title, description, servings, preparation time, ingredients,
-  instructions, photo and source. A recipe can have many tags.
-- **Ingredient**: amount, unit and name, in a fixed order within the recipe.
-  Ingredients can be grouped, for example "Dough" and "Filling".
-- **Step**: one instruction in the cooking view, in a fixed order.
+- **Recipe**: title, description, servings, active and total time,
+  ingredients, steps, notes, photo and source. Only the title is required.
+  Servings is free text, such as "4–6 annosta" or "1 pelti (24 palaa)". The
+  times are in minutes. Notes hold tips shown after the steps. The source is a
+  URL or free text. A recipe has at most one photo and can have many tags.
+- **Ingredient**: amount, name and note as free text, in a fixed order within
+  the recipe. Only the name is required. The amount includes the unit and can
+  be a range, such as "100–120 ml". The note holds extra details, such as a
+  preferred brand. Ingredients can be grouped, for example "Dough" and
+  "Filling".
+- **Step**: one instruction as a plain-text paragraph, in a fixed order within
+  the recipe. Steps can be grouped like ingredients. Step groups and ingredient
+  groups are not linked.
 - **Tag**: a free-form category, such as "dessert", "vegetarian" or "Christmas".
 - **Revision**: a full snapshot of a recipe after each save, with the author
   (a family member or Claude) and an optional note on what changed.
