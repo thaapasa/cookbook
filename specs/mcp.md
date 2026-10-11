@@ -11,10 +11,13 @@ shopping lists from the ingredients of planned dishes.
 - [x] Claude can search and list recipes.
 - [x] Claude can read a recipe.
 - [x] Claude can create a recipe.
-- [ ] Claude can edit a recipe, with a note on what changed.
-- [ ] Changes made through MCP are recorded as made by the token's user, and
+- [x] Claude can edit a recipe, with a note on what changed.
+- [x] Changes made through MCP are recorded as made by the token's user, and
       marked as made through MCP.
-- [ ] Claude can upload a photo for a recipe.
-- [ ] Claude can get the ingredients of several recipes in one call.
-- [ ] Claude can list the existing ingredient names, to keep names consistent
+- [x] Claude can upload a photo for a recipe.
+- [x] Claude can get the ingredients of several recipes in one call.
+- [x] Claude can list the existing ingredient names, to keep names consistent
       across recipes.
+- [x] Claude can list the existing tags with the number of recipes for each.
+- [x] Claude can delete a recipe.
+- [x] Claude can add a note to a recipe.

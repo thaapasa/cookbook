@@ -1,20 +1,24 @@
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
+import sharp from 'sharp';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { User } from '../../shared/auth.ts';
+import { app } from '../app.ts';
 import { sql } from '../db.ts';
-import { getRecipe } from '../recipes/repository.ts';
+import { type Author, getRecipe } from '../recipes/repository.ts';
 import { addRecipe, createUser, resetDatabase } from '../test/db.ts';
 import { createMcpServer } from './server.ts';
 
 const missingId = '00000000-0000-7000-8000-000000000000';
 
 let user: User;
+let author: Author;
 let client: Client;
 
 beforeEach(async () => {
   await resetDatabase();
   user = { id: await createUser('cook'), username: 'cook', displayName: 'cook display' };
+  author = { userId: user.id, source: 'app' };
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await createMcpServer(user).connect(serverTransport);
   client = new Client({ name: 'test', version: '1.0.0' });
@@ -90,5 +94,118 @@ describe('create_recipe', () => {
     expect(res.isError).toBe(true);
     const [{ count }] = await sql<{ count: string }[]>`SELECT count(*) FROM recipes`;
     expect(count).toBe('0');
+  });
+});
+
+describe('update_recipe', () => {
+  it('replaces the content as the user, through MCP', async () => {
+    const id = await addRecipe(author, { title: 'Pulla', tags: ['leivonnainen'] });
+    const res = await callTool('update_recipe', {
+      id,
+      recipe: { title: 'Kauramaitopulla', tags: ['leivonnainen', 'vegaaninen'] },
+      revisionNote: 'Kauramaito lehmänmaidon tilalle',
+    });
+    expect(res.isError).toBeFalsy();
+
+    expect(await getRecipe(id)).toMatchObject({
+      title: 'Kauramaitopulla',
+      tags: ['leivonnainen', 'vegaaninen'],
+    });
+    const revisions = await sql`
+      SELECT user_id, source, note FROM revisions WHERE recipe_id = ${id} ORDER BY id
+    `;
+    expect(revisions).toEqual([
+      { userId: user.id, source: 'app', note: null },
+      { userId: user.id, source: 'mcp', note: 'Kauramaito lehmänmaidon tilalle' },
+    ]);
+  });
+
+  it('returns an error for a missing recipe', async () => {
+    const res = await callTool('update_recipe', { id: missingId, recipe: { title: 'X' } });
+    expect(res.isError).toBe(true);
+  });
+});
+
+describe('delete_recipe', () => {
+  it('deletes a recipe', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    expect((await callTool('delete_recipe', { id })).isError).toBeFalsy();
+    expect(await getRecipe(id)).toBeNull();
+    expect((await callTool('delete_recipe', { id })).isError).toBe(true);
+  });
+});
+
+describe('set_recipe_photo', () => {
+  it('stores a base64 photo', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const jpeg = await sharp({
+      create: { width: 40, height: 30, channels: 3, background: '#c84' },
+    })
+      .jpeg()
+      .toBuffer();
+
+    const res = await callTool('set_recipe_photo', { id, data: jpeg.toString('base64') });
+    expect(res.isError).toBeFalsy();
+    const photoUrl = (await getRecipe(id))?.photoUrl;
+    expect(photoUrl).toMatch(/^\/images\/[\w-]+\.webp$/);
+    expect((await app.request(photoUrl!)).status).toBe(200);
+  });
+
+  it('rejects data that is not an image', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const data = Buffer.from('not an image').toString('base64');
+    expect((await callTool('set_recipe_photo', { id, data })).isError).toBe(true);
+    expect((await callTool('set_recipe_photo', { id, data: '%%%' })).isError).toBe(true);
+    expect((await getRecipe(id))?.photoUrl).toBeNull();
+  });
+});
+
+describe('add_note', () => {
+  it('adds a note as the user', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const res = await callTool('add_note', { id, text: 'Onnistui hyvin' });
+    expect(res.structuredContent).toMatchObject({
+      authorName: 'cook display',
+      text: 'Onnistui hyvin',
+    });
+    expect((await callTool('add_note', { id: missingId, text: 'X' })).isError).toBe(true);
+  });
+});
+
+describe('list_tags', () => {
+  it('lists the tags with counts', async () => {
+    await addRecipe(author, { title: 'Pulla', tags: ['leivonnainen'] });
+    const res = await callTool('list_tags', {});
+    expect(res.structuredContent).toEqual({ tags: [{ name: 'leivonnainen', count: 1 }] });
+  });
+});
+
+describe('list_ingredient_names', () => {
+  it('lists the ingredient names, filtered by a query', async () => {
+    await addRecipe(author, {
+      title: 'Pulla',
+      ingredientGroups: [{ ingredients: [{ name: 'maito' }, { name: 'vehnäjauho' }] }],
+    });
+    const res = await callTool('list_ingredient_names', { query: 'jauho' });
+    expect(res.structuredContent).toEqual({ ingredients: [{ name: 'vehnäjauho', count: 1 }] });
+  });
+});
+
+describe('get_ingredients', () => {
+  it('returns the ingredients of several recipes and the missing ids', async () => {
+    const pulla = await addRecipe(author, {
+      title: 'Pulla',
+      ingredientGroups: [{ ingredients: [{ amount: '5 dl', name: 'maito' }] }],
+    });
+    const lettu = await addRecipe(author, { title: 'Lettu' });
+
+    const res = await callTool('get_ingredients', { ids: [pulla, lettu, missingId] });
+    expect(res.structuredContent).toMatchObject({
+      recipes: [
+        { id: pulla, title: 'Pulla', ingredientGroups: [{ ingredients: [{ name: 'maito' }] }] },
+        { id: lettu, title: 'Lettu', ingredientGroups: [] },
+      ],
+      missing: [missingId],
+    });
   });
 });

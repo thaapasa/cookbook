@@ -66,9 +66,16 @@ describe('tools', () => {
     const client = await connect();
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
+      'add_note',
       'create_recipe',
+      'delete_recipe',
+      'get_ingredients',
       'get_recipe',
+      'list_ingredient_names',
+      'list_tags',
       'search_recipes',
+      'set_recipe_photo',
+      'update_recipe',
     ]);
   });
 
@@ -85,5 +92,17 @@ describe('tools', () => {
 
     const [revision] = await sql`SELECT user_id, source FROM revisions WHERE recipe_id = ${id}`;
     expect(revision).toEqual({ userId, source: 'mcp' });
+  });
+
+  it('accepts a photo larger than the default request limit', async () => {
+    const client = await connect();
+    const { id } = (
+      await client.callTool({ name: 'create_recipe', arguments: { recipe: { title: 'Pulla' } } })
+    ).structuredContent as { id: string };
+
+    // Not an image, so the tool fails, but only after the request is read.
+    const data = Buffer.alloc(6 * 1024 * 1024).toString('base64');
+    const res = await client.callTool({ name: 'set_recipe_photo', arguments: { id, data } });
+    expect(res.content).toEqual([{ type: 'text', text: 'The data is not an image' }]);
   });
 });

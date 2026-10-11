@@ -1,9 +1,11 @@
 import type postgres from 'postgres';
 
 import {
+  type IngredientNameCount,
   type Note,
   type Recipe,
   type RecipeContent,
+  type RecipeIngredients,
   type RecipeList,
   recipePageSize,
   type TagCount,
@@ -106,6 +108,42 @@ export async function listTags(): Promise<TagCount[]> {
   return rows.map((r) => ({ name: r.name, count: Number(r.count) }));
 }
 
+/** The ingredients of the ingredient group `g` as a JSON array. */
+const ingredientsJson = sql`coalesce(
+  (SELECT json_agg(json_build_object('amount', i.amount, 'name', i.name, 'note', i.note)
+                   ORDER BY i.position)
+   FROM ingredients i WHERE i.group_id = g.id),
+  '[]'
+)`;
+
+/** Returns the ingredient names in use, with the number of recipes for each. */
+export async function listIngredientNames(q?: string): Promise<IngredientNameCount[]> {
+  const filter = q?.trim() ? sql`WHERE i.name ILIKE ${likePattern(q.trim())}` : sql``;
+  const rows = await sql<{ name: string; count: string }[]>`
+    SELECT i.name, count(DISTINCT g.recipe_id) AS count
+    FROM ingredients i JOIN ingredient_groups g ON g.id = i.group_id
+    ${filter}
+    GROUP BY i.name
+    ORDER BY i.name COLLATE "fi-FI-x-icu"
+  `;
+  return rows.map((r) => ({ name: r.name, count: Number(r.count) }));
+}
+
+/** Returns the ingredients of the given recipes in the given order. Skips missing recipes. */
+export async function getIngredients(ids: string[]): Promise<RecipeIngredients[]> {
+  const rows = await sql<RecipeIngredients[]>`
+    SELECT r.id, r.title, r.servings, coalesce(
+      (SELECT json_agg(json_build_object('name', g.name, 'ingredients', ${ingredientsJson})
+                       ORDER BY g.position)
+       FROM ingredient_groups g WHERE g.recipe_id = r.id),
+      '[]'
+    ) AS ingredient_groups
+    FROM recipes r WHERE r.id = ANY(${ids}::uuid[])
+  `;
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  return [...new Set(ids)].flatMap((id) => byId.get(id) ?? []);
+}
+
 export async function getRecipe(id: string): Promise<Recipe | null> {
   const [recipe] = await sql<
     {
@@ -135,12 +173,7 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
         ingredients: RecipeContent['ingredientGroups'][number]['ingredients'];
       }[]
     >`
-      SELECT g.name, coalesce(
-        (SELECT json_agg(json_build_object('amount', i.amount, 'name', i.name, 'note', i.note)
-                         ORDER BY i.position)
-         FROM ingredients i WHERE i.group_id = g.id),
-        '[]'
-      ) AS ingredients
+      SELECT g.name, ${ingredientsJson} AS ingredients
       FROM ingredient_groups g WHERE g.recipe_id = ${id} ORDER BY g.position
     `,
     sql<{ name: string | null; steps: string[] }[]>`
@@ -250,6 +283,17 @@ export async function updateRecipe(
     await insertRevision(tx, id, content, author, revisionNote);
     return true;
   });
+}
+
+/**
+ * Deletes a recipe with its notes and revisions. Returns the path of its photo, or
+ * `undefined` if the recipe does not exist.
+ */
+export async function deleteRecipe(id: string): Promise<string | null | undefined> {
+  const [row] = await sql<{ photoPath: string | null }[]>`
+    DELETE FROM recipes WHERE id = ${id} RETURNING photo_path
+  `;
+  return row ? row.photoPath : undefined;
 }
 
 /**

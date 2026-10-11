@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { NoteInput, RecipeListQuery, SaveRecipeRequest } from '../../shared/recipe.ts';
 import { type AuthEnv, requireUser } from '../auth/routes.ts';
-import { deletePhoto, savePhoto } from '../images.ts';
+import { deleteRecipeWithPhoto, removePhoto, replacePhoto } from './photos.ts';
 import {
   addNote,
   createRecipe,
@@ -13,7 +13,6 @@ import {
   getRecipe,
   listRecipes,
   listTags,
-  setPhotoPath,
   updateNote,
   updateRecipe,
 } from './repository.ts';
@@ -49,6 +48,10 @@ export const recipeRoutes = new Hono<AuthEnv>()
       return updated ? c.body(null, 204) : c.json({ error: 'Not found' }, 404);
     },
   )
+  .delete('/:id', requireUser, zValidator('param', IdParam), async (c) => {
+    const deleted = await deleteRecipeWithPhoto(c.req.valid('param').id);
+    return deleted ? c.body(null, 204) : c.json({ error: 'Not found' }, 404);
+  })
   .put(
     '/:id/photo',
     requireUser,
@@ -57,26 +60,16 @@ export const recipeRoutes = new Hono<AuthEnv>()
     async (c) => {
       const { photo } = await c.req.parseBody();
       if (!(photo instanceof File)) return c.json({ error: 'Missing photo' }, 400);
-      let name: string;
-      try {
-        name = await savePhoto(Buffer.from(await photo.arrayBuffer()));
-      } catch {
-        return c.json({ error: 'Not an image' }, 400);
-      }
-      const previous = await setPhotoPath(c.req.valid('param').id, name);
-      if (previous === undefined) {
-        await deletePhoto(name);
-        return c.json({ error: 'Not found' }, 404);
-      }
-      if (previous) await deletePhoto(previous);
+      const data = Buffer.from(await photo.arrayBuffer());
+      const result = await replacePhoto(c.req.valid('param').id, data);
+      if (result === 'not-an-image') return c.json({ error: 'Not an image' }, 400);
+      if (result === 'not-found') return c.json({ error: 'Not found' }, 404);
       return c.body(null, 204);
     },
   )
   .delete('/:id/photo', requireUser, zValidator('param', IdParam), async (c) => {
-    const previous = await setPhotoPath(c.req.valid('param').id, null);
-    if (previous === undefined) return c.json({ error: 'Not found' }, 404);
-    if (previous) await deletePhoto(previous);
-    return c.body(null, 204);
+    const removed = await removePhoto(c.req.valid('param').id);
+    return removed ? c.body(null, 204) : c.json({ error: 'Not found' }, 404);
   })
   .post(
     '/:id/notes',

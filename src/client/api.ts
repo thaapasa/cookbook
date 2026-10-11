@@ -100,6 +100,10 @@ export function updateRecipe(recipeId: string, input: SaveRecipeRequest): Promis
   return request(`/api/recipes/${recipeId}`, { method: 'PUT', body: JSON.stringify(input) });
 }
 
+export function deleteRecipe(recipeId: string): Promise<void> {
+  return request(`/api/recipes/${recipeId}`, { method: 'DELETE' });
+}
+
 export function uploadPhoto(recipeId: string, photo: File): Promise<void> {
   const body = new FormData();
   body.set('photo', photo);

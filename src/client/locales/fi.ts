@@ -58,6 +58,13 @@ export const fi = {
     saveNoteError: 'Muistiinpanon tallennus epäonnistui.',
     loginToAddNote: 'Kirjaudu sisään lisätäksesi muistiinpanon.',
     edit: 'Muokkaa',
+    delete: 'Poista',
+    deleteTitle: 'Poistetaanko resepti?',
+    deleteConfirm:
+      'Resepti ”{{title}}” poistetaan pysyvästi kuvineen, muistiinpanoineen ja historioineen. Poistoa ei voi perua.',
+    deleteCancel: 'Peruuta',
+    deleteSubmit: 'Poista resepti',
+    deleteError: 'Poisto epäonnistui. Yritä uudelleen.',
     notFound: 'Reseptiä ei löytynyt',
   },
   editor: {

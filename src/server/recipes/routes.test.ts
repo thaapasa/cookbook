@@ -32,6 +32,12 @@ async function getJson(path: string): Promise<unknown> {
   return res.json();
 }
 
+function jpeg(): Promise<Buffer> {
+  return sharp({ create: { width: 40, height: 30, channels: 3, background: '#c84' } })
+    .jpeg()
+    .toBuffer();
+}
+
 function uploadPhoto(id: string, data: Blob, from = origin) {
   const body = new FormData();
   body.set('photo', data, 'photo.jpg');
@@ -57,6 +63,7 @@ describe('authorization', () => {
     const changes = [
       request('/api/recipes', { method: 'POST', json: recipe }),
       request(`/api/recipes/${id}`, { method: 'PUT', json: recipe }),
+      request(`/api/recipes/${id}`, { method: 'DELETE' }),
       request(`/api/recipes/${id}/photo`, { method: 'DELETE' }),
       request(`/api/recipes/${id}/notes`, { method: 'POST', json: note }),
       request(`/api/recipes/${id}/notes/${missingId}`, { method: 'PUT', json: note }),
@@ -208,6 +215,17 @@ describe('recipes', () => {
     expect(res.status).toBe(404);
   });
 
+  it('deletes a recipe and its photo', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
+    const { photoUrl } = (await getJson(`/api/recipes/${id}`)) as { photoUrl: string };
+
+    expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(204);
+    expect((await request(`/api/recipes/${id}`)).status).toBe(404);
+    expect((await app.request(photoUrl)).status).toBe(404);
+    expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(404);
+  });
+
   it('adds, edits and deletes notes', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     const added = await request(`/api/recipes/${id}/notes`, {
@@ -236,13 +254,7 @@ describe('recipes', () => {
 
   it('stores an uploaded photo and serves it', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    const jpeg = await sharp({
-      create: { width: 40, height: 30, channels: 3, background: '#c84' },
-    })
-      .jpeg()
-      .toBuffer();
-
-    expect((await uploadPhoto(id, new Blob([new Uint8Array(jpeg)]))).status).toBe(204);
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
     const { photoUrl } = (await getJson(`/api/recipes/${id}`)) as { photoUrl: string };
     expect(photoUrl).toMatch(/^\/images\/[\w-]+\.webp$/);
 

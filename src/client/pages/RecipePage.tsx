@@ -1,13 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRouteApi, Link } from '@tanstack/react-router';
+import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
 import { type FormEvent, useState } from 'react';
-import { Button, Form, Label, TextArea, TextField } from 'react-aria-components';
+import {
+  Button,
+  Dialog,
+  DialogTrigger,
+  Form,
+  Heading,
+  Label,
+  Modal,
+  ModalOverlay,
+  TextArea,
+  TextField,
+} from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
-import { addNote, ApiError, meQuery, recipeQuery } from '../api.ts';
-import { secondaryButtonClass } from '../components/fieldStyles.ts';
-import { ChevronLeftIcon, PencilIcon } from '../components/icons.tsx';
+import { addNote, ApiError, deleteRecipe, meQuery, recipeQuery } from '../api.ts';
+import { errorClass, secondaryButtonClass } from '../components/fieldStyles.ts';
+import { ChevronLeftIcon, PencilIcon, TrashIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatDate, useFormatMinutes } from '../format.ts';
 
@@ -121,6 +132,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                 <PencilIcon />
                 {t('recipe.edit')}
               </Link>
+              <DeleteRecipeButton recipe={recipe} />
             </div>
           )}
         </div>
@@ -184,6 +196,64 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
 
       <Notes recipe={recipe} />
     </>
+  );
+}
+
+function DeleteRecipeButton({ recipe }: { recipe: Recipe }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const remove = useMutation({
+    mutationFn: () => deleteRecipe(recipe.id),
+    onSuccess: async () => {
+      await navigate({ to: '/' });
+      queryClient.removeQueries(recipeQuery(recipe.id));
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['recipes'] }),
+        queryClient.invalidateQueries({ queryKey: ['tags'] }),
+      ]);
+    },
+  });
+
+  return (
+    <DialogTrigger onOpenChange={() => remove.reset()}>
+      <Button
+        className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:bg-danger-soft hover:text-accent-strong`}
+      >
+        <TrashIcon />
+        {t('recipe.delete')}
+      </Button>
+      <ModalOverlay className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4">
+        <Modal className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl">
+          <Dialog role="alertdialog" className="flex flex-col gap-4 outline-none">
+            {({ close }) => (
+              <>
+                <Heading slot="title" className="font-display text-2xl font-bold">
+                  {t('recipe.deleteTitle')}
+                </Heading>
+                <p className="text-pretty text-ink-soft">
+                  {t('recipe.deleteConfirm', { title: recipe.title })}
+                </p>
+                {remove.isError && <p className={errorClass}>{t('recipe.deleteError')}</p>}
+                <div className="flex flex-wrap justify-end gap-2.5 pt-2">
+                  <Button onPress={close} className={secondaryButtonClass}>
+                    {t('recipe.deleteCancel')}
+                  </Button>
+                  <Button
+                    onPress={() => remove.mutate()}
+                    isDisabled={remove.isPending}
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-accent-strong px-5.5 text-[15px] font-semibold text-white data-disabled:cursor-default data-disabled:opacity-50"
+                  >
+                    <TrashIcon />
+                    {t('recipe.deleteSubmit')}
+                  </Button>
+                </div>
+              </>
+            )}
+          </Dialog>
+        </Modal>
+      </ModalOverlay>
+    </DialogTrigger>
   );
 }
 

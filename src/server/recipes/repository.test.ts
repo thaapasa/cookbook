@@ -7,7 +7,10 @@ import {
   addNote,
   type Author,
   deleteNote,
+  deleteRecipe,
+  getIngredients,
   getRecipe,
+  listIngredientNames,
   listRecipes,
   listTags,
   setPhotoPath,
@@ -147,6 +150,40 @@ describe('updateRecipe', () => {
   });
 });
 
+describe('deleteRecipe', () => {
+  it('deletes the recipe with its content, notes and revisions', async () => {
+    const id = await addRecipe(author, {
+      title: 'Pulla',
+      tags: ['leivonnainen'],
+      ingredientGroups: [{ ingredients: [{ name: 'maito' }] }],
+      stepGroups: [{ steps: ['Leivo.'] }],
+    });
+    await addNote(id, author.userId, 'Hyvää');
+    await setPhotoPath(id, 'a.webp');
+
+    expect(await deleteRecipe(id)).toBe('a.webp');
+    expect(await getRecipe(id)).toBeNull();
+    const [counts] = await sql<Record<string, string>[]>`
+      SELECT
+        (SELECT count(*) FROM ingredients) AS ingredients,
+        (SELECT count(*) FROM steps) AS steps,
+        (SELECT count(*) FROM notes) AS notes,
+        (SELECT count(*) FROM revisions) AS revisions
+    `;
+    expect(counts).toEqual({ ingredients: '0', steps: '0', notes: '0', revisions: '0' });
+    expect(await listTags()).toEqual([]);
+  });
+
+  it('returns null for a recipe without a photo', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    expect(await deleteRecipe(id)).toBeNull();
+  });
+
+  it('returns undefined for a missing recipe', async () => {
+    expect(await deleteRecipe(missingId)).toBeUndefined();
+  });
+});
+
 describe('listRecipes', () => {
   beforeEach(async () => {
     await addRecipe(author, {
@@ -236,6 +273,64 @@ describe('listTags', () => {
     const id = await addRecipe(author, { title: 'A', tags: ['keitto'] });
     await updateRecipe(id, RecipeInput.parse({ title: 'A', tags: [] }), author);
     expect(await listTags()).toEqual([]);
+  });
+});
+
+describe('listIngredientNames', () => {
+  beforeEach(async () => {
+    await addRecipe(author, {
+      title: 'Pulla',
+      ingredientGroups: [
+        { name: 'Taikina', ingredients: [{ name: 'maito' }, { name: 'vehnäjauho' }] },
+        { name: 'Pinnalle', ingredients: [{ name: 'maito' }] },
+      ],
+    });
+    await addRecipe(author, {
+      title: 'Lettu',
+      ingredientGroups: [{ ingredients: [{ name: 'maito' }, { name: 'kananmuna' }] }],
+    });
+  });
+
+  it('counts the recipes for each name', async () => {
+    expect(await listIngredientNames()).toEqual([
+      { name: 'kananmuna', count: 1 },
+      { name: 'maito', count: 2 },
+      { name: 'vehnäjauho', count: 1 },
+    ]);
+  });
+
+  it('filters by a part of the name', async () => {
+    expect(await listIngredientNames('JAUHO')).toEqual([{ name: 'vehnäjauho', count: 1 }]);
+  });
+});
+
+describe('getIngredients', () => {
+  it('returns the ingredients of the recipes in the given order', async () => {
+    const pulla = await addRecipe(author, {
+      title: 'Pulla',
+      servings: '30 kpl',
+      ingredientGroups: [
+        { name: 'Taikina', ingredients: [{ amount: '5 dl', name: 'maito' }] },
+        { name: 'Pinnalle', ingredients: [{ name: 'raesokeri', note: 'karkea' }] },
+      ],
+    });
+    const lettu = await addRecipe(author, { title: 'Lettu' });
+
+    expect(await getIngredients([lettu, missingId, pulla, lettu])).toEqual([
+      { id: lettu, title: 'Lettu', servings: null, ingredientGroups: [] },
+      {
+        id: pulla,
+        title: 'Pulla',
+        servings: '30 kpl',
+        ingredientGroups: [
+          { name: 'Taikina', ingredients: [{ amount: '5 dl', name: 'maito', note: null }] },
+          {
+            name: 'Pinnalle',
+            ingredients: [{ amount: null, name: 'raesokeri', note: 'karkea' }],
+          },
+        ],
+      },
+    ]);
   });
 });
 

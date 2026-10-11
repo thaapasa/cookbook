@@ -2,8 +2,19 @@ import { type CallToolResult, McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 
 import type { User } from '../../shared/auth.ts';
-import { SaveRecipeRequest } from '../../shared/recipe.ts';
-import { type Author, createRecipe, getRecipe, listRecipes } from '../recipes/repository.ts';
+import { NoteInput, SaveRecipeRequest } from '../../shared/recipe.ts';
+import { deleteRecipeWithPhoto, replacePhoto } from '../recipes/photos.ts';
+import {
+  addNote,
+  type Author,
+  createRecipe,
+  getIngredients,
+  getRecipe,
+  listIngredientNames,
+  listRecipes,
+  listTags,
+  updateRecipe,
+} from '../recipes/repository.ts';
 
 function result(data: Record<string, unknown>): CallToolResult {
   return { content: [{ type: 'text', text: JSON.stringify(data) }], structuredContent: data };
@@ -58,6 +69,107 @@ export function createMcpServer(user: User): McpServer {
     },
     async ({ recipe, revisionNote }) =>
       result({ id: await createRecipe(recipe, author, revisionNote) }),
+  );
+
+  server.registerTool(
+    'update_recipe',
+    {
+      title: 'Update recipe',
+      description:
+        'Replaces the full content of a recipe. Read the recipe with get_recipe first and send back all of its content with the changes. Fields that are left out are cleared.',
+      inputSchema: z.object({ id: z.uuid(), ...SaveRecipeRequest.shape }),
+    },
+    async ({ id, recipe, revisionNote }) =>
+      (await updateRecipe(id, recipe, author, revisionNote))
+        ? result({ id })
+        : error(`No recipe ${id}`),
+  );
+
+  server.registerTool(
+    'delete_recipe',
+    {
+      title: 'Delete recipe',
+      description:
+        'Deletes a recipe permanently, with its photo, notes and revision history. It cannot be restored.',
+      inputSchema: z.object({ id: z.uuid() }),
+      annotations: { destructiveHint: true },
+    },
+    async ({ id }) =>
+      (await deleteRecipeWithPhoto(id)) ? result({ id }) : error(`No recipe ${id}`),
+  );
+
+  server.registerTool(
+    'set_recipe_photo',
+    {
+      title: 'Set recipe photo',
+      description:
+        'Sets the photo of a recipe and replaces the old one. The server resizes the image.',
+      inputSchema: z.object({
+        id: z.uuid(),
+        data: z.base64().describe('The image file as base64, such as JPEG, PNG or WebP.'),
+      }),
+    },
+    async ({ id, data }) => {
+      const saved = await replacePhoto(id, Buffer.from(data, 'base64'));
+      if (saved === 'not-found') return error(`No recipe ${id}`);
+      if (saved === 'not-an-image') return error('The data is not an image');
+      return result({ id });
+    },
+  );
+
+  server.registerTool(
+    'add_note',
+    {
+      title: 'Add note',
+      description:
+        'Adds a dated note to a recipe, such as how it turned out. Notes are not part of the recipe content.',
+      inputSchema: z.object({ id: z.uuid(), ...NoteInput.shape }),
+    },
+    async ({ id, text }) => {
+      const note = await addNote(id, user.id, text);
+      return note ? result(note) : error(`No recipe ${id}`);
+    },
+  );
+
+  server.registerTool(
+    'list_tags',
+    {
+      title: 'List tags',
+      description: 'Lists the tags in use, with the number of recipes for each.',
+      inputSchema: z.object({}),
+      annotations: { readOnlyHint: true },
+    },
+    async () => result({ tags: await listTags() }),
+  );
+
+  server.registerTool(
+    'list_ingredient_names',
+    {
+      title: 'List ingredient names',
+      description:
+        'Lists the ingredient names in use, with the number of recipes for each. Use the existing names to keep them consistent across recipes.',
+      inputSchema: z.object({
+        query: z.string().optional().describe('Only names that contain this text.'),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ query }) => result({ ingredients: await listIngredientNames(query) }),
+  );
+
+  server.registerTool(
+    'get_ingredients',
+    {
+      title: 'Get ingredients',
+      description:
+        'Returns the ingredients and servings of several recipes, for example to build a shopping list.',
+      inputSchema: z.object({ ids: z.array(z.uuid()).min(1).max(50) }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ ids }) => {
+      const recipes = await getIngredients(ids);
+      const found = new Set(recipes.map((r) => r.id));
+      return result({ recipes, missing: ids.filter((id) => !found.has(id)) });
+    },
   );
 
   return server;

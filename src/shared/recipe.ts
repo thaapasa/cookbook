@@ -100,3 +100,8 @@ export type RecipeList = {
 };
 
 export type TagCount = { name: string; count: number };
+
+export type IngredientNameCount = { name: string; count: number };
+
+/** The ingredients of a recipe, for building a shopping list. */
+export type RecipeIngredients = Pick<Recipe, 'id' | 'title' | 'servings' | 'ingredientGroups'>;

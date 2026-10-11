@@ -25,7 +25,11 @@ const requireToken = createMiddleware<McpEnv>(async (c, next) => {
   await next();
 });
 
-const handler = createMcpHandler(({ authInfo }) => createMcpServer(authInfo!.extra!.user as User));
+const handler = createMcpHandler(
+  ({ authInfo }) => createMcpServer(authInfo!.extra!.user as User),
+  // Room for a 25 MB photo as base64 in `set_recipe_photo`.
+  { maxRequestBodySize: 35 * 1024 * 1024 },
+);
 
 export const mcpRoutes = new Hono<McpEnv>().use(requireToken).all('/', (c) =>
   handler.fetch(c.req.raw, {
