@@ -77,6 +77,14 @@ types and the JSON Schema that MCP tool definitions need.
 - **MCP**: `@modelcontextprotocol/sdk`, with the streamable HTTP transport at
   `/mcp`. Callers authenticate with a bearer token.
 - **Frontend**: React, built with Vite. The server serves the built files.
+- **UI components**: [React Aria Components](https://react-spectrum.adobe.com/react-aria/),
+  unstyled. Also provides drag-and-drop reordering.
+- **Styling**: [Tailwind CSS](https://tailwindcss.com) 4 with
+  `@tailwindcss/vite`. Design tokens are defined in `@theme`.
+- **Routing**: [TanStack Router](https://tanstack.com/router), with typed route
+  and search params. Search params are validated with Zod.
+- **Server data**: [TanStack Query](https://tanstack.com/query).
+- **i18n**: `react-i18next`, with type-checked keys.
 - **Forms**: `react-hook-form` with the Zod resolver.
 - **Images**: stored as files on a mounted volume. The database stores the path.
   The server resizes uploads with `sharp`.
