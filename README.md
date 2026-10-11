@@ -95,14 +95,40 @@ types and the JSON Schema that MCP tool definitions need.
 
 ## Deployment
 
-The app runs as a single Docker image. A reverse proxy such as Caddy sits in
-front of it and handles TLS. PostgreSQL runs in its own container.
+The app is served at `https://reseptit.pomeranssi.fi`. The MCP endpoint is
+`https://reseptit.pomeranssi.fi/mcp`.
 
-The image needs:
+The app runs as a single Docker image, `ghcr.io/thaapasa/cookbook:<version>`.
+A reverse proxy such as Caddy sits in front of it and handles TLS. PostgreSQL
+runs in its own container.
 
-- `DATABASE_URL` for the PostgreSQL connection.
-- A volume for recipe images, with its path in `IMAGES_DIR`. The default is
-  `data/images`.
+The container needs:
+
+- `DATABASE_URL`: the PostgreSQL connection, such as
+  `postgres://cookbook:<password>@db:5432/cookbook`. The app applies pending
+  migrations at startup.
+- `IMAGES_DIR`: the path of the recipe images in the container. The image sets
+  it to `/data/images`. Mount a host directory at `/data/images`. The container
+  runs as user `node` (UID 1000), so the directory must be writable by UID 1000.
+
+The image also sets `PORT=3000` and `NODE_ENV=production`. The health check
+endpoint is `/api/health`.
+
+Users and MCP tokens are managed inside the container, for example
+`docker exec -it <container> npm run set-user -- <username> "<display name>"`.
+
+### Releases
+
+Run the **Release** workflow from the GitHub Actions tab. Choose the bump level
+and optionally add highlights for the release notes. The workflow:
+
+1. Bumps the version in `package.json` on a release branch.
+2. Builds the image for `linux/arm64` and pushes it to GHCR with the tags
+   `<version>` and `latest`.
+3. Merges the release branch into `main`, tags the commit as `v<version>` and
+   publishes a GitHub Release.
+
+Versions start from 0.x.x. Use `minor` for features and `patch` for fixes.
 
 ## Development
 
