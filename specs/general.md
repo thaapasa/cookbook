@@ -8,3 +8,5 @@ Requirements that apply to the whole app.
 - [ ] All actions that modify data require authentication. This includes
       creating, editing and deleting recipes, uploading photos and restoring
       revisions.
+- [ ] Users log in with a username and password.
+- [ ] Users are added directly to the database. The app has no user editor.

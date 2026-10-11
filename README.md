@@ -22,6 +22,8 @@ The requirements for each area of the app are in [`specs/`](specs/README.md).
 
 ## Data model
 
+Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
+
 - **Recipe**: title, description, servings, preparation time, ingredients,
   instructions, photo and source. A recipe can have many tags.
 - **Ingredient**: amount, unit and name, in a fixed order within the recipe.
@@ -77,3 +79,20 @@ The image needs:
 - `DATABASE_URL` for the PostgreSQL connection.
 - A volume for recipe images.
 - A secret token for the MCP endpoint.
+
+## Development
+
+Start the local database with `docker compose up -d`. Copy `.env.example` to
+`.env` for the matching `DATABASE_URL`. Set `DB_PORT` to use a port other than
+15432.
+
+Then install dependencies with `npm install` and run:
+
+- `npm run dev`: the server on port 3000, restarted on changes. It applies
+  pending migrations at startup.
+- `npm run dev:client`: the Vite dev server, which proxies `/api` and `/mcp` to
+  the server.
+- `npm run migrate`: applies pending migrations without starting the server.
+- `npm run build`: builds the client into `dist/client`, which the server
+  serves.
+- `npm run typecheck`: checks types with `tsc`.

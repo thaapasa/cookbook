@@ -1,0 +1,20 @@
+# Local development database. Start with `docker compose up -d`.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: cookbook
+      POSTGRES_PASSWORD: cookbook
+      POSTGRES_DB: cookbook
+    ports:
+      - "${DB_PORT:-15432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cookbook -d cookbook"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:
