@@ -65,9 +65,9 @@ export function PlateIcon({ size = 44 }: { size?: number }) {
       strokeWidth={2}
       aria-hidden="true"
     >
-      <circle cx="24" cy="24" r="15" />
-      <circle cx="24" cy="24" r="9" />
-      <path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13" />
+      <circle cx="24" cy="24" r="13" />
+      <circle cx="24" cy="24" r="8" />
+      <path d="M4 10v10a3 3 0 0 0 3 3v15M44 10v28M44 10c-4 2-4 10 0 13" />
     </svg>
   );
 }
