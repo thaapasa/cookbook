@@ -6,11 +6,11 @@ shopping lists from the ingredients of planned dishes.
 
 - [x] Each user has a personal MCP token. The token is shown once when it is
       generated. Generating a new token replaces the old one.
-- [ ] Callers authenticate with the token as a bearer token. The token
+- [x] Callers authenticate with the token as a bearer token. The token
       identifies the user.
-- [ ] Claude can search and list recipes.
-- [ ] Claude can read a recipe.
-- [ ] Claude can create a recipe.
+- [x] Claude can search and list recipes.
+- [x] Claude can read a recipe.
+- [x] Claude can create a recipe.
 - [ ] Claude can edit a recipe, with a note on what changed.
 - [ ] Changes made through MCP are recorded as made by the token's user, and
       marked as made through MCP.

@@ -1,5 +1,6 @@
 import { RecipeInput } from '../../shared/recipe.ts';
 import { hashPassword } from '../auth/password.ts';
+import { hashToken, newToken } from '../auth/tokens.ts';
 import { sql } from '../db.ts';
 import { type Author, createRecipe } from '../recipes/repository.ts';
 
@@ -24,6 +25,13 @@ export async function createUser(username: string, password = 'secret'): Promise
     RETURNING id
   `;
   return row.id;
+}
+
+/** Gives a user a new MCP token and returns the token. */
+export async function setMcpToken(userId: string): Promise<string> {
+  const token = newToken();
+  await sql`UPDATE users SET mcp_token_hash = ${hashToken(token)} WHERE id = ${userId}`;
+  return token;
 }
 
 /** Adds a recipe with the given content and returns its id. */

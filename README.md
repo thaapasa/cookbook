@@ -77,9 +77,9 @@ types and the JSON Schema that MCP tool definitions need.
   needed.
 - **Migrations**: numbered `.sql` files.
 - **Validation**: [Zod](https://zod.dev) 4.
-- **MCP**: `@modelcontextprotocol/sdk`, with the streamable HTTP transport at
-  `/mcp`. Callers authenticate with a user's personal MCP token as a bearer
-  token.
+- **MCP**: `@modelcontextprotocol/server` (SDK v2), served statelessly over
+  HTTP at `/mcp`. Callers authenticate with a user's personal MCP token as a
+  bearer token.
 - **Frontend**: React, built with Vite. The server serves the built files.
 - **UI components**: [React Aria Components](https://react-spectrum.adobe.com/react-aria/),
   unstyled. Also provides drag-and-drop reordering.

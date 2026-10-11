@@ -5,6 +5,7 @@ import { csrf } from 'hono/csrf';
 import { type AuthEnv, authRoutes, sessionMiddleware } from './auth/routes.ts';
 import { sql } from './db.ts';
 import { imagesDir } from './images.ts';
+import { mcpRoutes } from './mcp/routes.ts';
 import { recipeRoutes, tagRoutes } from './recipes/routes.ts';
 
 const clientDir = 'dist/client';
@@ -23,6 +24,9 @@ app.route('/api/recipes', recipeRoutes);
 app.route('/api/tags', tagRoutes);
 
 app.all('/api/*', (c) => c.notFound());
+
+// MCP clients authenticate with a bearer token instead of the session cookie.
+app.route('/mcp', mcpRoutes);
 
 // Each upload gets a new file name, so the files never change.
 app.use(
