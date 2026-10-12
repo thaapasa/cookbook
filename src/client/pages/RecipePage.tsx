@@ -161,15 +161,17 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                 {group.ingredients.map((ingredient, i) => (
                   <li
                     key={i}
-                    className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-3.5 gap-y-0.5 border-b border-line-soft py-2.5 sm:grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)]"
+                    className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-3.5 border-b border-line-soft py-2.5"
                   >
                     <span className="font-semibold tabular-nums">{ingredient.amount}</span>
-                    <span>{ingredient.name}</span>
-                    {ingredient.note && (
-                      <span className="col-start-2 text-sm leading-snug text-muted sm:col-start-3">
-                        {ingredient.note}
-                      </span>
-                    )}
+                    <span className="flex min-w-0 flex-col gap-px">
+                      <span>{ingredient.name}</span>
+                      {ingredient.note && (
+                        <span className="text-[13px] leading-[1.4] text-muted sm:text-sm">
+                          {ingredient.note}
+                        </span>
+                      )}
+                    </span>
                   </li>
                 ))}
               </ul>
