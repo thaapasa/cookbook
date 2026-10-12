@@ -194,13 +194,17 @@ describe('listRecipes', () => {
     await addRecipe(author, {
       title: 'Lohikeitto',
       tags: ['keitto'],
-      ingredientGroups: [{ name: null, ingredients: [{ name: 'lohi' }, { name: 'peruna' }, { name: 'kalaliemi' }] }],
+      ingredientGroups: [
+        { name: null, ingredients: [{ name: 'lohi' }, { name: 'peruna' }, { name: 'kalaliemi' }] },
+      ],
     });
     await addRecipe(author, {
       title: 'Kaneliässät',
       tags: ['leivonnainen'],
       description: 'Rapeita pikkuleipiä voista.',
-      stepGroups: [{ name: null, steps: ['Paista uunissa leivinpaperilla.', 'Tarjoa mustikkakeiton kanssa.'] }],
+      stepGroups: [
+        { name: null, steps: ['Paista uunissa leivinpaperilla.', 'Tarjoa mustikkakeiton kanssa.'] },
+      ],
     });
   });
 
