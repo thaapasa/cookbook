@@ -194,12 +194,13 @@ describe('listRecipes', () => {
     await addRecipe(author, {
       title: 'Lohikeitto',
       tags: ['keitto'],
-      ingredientGroups: [{ name: null, ingredients: [{ name: 'lohi' }, { name: 'peruna' }] }],
+      ingredientGroups: [{ name: null, ingredients: [{ name: 'lohi' }, { name: 'peruna' }, { name: 'kalaliemi' }] }],
     });
     await addRecipe(author, {
       title: 'Kaneliässät',
       tags: ['leivonnainen'],
       description: 'Rapeita pikkuleipiä voista.',
+      stepGroups: [{ name: null, steps: ['Paista uunissa leivinpaperilla.', 'Tarjoa mustikkakeiton kanssa.'] }],
     });
   });
 
@@ -222,6 +223,28 @@ describe('listRecipes', () => {
 
   it('finds recipes by tag name', async () => {
     expect(await titles({ q: 'keitto' })).toEqual(['Lohikeitto']);
+  });
+
+  it('finds recipes by a word in the steps', async () => {
+    expect(await titles({ q: 'uunissa' })).toEqual(['Kaneliässät']);
+  });
+
+  it('finds recipes by a word in the description', async () => {
+    expect(await titles({ q: 'pikkuleipä' })).toEqual(['Kaneliässät']);
+  });
+
+  it('finds recipes by a part of a compound word', async () => {
+    expect(await titles({ q: 'liemi' })).toEqual(['Lohikeitto']);
+    expect(await titles({ q: 'paperi' })).toEqual(['Kaneliässät']);
+  });
+
+  it('requires every word to match, in any field', async () => {
+    expect(await titles({ q: 'lohi peruna' })).toEqual(['Lohikeitto']);
+    expect(await titles({ q: 'lohi mustikka' })).toEqual([]);
+  });
+
+  it('ranks title matches above matches in the steps', async () => {
+    expect(await titles({ q: 'mustikka' })).toEqual(['Mustikkapiirakka', 'Kaneliässät']);
   });
 
   it('finds recipes by a part of the title', async () => {

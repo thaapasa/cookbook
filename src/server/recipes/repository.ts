@@ -21,10 +21,8 @@ function photoUrl(photoPath: string | null): string | null {
   return photoPath ? `/images/${photoPath}` : null;
 }
 
-/** Turns a search string into a prefix-matching `tsquery`, or `null` if it has no words. */
-function prefixQuery(q: string): string | null {
-  const words = q.toLowerCase().match(/[\p{L}\p{N}]+/gu);
-  return words ? words.map((w) => `${w}:*`).join(' & ') : null;
+function searchWords(q: string): string[] {
+  return q.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
 }
 
 function likePattern(q: string): string {
@@ -37,12 +35,15 @@ export async function listRecipes(opts: {
   page: number;
 }): Promise<RecipeList> {
   const q = opts.q?.trim() ?? '';
-  const tsquery = prefixQuery(q);
+  const words = searchWords(q);
+  // Stemmed prefix matches, plus substrings for parts of compound words
+  const tsquery = words.length ? words.map((w) => `${w}:*`).join(' & ') : null;
+  const patterns = (words.length ? words : [q]).map(likePattern);
   const match = q
     ? sql`
       AND (
         ${tsquery ? sql`r.search_vector @@ to_tsquery('finnish', ${tsquery}) OR` : sql``}
-        r.title ILIKE ${likePattern(q)}
+        r.search_text ILIKE ALL(${patterns}::text[])
         OR ${q} <% r.title
       )`
     : sql``;
@@ -53,8 +54,12 @@ export async function listRecipes(opts: {
         WHERE rt.recipe_id = r.id AND t.name = ANY(${opts.tags}::text[])
       ) = ${opts.tags.length}`
     : sql``;
-  const order = tsquery
-    ? sql`ts_rank(r.search_vector, to_tsquery('finnish', ${tsquery})) DESC, word_similarity(${q}, r.title) DESC,`
+  // Title matches first, so a word in the title beats the same word in the steps
+  const order = q
+    ? sql`
+      r.title ILIKE ALL(${patterns}::text[]) DESC,
+      ${tsquery ? sql`ts_rank(r.search_vector, to_tsquery('finnish', ${tsquery})) DESC,` : sql``}
+      word_similarity(${q}, r.title) DESC,`
     : sql``;
 
   const rows = await sql<
@@ -361,16 +366,5 @@ async function insertContent(tx: Tx, recipeId: string, content: RecipeContent): 
 }
 
 async function refreshSearch(tx: Tx, recipeId: string): Promise<void> {
-  await tx`
-    UPDATE recipes r SET search_vector =
-      setweight(to_tsvector('finnish', r.title), 'A')
-      || setweight(to_tsvector('finnish', coalesce(
-        (SELECT string_agg(t.name, ' ') FROM recipe_tags rt JOIN tags t ON t.id = rt.tag_id
-         WHERE rt.recipe_id = r.id), '')), 'B')
-      || setweight(to_tsvector('finnish', coalesce(
-        (SELECT string_agg(i.name, ' ') FROM ingredients i
-         JOIN ingredient_groups g ON g.id = i.group_id WHERE g.recipe_id = r.id), '')), 'C')
-      || setweight(to_tsvector('finnish', coalesce(r.description, '')), 'D')
-    WHERE r.id = ${recipeId}
-  `;
+  await tx`SELECT refresh_recipe_search(${recipeId})`;
 }
