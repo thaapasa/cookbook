@@ -2,7 +2,7 @@
 
 Shows a single recipe.
 
-- [ ] The page shows the recipe photo, ingredients and steps.
+- [x] The page shows the recipe photo, ingredients and steps.
 - [x] The page shows the recipe tags.
 - [x] User can open the cooking view from the page.
 - [x] The ingredients show the amount in one column and the name in another,

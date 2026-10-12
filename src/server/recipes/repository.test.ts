@@ -398,6 +398,15 @@ describe('notes', () => {
     expect(await deleteNote(otherId, note!.id)).toBe(false);
     expect((await getRecipe(recipeId))?.notes).toMatchObject([{ text: 'Vanha' }]);
   });
+
+  it('does not add revisions', async () => {
+    const before = await revisions(recipeId);
+    const note = await addNote(recipeId, author.userId, 'Vanha');
+    await updateNote(recipeId, note!.id, 'Uusi');
+    await deleteNote(recipeId, note!.id);
+
+    expect(await revisions(recipeId)).toEqual(before);
+  });
 });
 
 describe('setPhotoPath', () => {
