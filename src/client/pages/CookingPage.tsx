@@ -69,7 +69,7 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
           to="/recipes/$recipeId"
           params={{ recipeId: recipe.id }}
           aria-label={t('cooking.close')}
-          className="grid size-13 shrink-0 place-items-center rounded-full bg-cook-raised text-cook-ink hover:text-white"
+          className="grid size-13 shrink-0 place-items-center rounded-full bg-cook-raised text-cook-ink hover:text-accent-strong"
         >
           <CloseIcon size={22} strokeWidth={2.2} />
         </Link>
@@ -113,7 +113,7 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
                           onChange={(checked) => toggleIngredient(key, checked)}
                           className="group flex min-h-13 cursor-pointer items-center gap-4"
                         >
-                          <span className="grid size-7.5 shrink-0 place-items-center rounded-[9px] border-2 border-cook-check group-data-focus-visible:outline-3 group-data-focus-visible:outline-offset-2 group-data-focus-visible:outline-cook-ink group-data-selected:border-cook-accent group-data-selected:bg-cook-accent">
+                          <span className="grid size-7.5 shrink-0 place-items-center rounded-[9px] border-2 border-cook-check bg-cook-panel group-data-focus-visible:outline-3 group-data-focus-visible:outline-offset-2 group-data-focus-visible:outline-cook-ink group-data-selected:border-cook-accent group-data-selected:bg-cook-accent">
                             <span className="hidden h-3.75 w-2.25 -translate-y-0.5 rotate-45 border-r-3 border-b-3 border-cook-bg group-data-selected:block" />
                           </span>
                           <span className="flex flex-col">
@@ -164,7 +164,7 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
                       >
                         <span
                           aria-hidden="true"
-                          className="grid size-11 place-items-center rounded-full bg-cook-line font-display text-xl font-bold text-cook-ink group-data-selected:bg-accent group-data-selected:text-white"
+                          className="grid size-11 place-items-center rounded-full bg-cook-badge font-display text-xl font-bold text-cook-ink group-data-selected:bg-accent group-data-selected:text-white"
                         >
                           {stepNumber}
                         </span>

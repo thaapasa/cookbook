@@ -121,7 +121,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
               <Link
                 to="/recipes/$recipeId/cook"
                 params={{ recipeId: recipe.id }}
-                className={`${primaryButtonClass} min-h-13 px-6 text-base hover:text-white`}
+                className={`${primaryButtonClass} min-h-13 px-6 text-base hover:text-on-ink`}
               >
                 <PotIcon />
                 {t('recipe.cook')}
@@ -193,7 +193,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                     >
                       <span
                         aria-hidden="true"
-                        className="grid size-9 place-items-center rounded-full bg-ink font-display font-bold text-white"
+                        className="grid size-9 place-items-center rounded-full bg-ink font-display font-bold text-on-ink"
                       >
                         {stepNumber}
                       </span>
@@ -236,7 +236,7 @@ function DeleteRecipeButton({ recipe }: { recipe: Recipe }) {
         <TrashIcon />
         {t('recipe.delete')}
       </Button>
-      <ModalOverlay className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4">
+      <ModalOverlay className="fixed inset-0 z-50 grid place-items-center bg-scrim p-4">
         <Modal className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl">
           <Dialog role="alertdialog" className="flex flex-col gap-4 outline-none">
             {({ close }) => (
@@ -255,7 +255,7 @@ function DeleteRecipeButton({ recipe }: { recipe: Recipe }) {
                   <Button
                     onPress={() => remove.mutate()}
                     isDisabled={remove.isPending}
-                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-accent-strong px-5.5 text-[15px] font-semibold text-white data-disabled:cursor-default data-disabled:opacity-50"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-danger px-5.5 text-[15px] font-semibold text-white data-disabled:cursor-default data-disabled:opacity-50"
                   >
                     <TrashIcon />
                     {t('recipe.deleteSubmit')}
@@ -379,7 +379,7 @@ function NoteForm({ recipeId }: { recipeId: string }) {
       <Button
         type="submit"
         isDisabled={!text.trim() || save.isPending}
-        className="min-h-11 cursor-pointer self-end rounded-full bg-ink px-5.5 text-[15px] font-semibold text-white data-disabled:cursor-default data-disabled:opacity-50"
+        className="min-h-11 cursor-pointer self-end rounded-full bg-ink px-5.5 text-[15px] font-semibold text-on-ink data-disabled:cursor-default data-disabled:opacity-50"
       >
         {t('recipe.saveNote')}
       </Button>

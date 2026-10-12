@@ -10,6 +10,16 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261011" />
     <meta name="apple-mobile-web-app-title" content="Keittokirja" />
     <link rel="manifest" href="/site.webmanifest?v=20261011" />
+    <script>
+      // Sets the theme before the first paint. theme.ts keeps it up to date.
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

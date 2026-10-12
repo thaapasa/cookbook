@@ -67,7 +67,7 @@ export function RecipeListPage() {
               key={tag.name}
               isSelected={tags.includes(tag.name)}
               onChange={() => toggleTag(tag.name)}
-              className="min-h-10 cursor-pointer rounded-full border border-field bg-card px-4 text-[15px] font-medium outline-accent data-selected:border-ink data-selected:bg-ink data-selected:text-white"
+              className="min-h-10 cursor-pointer rounded-full border border-field bg-card px-4 text-[15px] font-medium outline-accent data-selected:border-ink data-selected:bg-ink data-selected:text-on-ink"
             >
               {tag.name}
             </ToggleButton>
@@ -118,7 +118,7 @@ function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
     <Link
       to="/recipes/$recipeId"
       params={{ recipeId: recipe.id }}
-      className="flex w-full flex-col gap-3 rounded-[18px] border border-line-soft bg-card p-2.5 pb-4 text-ink no-underline transition hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(24,32,27,.10)]"
+      className="flex w-full flex-col gap-3 rounded-[18px] border border-line-soft bg-card p-2.5 pb-4 text-ink no-underline transition hover:-translate-y-0.5 hover:shadow-[0_10px_28px_var(--color-shadow)]"
     >
       <RecipePhoto recipeId={recipe.id} photoUrl={recipe.photoUrl} className="rounded-xl" />
       <div className="flex flex-col gap-1.5 px-1.5">
@@ -190,7 +190,7 @@ function Pagination({ page, pageCount }: { page: number; pageCount: number }) {
             activeOptions={{ exact: true }}
             aria-label={t('list.page', { page: p })}
             aria-current={p === page ? 'page' : undefined}
-            className={`${pageButton} aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-white`}
+            className={`${pageButton} aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-on-ink`}
           >
             {p}
           </Link>

@@ -96,6 +96,20 @@ export const SunIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const MoonIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+  </Stroke>
+);
+
+/** A half-filled circle, for following the system theme. */
+export const ContrastIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor" />
+  </Stroke>
+);
+
 /** Six dots, shown on drag handles. */
 export function GripIcon({ size = 18 }: { size?: number }) {
   return (
@@ -118,7 +132,7 @@ export function PlateIcon({ size = 44 }: { size?: number }) {
       height={size}
       viewBox="0 0 48 48"
       fill="none"
-      stroke="rgba(24,32,27,.35)"
+      stroke="var(--color-plate)"
       strokeWidth={2}
       aria-hidden="true"
     >
@@ -132,11 +146,11 @@ export function PlateIcon({ size = 44 }: { size?: number }) {
 export function LogoIcon({ size = 30 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <circle cx="16" cy="16" r="15" fill="var(--color-accent)" />
-      <path d="M9 17h14a7 7 0 0 1-14 0Z" fill="var(--color-paper)" />
+      <circle cx="16" cy="16" r="15" fill="#c4472b" />
+      <path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#f5f6f2" />
       <path
         d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4"
-        stroke="var(--color-paper)"
+        stroke="#f5f6f2"
         strokeWidth="1.6"
         strokeLinecap="round"
       />

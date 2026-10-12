@@ -23,18 +23,25 @@
   --color-danger-soft: #fbe8df;
   --color-accent: #c4472b;
   --color-accent-strong: #b23f25;
+  --color-danger: #b23f25;
+  /* Text on an ink background. */
+  --color-on-ink: #ffffff;
+  --color-scrim: rgba(24, 32, 27, 0.4);
+  --color-shadow: rgba(24, 32, 27, 0.12);
+  --color-plate: rgba(24, 32, 27, 0.35);
 
-  /* The dark cooking view. */
-  --color-cook-bg: #131915;
-  --color-cook-panel: #1a211c;
-  --color-cook-raised: #232b25;
-  --color-cook-line: #2a332d;
-  --color-cook-check: #6e7a71;
-  --color-cook-done: #7e8981;
-  --color-cook-muted: #a7b0a9;
-  --color-cook-ink-soft: #dde2dc;
-  --color-cook-ink: #f1f2ec;
-  --color-cook-accent: #e8674a;
+  /* The cooking view. */
+  --color-cook-bg: #f5f6f2;
+  --color-cook-panel: #ffffff;
+  --color-cook-raised: #e6e9e0;
+  --color-cook-badge: #e6e9e0;
+  --color-cook-line: #dde0d8;
+  --color-cook-check: #7e8781;
+  --color-cook-done: #7e8781;
+  --color-cook-muted: #5a635d;
+  --color-cook-ink-soft: #18201b;
+  --color-cook-ink: #18201b;
+  --color-cook-accent: #c4472b;
 
   /* Backgrounds for recipes without a photo. */
   --color-photo-1: #e3e6da;
@@ -45,7 +52,58 @@
   --color-photo-6: #dce4d5;
 }
 
+/* The theme is set on <html> by index.html and theme.ts. */
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-paper: #121614;
+    --color-card: #1b211d;
+    --color-ink: #eceee8;
+    --color-ink-soft: #c9d0ca;
+    --color-muted: #a3aca5;
+    --color-faint: #7f8982;
+    --color-disabled: #4a534d;
+    --color-line: #2a322d;
+    --color-line-soft: #262d28;
+    --color-field: #3a433d;
+    --color-chip: #262d28;
+    --color-panel: #1f2621;
+    --color-field-soft: #171c19;
+    --color-dashed-line: #4a534d;
+    --color-danger-soft: #3a2420;
+    --color-accent: #e0593b;
+    --color-accent-strong: #f08a70;
+    --color-danger: #c4472b;
+    --color-on-ink: #121614;
+    --color-scrim: rgba(0, 0, 0, 0.6);
+    --color-shadow: rgba(0, 0, 0, 0.45);
+    --color-plate: rgba(236, 238, 232, 0.3);
+
+    --color-cook-bg: #131915;
+    --color-cook-panel: #1a211c;
+    --color-cook-raised: #232b25;
+    --color-cook-badge: #2a332d;
+    --color-cook-line: #2a332d;
+    --color-cook-check: #6e7a71;
+    --color-cook-done: #7e8981;
+    --color-cook-muted: #a7b0a9;
+    --color-cook-ink-soft: #dde2dc;
+    --color-cook-ink: #f1f2ec;
+    --color-cook-accent: #e8674a;
+
+    --color-photo-1: #262c24;
+    --color-photo-2: #30271f;
+    --color-photo-3: #212b2a;
+    --color-photo-4: #2e2b1e;
+    --color-photo-5: #2b232a;
+    --color-photo-6: #232b20;
+  }
+
   body {
     @apply bg-paper font-sans text-ink antialiased;
   }

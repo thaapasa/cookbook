@@ -33,7 +33,7 @@ export function StepsSection() {
               <div className="mt-0.5">{handle}</div>
               <span
                 aria-hidden="true"
-                className="mt-2.25 grid size-7.5 place-items-center rounded-full bg-ink font-display text-sm font-bold text-white"
+                className="mt-2.25 grid size-7.5 place-items-center rounded-full bg-ink font-display text-sm font-bold text-on-ink"
               >
                 {n}
               </span>

@@ -7,6 +7,12 @@ export const fi = {
     login: 'Kirjaudu sisään',
     logout: 'Kirjaudu ulos',
   },
+  theme: {
+    label: 'Väriteema: {{mode}}',
+    system: 'järjestelmän mukaan',
+    light: 'vaalea',
+    dark: 'tumma',
+  },
   login: {
     heading: 'Kirjaudu sisään',
     username: 'Käyttäjätunnus',

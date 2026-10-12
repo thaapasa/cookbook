@@ -4,6 +4,8 @@ Requirements that apply to the whole app.
 
 - [x] The UI supports i18n. Finnish is the only implemented language.
 - [ ] The UI works on an iPad in both orientations.
+- [x] User can switch between a light theme, a dark theme and following the
+      system setting. The choice is stored in the browser.
 - [x] Anyone can browse and view recipes without authentication.
 - [x] All actions that modify data require authentication. This includes
       creating, editing and deleting recipes, uploading photos and restoring

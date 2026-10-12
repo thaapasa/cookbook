@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { User } from '../../shared/auth.ts';
 import { logout, meQuery } from '../api.ts';
-import { LogoIcon, PlusIcon } from './icons.tsx';
+import { setThemeMode, type ThemeMode, themeModes, useThemeMode } from '../theme.ts';
+import { ContrastIcon, LogoIcon, MoonIcon, PlusIcon, SunIcon } from './icons.tsx';
 
 export function AppHeader() {
   const { t } = useTranslation();
@@ -20,33 +21,61 @@ export function AppHeader() {
           <LogoIcon />
           <span className="font-display text-[22px] font-bold tracking-tight">{t('app.name')}</span>
         </Link>
-        <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-1">
+        <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-3">
           {user ? (
             <>
               <Link
                 to="/recipes/new"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-white no-underline hover:text-white"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:text-on-ink"
               >
                 <PlusIcon />
                 {t('app.newRecipe')}
               </Link>
+              <ThemeButton />
               <UserMenu user={user} />
             </>
           ) : (
-            me.isSuccess &&
-            pathname !== '/login' && (
-              <Link
-                to="/login"
-                search={{ redirect: pathname }}
-                className="inline-flex min-h-11 items-center px-3 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
-              >
-                {t('app.login')}
-              </Link>
-            )
+            <>
+              <ThemeButton />
+              {me.isSuccess && pathname !== '/login' && (
+                <Link
+                  to="/login"
+                  search={{ redirect: pathname }}
+                  className="inline-flex min-h-11 items-center px-3 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
+                >
+                  {t('app.login')}
+                </Link>
+              )}
+            </>
           )}
         </nav>
       </div>
     </header>
+  );
+}
+
+const themeIcons: Record<ThemeMode, typeof SunIcon> = {
+  system: ContrastIcon,
+  light: SunIcon,
+  dark: MoonIcon,
+};
+
+/** Shows the current theme and switches to the next one on press. */
+function ThemeButton() {
+  const { t } = useTranslation();
+  const mode = useThemeMode();
+  const Icon = themeIcons[mode];
+  const label = t('theme.label', { mode: t(`theme.${mode}`) });
+  const next = themeModes[(themeModes.indexOf(mode) + 1) % themeModes.length];
+
+  return (
+    <Button
+      aria-label={label}
+      onPress={() => setThemeMode(next)}
+      className="grid size-11 cursor-pointer place-items-center rounded-full border border-line bg-card text-ink outline-accent"
+    >
+      <Icon size={20} />
+    </Button>
   );
 }
 
@@ -68,7 +97,7 @@ function UserMenu({ user }: { user: User }) {
       </Button>
       <Popover
         placement="bottom end"
-        className="min-w-48 rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_rgba(24,32,27,.12)]"
+        className="min-w-48 rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_var(--color-shadow)]"
       >
         <div className="px-3 pt-2 pb-1 text-sm text-muted">{user.displayName}</div>
         <Menu className="outline-none">
