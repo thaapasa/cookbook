@@ -163,3 +163,8 @@ Then install dependencies with `npm install` and run:
   sorts imports.
 - `npm run format`: formats files with Prettier. `npm run format:check` only
   checks them.
+- `scripts/copy-prod-db.sh`: replaces the local database with a copy of the
+  production database from `PROD_DB_URL` in `.env`, and sets every password
+  to `password`. Needs Tailscale.
+- `scripts/copy-prod-images.sh`: copies the recipe images from production to
+  `data/images`. Needs Tailscale.
