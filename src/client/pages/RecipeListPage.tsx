@@ -186,6 +186,8 @@ function Pagination({ page, pageCount }: { page: number; pageCount: number }) {
             key={p}
             to="/"
             search={pageSearch(p)}
+            // The default partial search match makes the page 1 link (no page param) active on every page
+            activeOptions={{ exact: true }}
             aria-label={t('list.page', { page: p })}
             aria-current={p === page ? 'page' : undefined}
             className={`${pageButton} aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-white`}
