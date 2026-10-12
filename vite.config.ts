@@ -11,9 +11,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/mcp': 'http://localhost:3000',
-      '/images': 'http://localhost:3000',
+      // Prefix keys need the trailing slash, or '/api' would also catch the client module /api.ts
+      '/api/': 'http://localhost:3000',
+      '^/mcp(?:[/?]|$)': 'http://localhost:3000',
+      '/images/': 'http://localhost:3000',
     },
   },
 });
