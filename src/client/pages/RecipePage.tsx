@@ -17,8 +17,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
 import { addNote, ApiError, deleteRecipe, meQuery, recipeQuery } from '../api.ts';
-import { errorClass, secondaryButtonClass } from '../components/fieldStyles.ts';
-import { ChevronLeftIcon, PencilIcon, TrashIcon } from '../components/icons.tsx';
+import { errorClass, primaryButtonClass, secondaryButtonClass } from '../components/fieldStyles.ts';
+import { ChevronLeftIcon, PencilIcon, PotIcon, TrashIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatDate, useFormatMinutes } from '../format.ts';
 
@@ -117,19 +117,29 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                 ))}
               </dl>
             )}
-            {user && (
-              <div className="flex flex-wrap gap-2.5 pt-1.5">
-                <Link
-                  to="/recipes/$recipeId/edit"
-                  params={{ recipeId: recipe.id }}
-                  className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
-                >
-                  <PencilIcon />
-                  {t('recipe.edit')}
-                </Link>
-                <DeleteRecipeButton recipe={recipe} />
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2.5 pt-1.5">
+              <Link
+                to="/recipes/$recipeId/cook"
+                params={{ recipeId: recipe.id }}
+                className={`${primaryButtonClass} min-h-13 px-6 text-base hover:text-white`}
+              >
+                <PotIcon />
+                {t('recipe.cook')}
+              </Link>
+              {user && (
+                <>
+                  <Link
+                    to="/recipes/$recipeId/edit"
+                    params={{ recipeId: recipe.id }}
+                    className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
+                  >
+                    <PencilIcon />
+                    {t('recipe.edit')}
+                  </Link>
+                  <DeleteRecipeButton recipe={recipe} />
+                </>
+              )}
+            </div>
           </div>
           <RecipePhoto
             recipeId={recipe.id}

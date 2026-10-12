@@ -24,6 +24,18 @@
   --color-accent: #c4472b;
   --color-accent-strong: #b23f25;
 
+  /* The dark cooking view. */
+  --color-cook-bg: #131915;
+  --color-cook-panel: #1a211c;
+  --color-cook-raised: #232b25;
+  --color-cook-line: #2a332d;
+  --color-cook-check: #6e7a71;
+  --color-cook-done: #7e8981;
+  --color-cook-muted: #a7b0a9;
+  --color-cook-ink-soft: #dde2dc;
+  --color-cook-ink: #f1f2ec;
+  --color-cook-accent: #e8674a;
+
   /* Backgrounds for recipes without a photo. */
   --color-photo-1: #e3e6da;
   --color-photo-2: #efe2d6;

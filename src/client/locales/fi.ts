@@ -66,6 +66,13 @@ export const fi = {
     deleteSubmit: 'Poista resepti',
     deleteError: 'Poisto epäonnistui. Yritä uudelleen.',
     notFound: 'Reseptiä ei löytynyt',
+    cook: 'Kokkaa',
+  },
+  cooking: {
+    close: 'Sulje kokkausnäkymä',
+    awake: 'Näyttö pysyy päällä',
+    done: '{{done}} / {{total}} valmiina',
+    highlightHint: 'Napauta vaihetta korostaaksesi sen',
   },
   editor: {
     newTitle: 'Uusi resepti',

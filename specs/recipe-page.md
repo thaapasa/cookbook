@@ -4,7 +4,7 @@ Shows a single recipe.
 
 - [ ] The page shows the recipe photo, ingredients and steps.
 - [x] The page shows the recipe tags.
-- [ ] User can open the cooking view from the page.
+- [x] User can open the cooking view from the page.
 - [x] The ingredients show the amount, name and note in separate columns. The
       note is less prominent than the name.
 - [x] Ingredient groups are shown under their names.

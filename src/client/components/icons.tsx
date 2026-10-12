@@ -83,6 +83,19 @@ export const TrashIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const PotIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-6ZM2 10h2M20 10h2M9 6c0-1 1-1 1-2M14 6c0-1 1-1 1-2" />
+  </Stroke>
+);
+
+export const SunIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+  </Stroke>
+);
+
 /** Six dots, shown on drag handles. */
 export function GripIcon({ size = 18 }: { size?: number }) {
   return (

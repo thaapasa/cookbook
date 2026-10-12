@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/re
 import { z } from 'zod';
 
 import { AppHeader } from './components/AppHeader.tsx';
+import { CookingPage } from './pages/CookingPage.tsx';
 import { EditorPage } from './pages/EditorPage.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { RecipeListPage } from './pages/RecipeListPage.tsx';
@@ -74,11 +75,18 @@ const editRecipeRoute = createRoute({
   component: EditorPage,
 });
 
+const cookingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/$recipeId/cook',
+  component: CookingPage,
+});
+
 export const router = createRouter({
   routeTree: rootRoute.addChildren([
     mainRoute.addChildren([recipeListRoute, recipeRoute, loginRoute]),
     newRecipeRoute,
     editRecipeRoute,
+    cookingRoute,
   ]),
   scrollRestoration: true,
 });
