@@ -152,19 +152,19 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
       </section>
 
       <div className="grid items-start gap-x-14 gap-y-10 border-t border-line pt-7 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <section className="flex min-w-0 flex-col gap-6">
+        <section className="flex min-w-0 flex-col gap-6 lg:max-w-125">
           <h2 className={sectionHeading}>{t('recipe.ingredients')}</h2>
           {recipe.ingredientGroups.map((group, g) => (
-            <div key={g} className="flex flex-col gap-2.5">
+            <div key={g} className="flex flex-col gap-2.5 lg:gap-1.5">
               {group.name && <h3 className={groupHeading}>{group.name}</h3>}
-              <ul className="flex flex-col">
+              <ul className="flex flex-col lg:gap-0.5">
                 {group.ingredients.map((ingredient, i) => (
                   <li
                     key={i}
-                    className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-3.5 border-b border-line-soft py-2.5"
+                    className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-3.5 border-b border-line-soft py-2.5 lg:grid-cols-[5rem_minmax(0,1fr)] lg:border-b-0 lg:py-0.75 lg:leading-[1.4]"
                   >
                     <span className="font-semibold tabular-nums">{ingredient.amount}</span>
-                    <span className="flex min-w-0 flex-col gap-px">
+                    <span className="flex min-w-0 flex-col gap-px lg:flex-row lg:flex-wrap lg:items-baseline lg:gap-x-2.5 lg:gap-y-0">
                       <span>{ingredient.name}</span>
                       {ingredient.note && (
                         <span className="text-[13px] leading-[1.4] text-muted sm:text-sm">
