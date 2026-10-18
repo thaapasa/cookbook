@@ -222,3 +222,61 @@ describe('get_ingredients', () => {
     });
   });
 });
+
+describe('week plan tools', () => {
+  it('adds, reads, changes, moves and removes entries as made through MCP', async () => {
+    const recipeId = await addRecipe(author, { title: 'Uunilohi' });
+
+    const added = await callTool('add_week_plan_entry', {
+      date: '2026-10-17',
+      text: 'Uunilohi',
+      recipeId,
+    });
+    const { id } = added.structuredContent as { id: string };
+    await callTool('add_week_plan_entry', { date: '2026-10-18', text: 'Salaatti' });
+
+    const updated = await callTool('update_week_plan_entry', {
+      id,
+      note: 'tuplasatsi',
+      date: '2026-10-18',
+      position: 0,
+    });
+    expect(updated.structuredContent).toMatchObject({ date: '2026-10-18', position: 0 });
+
+    const plan = await callTool('get_week_plan', { from: '2026-10-17', to: '2026-10-23' });
+    expect(plan.structuredContent).toMatchObject({
+      entries: [
+        { id, text: 'Uunilohi', note: 'tuplasatsi', recipe: { id: recipeId, title: 'Uunilohi' } },
+        { text: 'Salaatti', recipe: null },
+      ],
+    });
+
+    expect((await callTool('remove_week_plan_entry', { id })).isError).toBeFalsy();
+    expect(
+      (await callTool('get_week_plan', { from: '2026-10-18', to: '2026-10-18' }))
+        .structuredContent,
+    ).toMatchObject({ entries: [{ text: 'Salaatti' }] });
+
+    const changes = await sql<{ source: string; userId: string }[]>`
+      SELECT source, user_id FROM week_plan_changes
+    `;
+    expect(changes).toHaveLength(4);
+    expect(changes.every((c) => c.source === 'mcp' && c.userId === user.id)).toBe(true);
+  });
+
+  it('returns errors for missing entries and recipes and invalid ranges', async () => {
+    const missingRecipe = await callTool('add_week_plan_entry', {
+      date: '2026-10-17',
+      text: 'X',
+      recipeId: missingId,
+    });
+    expect(missingRecipe.isError).toBe(true);
+    expect(
+      (await callTool('update_week_plan_entry', { id: missingId, text: 'X' })).isError,
+    ).toBe(true);
+    expect((await callTool('remove_week_plan_entry', { id: missingId })).isError).toBe(true);
+    expect(
+      (await callTool('get_week_plan', { from: '2026-10-17', to: '2026-10-16' })).isError,
+    ).toBe(true);
+  });
+});

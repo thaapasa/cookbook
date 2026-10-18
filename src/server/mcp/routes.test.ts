@@ -67,15 +67,19 @@ describe('tools', () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
       'add_note',
+      'add_week_plan_entry',
       'create_recipe',
       'delete_recipe',
       'get_ingredients',
       'get_recipe',
+      'get_week_plan',
       'list_ingredient_names',
       'list_tags',
+      'remove_week_plan_entry',
       'search_recipes',
       'set_recipe_photo',
       'update_recipe',
+      'update_week_plan_entry',
     ]);
   });
 

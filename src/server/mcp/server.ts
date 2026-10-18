@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 import type { User } from '../../shared/auth.ts';
 import { NoteInput, SaveRecipeRequest } from '../../shared/recipe.ts';
+import {
+  AddEntryInput,
+  IsoDate,
+  maxPlanDays,
+  UpdateEntryInput,
+  WeekPlanQuery,
+} from '../../shared/week-plan.ts';
 import { deleteRecipeWithPhoto, replacePhoto } from '../recipes/photos.ts';
 import {
   addNote,
@@ -15,8 +22,13 @@ import {
   listTags,
   updateRecipe,
 } from '../recipes/repository.ts';
+import { addEntry, listEntries, removeEntry, updateEntry } from '../week-plan/repository.ts';
 
 const recipeId = z.uuid().describe('Recipe id from search_recipes.');
+const entryId = z.uuid().describe('Week plan entry id from get_week_plan.');
+
+const entryFields = AddEntryInput.shape;
+const updateFields = UpdateEntryInput.shape;
 
 function result(data: Record<string, unknown>): CallToolResult {
   return { content: [{ type: 'text', text: JSON.stringify(data) }], structuredContent: data };
@@ -181,6 +193,81 @@ export function createMcpServer(user: User): McpServer {
       const found = new Set(recipes.map((r) => r.id));
       return result({ recipes, missing: ids.filter((id) => !found.has(id)) });
     },
+  );
+
+  server.registerTool(
+    'get_week_plan',
+    {
+      title: 'Get week plan',
+      description:
+        'Returns the week plan entries from one date to another, both included, up to 366 days. The household shares one plan. A week starts on Saturday, the grocery delivery day. Each entry has id, date (YYYY-MM-DD), position (the order within the date, from 0), text, note and recipe. recipe is null for a free-text entry. Otherwise it has id, title, activeMinutes, totalMinutes and photoUrl. The text is what the plan shows, and it can differ from the recipe title. Dates without entries are left out. To build a shopping list, pass the recipe ids to get_ingredients.',
+      inputSchema: z.object({
+        from: IsoDate.describe('First date, YYYY-MM-DD.'),
+        to: IsoDate.describe('Last date, YYYY-MM-DD.'),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    async (range) => {
+      const parsed = WeekPlanQuery.safeParse(range);
+      if (!parsed.success) return error(`The range must be 1–${maxPlanDays} days`);
+      return result({ entries: await listEntries(parsed.data.from, parsed.data.to) });
+    },
+  );
+
+  server.registerTool(
+    'add_week_plan_entry',
+    {
+      title: 'Add week plan entry',
+      description:
+        'Adds a meal to the week plan on a date. text is what the plan shows, such as a dish name. To link a recipe, find its id with search_recipes and use the recipe title as the text, unless the user asks for other text. note holds extra details, such as "double batch". The entry goes last on its date, unless position gives its place from 0. Returns the new entry, or an error if no recipe has the id.',
+      inputSchema: z.object({
+        date: entryFields.date.describe('Date, YYYY-MM-DD.'),
+        text: entryFields.text.describe('The text that the plan shows.'),
+        note: entryFields.note.describe('Optional extra details.'),
+        recipeId: entryFields.recipeId.describe('Optional recipe id from search_recipes.'),
+        position: entryFields.position.describe('Optional place within the date, from 0.'),
+      }),
+    },
+    async (input) => {
+      const entry = await addEntry(input, author);
+      return entry === 'recipe-not-found' ? error(`No recipe ${input.recipeId}`) : result(entry);
+    },
+  );
+
+  server.registerTool(
+    'update_week_plan_entry',
+    {
+      title: 'Update week plan entry',
+      description:
+        'Changes a week plan entry by id. Fields that are left out keep their values. A null note clears the note, and a null recipeId removes the recipe link. Give a date to move the entry to another date, and a position to reorder it within its date. A new date without a position puts the entry last on that date. Returns the changed entry, or an error if no entry or recipe has the id.',
+      inputSchema: z.object({
+        id: entryId,
+        text: updateFields.text.describe('New text.'),
+        note: updateFields.note.describe('New note, or null to clear it.'),
+        recipeId: updateFields.recipeId.describe('New recipe id, or null to remove the link.'),
+        date: updateFields.date.describe('New date, YYYY-MM-DD.'),
+        position: updateFields.position.describe('New place within the date, from 0.'),
+      }),
+    },
+    async ({ id, ...update }) => {
+      const entry = await updateEntry(id, update, author);
+      if (entry === 'not-found') return error(`No week plan entry ${id}`);
+      if (entry === 'recipe-not-found') return error(`No recipe ${update.recipeId}`);
+      return result(entry);
+    },
+  );
+
+  server.registerTool(
+    'remove_week_plan_entry',
+    {
+      title: 'Remove week plan entry',
+      description:
+        'Removes an entry from the week plan by id. The change history keeps a copy of it. Returns the id, or an error if no entry has the id.',
+      inputSchema: z.object({ id: entryId }),
+      annotations: { destructiveHint: true },
+    },
+    async ({ id }) =>
+      (await removeEntry(id, author)) ? result({ id }) : error(`No week plan entry ${id}`),
   );
 
   return server;
