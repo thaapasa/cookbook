@@ -21,3 +21,6 @@ shopping lists from the ingredients of planned dishes.
 - [x] Claude can list the existing tags with the number of recipes for each.
 - [x] Claude can delete a recipe.
 - [x] Claude can add a note to a recipe.
+- [ ] Claude can read the week plan for a range of dates.
+- [ ] Claude can add, edit, move and remove week plan entries. The change
+      history records these changes as made through MCP.

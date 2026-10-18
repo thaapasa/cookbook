@@ -20,4 +20,5 @@ implementation details to the code.
 - [Cooking view](cooking-view.md): following a recipe in the kitchen.
 - [Editor](editor.md): editing recipes in the browser.
 - [Revisions](revisions.md): recipe history and undo.
+- [Week plan](week-plan.md): planning the meals of each week.
 - [MCP server](mcp.md): managing recipes with Claude.
