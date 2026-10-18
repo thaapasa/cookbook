@@ -17,7 +17,7 @@ export type Author = { userId: string; source: 'app' | 'mcp' };
 
 type Tx = postgres.TransactionSql<Record<string, never>>;
 
-function photoUrl(photoPath: string | null): string | null {
+export function photoUrl(photoPath: string | null): string | null {
   return photoPath ? `/images/${photoPath}` : null;
 }
 

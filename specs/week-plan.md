@@ -20,7 +20,7 @@ keep their dates and only the grouping into weeks changes.
 - [ ] Each entry has a text and an optional note.
 - [ ] An entry can link to a recipe. The text is shown in the plan, not the
       recipe title.
-- [ ] If the user deletes a recipe, the entries that link to it keep their
+- [x] If the user deletes a recipe, the entries that link to it keep their
       text and lose the link.
 
 ## Viewing
@@ -55,6 +55,6 @@ keep their dates and only the grouping into weeks changes.
       same week by dragging.
 - [ ] User can move an entry to any date, also in another week, by picking
       the date from a date picker.
-- [ ] The app records each change with the user who made it and what changed.
+- [x] The app records each change with the user who made it and what changed.
 - [ ] User can view the change history of a week in the edit view. The
       history is for reading only, so the user restores an old entry by hand.
