@@ -110,6 +110,20 @@ export const ContrastIcon = (p: IconProps) => (
   </Stroke>
 );
 
+/** Lines of text, for week plan entries that do not link to a recipe. */
+export const TextLinesIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M5 7h14M5 12h14M5 17h9" />
+  </Stroke>
+);
+
+export const LinkIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1" />
+    <path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1" />
+  </Stroke>
+);
+
 /** Six dots, shown on drag handles. */
 export function GripIcon({ size = 18 }: { size?: number }) {
   return (

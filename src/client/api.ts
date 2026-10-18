@@ -9,6 +9,12 @@ import type {
   SaveRecipeRequest,
   TagCount,
 } from '../shared/recipe.ts';
+import {
+  addDays,
+  type AddEntryInput,
+  type UpdateEntryInput,
+  type WeekPlanEntry,
+} from '../shared/week-plan.ts';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -112,4 +118,32 @@ export function uploadPhoto(recipeId: string, photo: File): Promise<void> {
 
 export function deletePhoto(recipeId: string): Promise<void> {
   return request(`/api/recipes/${recipeId}/photo`, { method: 'DELETE' });
+}
+
+/** Polls the week plan, so that changes by other users show without a reload. */
+const weekPlanPollMs = 20_000;
+
+export const weekPlanQuery = (start: string) =>
+  queryOptions({
+    queryKey: ['week-plan', start],
+    queryFn: () => request<WeekPlanEntry[]>(`/api/week-plan?from=${start}&to=${addDays(start, 6)}`),
+    refetchInterval: weekPlanPollMs,
+  });
+
+export function addWeekPlanEntry(input: AddEntryInput): Promise<WeekPlanEntry> {
+  return request<WeekPlanEntry>('/api/week-plan/entries', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateWeekPlanEntry(id: string, input: UpdateEntryInput): Promise<WeekPlanEntry> {
+  return request<WeekPlanEntry>(`/api/week-plan/entries/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export function removeWeekPlanEntry(id: string): Promise<void> {
+  return request(`/api/week-plan/entries/${id}`, { method: 'DELETE' });
 }

@@ -1,4 +1,10 @@
-import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  redirect,
+} from '@tanstack/react-router';
 import { z } from 'zod';
 
 import { AppHeader } from './components/AppHeader.tsx';
@@ -7,6 +13,9 @@ import { EditorPage } from './pages/EditorPage.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { RecipeListPage } from './pages/RecipeListPage.tsx';
 import { RecipePage } from './pages/RecipePage.tsx';
+import { WeekEditPage } from './pages/WeekEditPage.tsx';
+import { WeekPage } from './pages/WeekPage.tsx';
+import { currentWeekStart, normalizeWeekStart } from './week/dates.ts';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -81,12 +90,48 @@ const cookingRoute = createRoute({
   component: CookingPage,
 });
 
+const weekRoute = createRoute({
+  getParentRoute: () => mainRoute,
+  path: '/week',
+  beforeLoad: () => {
+    redirect({
+      to: '/week/$start',
+      params: { start: currentWeekStart() },
+      replace: true,
+      throw: true,
+    });
+  },
+});
+
+/** Sends a date in the middle of a week, or an invalid date, to the start of a week. */
+function checkWeekStart(to: '/week/$start' | '/week/$start/edit') {
+  return ({ params }: { params: { start: string } }) => {
+    const start = normalizeWeekStart(params.start);
+    if (start !== params.start) redirect({ to, params: { start }, replace: true, throw: true });
+  };
+}
+
+const weekViewRoute = createRoute({
+  getParentRoute: () => mainRoute,
+  path: '/week/$start',
+  beforeLoad: checkWeekStart('/week/$start'),
+  component: WeekPage,
+});
+
+const weekEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/week/$start/edit',
+  beforeLoad: checkWeekStart('/week/$start/edit'),
+  component: WeekEditPage,
+});
+
 export const router = createRouter({
   routeTree: rootRoute.addChildren([
-    mainRoute.addChildren([recipeListRoute, recipeRoute, loginRoute]),
+    mainRoute.addChildren([recipeListRoute, recipeRoute, loginRoute, weekRoute, weekViewRoute]),
     newRecipeRoute,
     editRecipeRoute,
     cookingRoute,
+    weekEditRoute,
   ]),
   scrollRestoration: true,
 });

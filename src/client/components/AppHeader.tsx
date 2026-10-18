@@ -21,6 +21,7 @@ export function AppHeader() {
           <LogoIcon />
           <span className="font-display text-[22px] font-bold tracking-tight">{t('app.name')}</span>
         </Link>
+        {user && <SectionTabs pathname={pathname} />}
         <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-3">
           {user ? (
             <>
@@ -51,6 +52,32 @@ export function AppHeader() {
         </nav>
       </div>
     </header>
+  );
+}
+
+const tabClass =
+  'inline-flex min-h-11 items-center rounded-full px-4 text-[15px] font-semibold no-underline hover:text-ink';
+
+const selectedTab = { on: 'bg-chip text-ink', off: 'text-ink-soft' };
+
+/** Tabs for the recipes and the week plan. Only logged-in users can see the plan. */
+function SectionTabs({ pathname }: { pathname: string }) {
+  const { t } = useTranslation();
+  const inWeek = pathname.startsWith('/week');
+  return (
+    <nav aria-label={t('app.sections')} className="flex gap-1">
+      {/* The router marks the link of the current page with aria-current. */}
+      <Link
+        to="/"
+        activeOptions={{ exact: true }}
+        className={`${tabClass} ${inWeek ? selectedTab.off : selectedTab.on}`}
+      >
+        {t('app.recipes')}
+      </Link>
+      <Link to="/week" className={`${tabClass} ${inWeek ? selectedTab.on : selectedTab.off}`}>
+        {t('app.week')}
+      </Link>
+    </nav>
   );
 }
 

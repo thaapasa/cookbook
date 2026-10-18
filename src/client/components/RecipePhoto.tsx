@@ -37,3 +37,21 @@ export function RecipePhoto(props: {
     </div>
   );
 }
+
+/** A small square recipe photo, or a placeholder tone when the recipe has no photo. */
+export function RecipeThumb(props: {
+  recipeId: string;
+  photoUrl: string | null;
+  className?: string;
+  iconSize?: number;
+}) {
+  const { recipeId, photoUrl, className = '', iconSize } = props;
+  if (photoUrl) {
+    return <img src={photoUrl} alt="" className={`flex-none object-cover ${className}`} />;
+  }
+  return (
+    <span className={`grid flex-none place-items-center ${tone(recipeId)} ${className}`}>
+      {iconSize && <PlateIcon size={iconSize} />}
+    </span>
+  );
+}

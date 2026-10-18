@@ -21,6 +21,9 @@
   --color-field-soft: #fafbf8;
   --color-dashed-line: #a9b0a6;
   --color-danger-soft: #fbe8df;
+  /* Today in the week plan. */
+  --color-today-line: #e3a595;
+  --color-today-ink: #9e3820;
   --color-accent: #c4472b;
   --color-accent-strong: #b23f25;
   --color-danger: #b23f25;
@@ -76,6 +79,8 @@
     --color-field-soft: #171c19;
     --color-dashed-line: #4a534d;
     --color-danger-soft: #3a2420;
+    --color-today-line: #7a3a2b;
+    --color-today-ink: #f08a70;
     --color-accent: #e0593b;
     --color-accent-strong: #f08a70;
     --color-danger: #c4472b;

@@ -253,8 +253,7 @@ describe('week plan tools', () => {
 
     expect((await callTool('remove_week_plan_entry', { id })).isError).toBeFalsy();
     expect(
-      (await callTool('get_week_plan', { from: '2026-10-18', to: '2026-10-18' }))
-        .structuredContent,
+      (await callTool('get_week_plan', { from: '2026-10-18', to: '2026-10-18' })).structuredContent,
     ).toMatchObject({ entries: [{ text: 'Salaatti' }] });
 
     const changes = await sql<{ source: string; userId: string }[]>`
@@ -271,9 +270,9 @@ describe('week plan tools', () => {
       recipeId: missingId,
     });
     expect(missingRecipe.isError).toBe(true);
-    expect(
-      (await callTool('update_week_plan_entry', { id: missingId, text: 'X' })).isError,
-    ).toBe(true);
+    expect((await callTool('update_week_plan_entry', { id: missingId, text: 'X' })).isError).toBe(
+      true,
+    );
     expect((await callTool('remove_week_plan_entry', { id: missingId })).isError).toBe(true);
     expect(
       (await callTool('get_week_plan', { from: '2026-10-17', to: '2026-10-16' })).isError,
