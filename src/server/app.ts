@@ -7,6 +7,7 @@ import { sql } from './db.ts';
 import { imagesDir } from './images.ts';
 import { mcpRoutes } from './mcp/routes.ts';
 import { recipeRoutes, tagRoutes } from './recipes/routes.ts';
+import { weekPlanRoutes } from './week-plan/routes.ts';
 
 const clientDir = 'dist/client';
 
@@ -22,6 +23,7 @@ app.get('/api/health', async (c) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/recipes', recipeRoutes);
 app.route('/api/tags', tagRoutes);
+app.route('/api/week-plan', weekPlanRoutes);
 
 app.all('/api/*', (c) => c.notFound());
 

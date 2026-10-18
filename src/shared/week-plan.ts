@@ -40,6 +40,8 @@ export const WeekPlanQuery = z
   .object({ from: IsoDate, to: IsoDate })
   .refine(({ from, to }) => from <= to && to <= addDays(from, maxPlanDays - 1), {
     message: `The range must be 1–${maxPlanDays} days`,
+    // Zod runs the check also when a date failed, and `addDays` needs valid dates.
+    when: (payload) => !payload.issues.length,
   });
 export type WeekPlanQuery = z.infer<typeof WeekPlanQuery>;
 

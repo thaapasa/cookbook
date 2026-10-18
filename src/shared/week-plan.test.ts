@@ -68,6 +68,8 @@ describe('WeekPlanQuery', () => {
     expect(WeekPlanQuery.safeParse({ from: '2026-10-17', to: '2026-10-16' }).success).toBe(false);
     expect(WeekPlanQuery.safeParse({ from: '2026-01-01', to: '2027-01-02' }).success).toBe(false);
     expect(WeekPlanQuery.safeParse({ from: '2026-02-30', to: '2026-03-01' }).success).toBe(false);
+    expect(WeekPlanQuery.safeParse({ from: '2026-10-17' }).success).toBe(false);
+    expect(WeekPlanQuery.safeParse({ from: 'x', to: '2026-10-17' }).success).toBe(false);
   });
 });
 
