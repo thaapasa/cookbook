@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Muokkaa viikkoa</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F2}
+a{color:#18201B}a:hover{color:#B23F25}
+.f{box-sizing:border-box;width:100%;min-height:44px;padding:9px 14px;border-radius:12px;border:1px solid #CDD2C8;background:#FFFFFF;font:400 16px Figtree,sans-serif;color:#18201B}
+.f:focus{outline:2px solid #C4472B;outline-offset:1px;border-color:#C4472B}
+.f::placeholder{color:#7E8781}
+.h{width:36px;height:44px;border:0;background:transparent;border-radius:10px;display:grid;place-items:center;color:#6B746E;cursor:grab;flex:none}
+.h:hover{background:#E9ECE4;color:#18201B}
+.x{width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:#5A635D;display:grid;place-items:center;cursor:pointer;flex:none}
+.x:hover{background:#FBE8DF;color:#B23F25}
+.opt{width:100%;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:48px;padding:6px 10px;border:0;border-radius:10px;background:transparent;text-align:left;font:400 16px Figtree,sans-serif;color:#18201B;cursor:pointer}
+.opt:hover,.opt:focus-visible{background:#F0F2EC;outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F5F6F2; color: #18201B; font-family: Figtree, 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.5">
+
+  <header style="border-bottom: 1px solid #DDE0D8; background: #F5F6F2">
+    <div style="max-width: 1000px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px">
+      <a href="WeekView.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-decoration: none; font-weight: 600; font-size: 15px; color: #5A635D">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+        Peruuta
+      </a>
+      <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">Muokkaa viikkoa</span>
+      <span style="font-size: 16px; color: #5A635D; font-variant-numeric: tabular-nums">17.10. – 23.10.2026</span>
+      <a href="WeekView.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 22px; border-radius: 999px; background: #18201B; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"></path></svg>
+        Valmis
+      </a>
+    </div>
+  </header>
+
+  <main style="max-width: 1000px; margin: 0 auto; padding: 28px 24px 80px; display: flex; flex-direction: column; gap: 14px">
+    <p style="margin: 0 0 6px; font-size: 15px; color: #5A635D">Hae reseptiä nimellä tai kirjoita ateria vapaasti. Vedä kahvasta siirtääksesi aterian toiseen kohtaan tai toiselle päivälle.</p>
+
+    <sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+      <section aria-label="{{d.label}}" style="display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr); gap: 12px 24px; align-items: start; padding: 18px 20px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E4E7DF">
+        <div style="display: flex; flex-direction: column; padding-top: 8px">
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">{{d.name}}</span>
+          <span style="font-size: 15px; color: #5A635D; font-variant-numeric: tabular-nums">{{d.date}}</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+          <sc-for list="{{d.meals}}" as="m" hint-placeholder-count="1">
+            <div style="display: grid; grid-template-columns: 36px minmax(0, 1fr) 44px; gap: 8px; align-items: start">
+              <button type="button" class="h" aria-label="{{m.moveLabel}}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+              </button>
+              <sc-if value="{{m.isRecipe}}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 14px; background: #F5F6F2; min-width: 0">
+                  <div style="display: flex; align-items: center; gap: 12px; min-width: 0">
+                    <span aria-hidden="true" style="{{m.thumb}}"></span>
+                    <a href="Recipe.dc.html" style="font-weight: 600; font-size: 17px; text-underline-offset: 3px">{{m.title}}</a>
+                    <span style="font-size: 14px; color: #5A635D">{{m.time}}</span>
+                    <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #5A635D">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"></path><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"></path></svg>
+                      Resepti
+                    </span>
+                  </div>
+                  <label>
+                    <span class="sr">{{m.noteLabel}}</span>
+                    <input class="f" type="text" value="{{m.note}}" onChange="{{m.onNote}}" placeholder="Lisähuomio (vapaaehtoinen), esim. tuplasatsi" style="min-height: 40px; font-size: 15px">
+                  </label>
+                </div>
+              </sc-if>
+              <sc-if value="{{m.isText}}" hint-placeholder-val="{{ false }}">
+                <label>
+                  <span class="sr">{{m.textLabel}}</span>
+                  <input class="f" type="text" value="{{m.text}}" onChange="{{m.onText}}" style="font-weight: 500; font-size: 17px">
+                </label>
+              </sc-if>
+              <button type="button" class="x" aria-label="{{m.removeLabel}}" onClick="{{m.remove}}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+              </button>
+            </div>
+          </sc-for>
+
+          <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 44px; padding-right: 52px">
+            <label style="position: relative; display: block">
+              <span class="sr">{{d.addLabel}}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7E8781" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 14px; top: 13px"><path d="M12 5v14M5 12h14"></path></svg>
+              <input class="f" type="text" role="combobox" aria-expanded="{{d.expanded}}" value="{{d.q}}" onChange="{{d.onQ}}" onKeyDown="{{d.onKey}}" placeholder="Lisää ateria – hae reseptiä tai kirjoita vapaasti" style="padding-left: 40px; border-style: dashed; background: #FAFBF8">
+            </label>
+            <sc-if value="{{d.open}}" hint-placeholder-val="{{ false }}">
+              <div role="listbox" aria-label="Ehdotukset" style="display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: 14px; background: #FFFFFF; border: 1px solid #DDE0D8; box-shadow: 0 12px 28px rgba(24,32,27,.10)">
+                <sc-for list="{{d.matches}}" as="r" hint-placeholder-count="2">
+                  <button type="button" class="opt" role="option" onClick="{{r.pick}}">
+                    <span aria-hidden="true" style="{{r.thumb}}"></span>
+                    <span style="font-weight: 600">{{r.title}}</span>
+                    <span style="font-size: 14px; color: #5A635D">{{r.time}}</span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{d.hasMatches}}" hint-placeholder-val="{{ true }}">
+                  <div style="height: 1px; background: #E4E7DF; margin: 4px 6px"></div>
+                </sc-if>
+                <button type="button" class="opt" role="option" onClick="{{d.addText}}">
+                  <span aria-hidden="true" style="width: 36px; height: 36px; box-sizing: border-box; border-radius: 9px; border: 1.5px dashed #B8BEB3; display: grid; place-items: center; color: #7E8781">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg>
+                  </span>
+                  <span>Lisää tekstinä: <strong style="font-weight: 600">“{{d.q}}”</strong></span>
+                  <span style="font-size: 13px; color: #5A635D">Enter</span>
+                </button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </section>
+    </sc-for>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var id = 0;
+    function r(title, time, tone, note) { return { id: ++id, title: title, time: time, tone: tone, note: note || '' }; }
+    function t(text) { return { id: ++id, text: text }; }
+    this.nextId = 100;
+    this.state = {
+      q: { 1: 'lohi' },
+      days: [
+        [r('Uunilohi', '35 min', '#DCE4D5', 'perunat uuniin samaan aikaan')],
+        [],
+        [r('Makaronilaatikko', '1 h', '#EFE2D6'), t('Kurkku-tomaattisalaatti')],
+        [r('Lohikeitto', '45 min', '#E3E6DA', 'kaurakermalla, tuplasatsi – puolet huomiseksi'),
+         r('Mustikkapiirakka', '1 h', '#DDE6E4', 'jälkiruoaksi, pakastemustikoista')],
+        [t('Lohikeiton tähteet')],
+        [r('Pinaattiohukaiset', '30 min', '#ECE6D3', 'puolukkahillon kanssa')],
+        [t('Lihapullat ja perunamuusi')]
+      ]
+    };
+  }
+  renderVals() {
+    var self = this;
+    var names = ['Lauantai', 'Sunnuntai', 'Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai'];
+    var dates = ['17.10.', '18.10.', '19.10.', '20.10.', '21.10.', '22.10.', '23.10.'];
+    var recipes = [
+      ['Lohikeitto', '45 min', '#E3E6DA'], ['Karjalanpiirakat', '1 h 30 min', '#EFE2D6'], ['Mustikkapiirakka', '1 h', '#DDE6E4'],
+      ['Pinaattiohukaiset', '30 min', '#ECE6D3'], ['Kaalikääryleet', '2 h 30 min', '#E6DDE3'], ['Korvapuustit', '2 h', '#DCE4D5'],
+      ['Hernekeitto', '3 h', '#E3E6DA'], ['Makaronilaatikko', '1 h', '#EFE2D6'], ['Kantarellikastike', '25 min', '#DDE6E4'],
+      ['Joulutortut', '1 h', '#ECE6D3'], ['Rosolli', '40 min', '#E6DDE3'], ['Uunilohi', '35 min', '#DCE4D5']
+    ];
+    var st = this.state;
+    function thumb(tone, size) { return 'width: ' + size + 'px; height: ' + size + 'px; flex: none; border-radius: 9px; background: ' + tone; }
+    function setDay(di, list) {
+      var days = st.days.slice(); days[di] = list; return days;
+    }
+    function setQ(di, v) { var q = Object.assign({}, self.state.q); q[di] = v; return q; }
+    return {
+      days: st.days.map(function (meals, di) {
+        var q = st.q[di] || '';
+        var ql = q.trim().toLowerCase();
+        function addText() {
+          var v = (self.state.q[di] || '').trim(); if (!v) return;
+          self.setState({ days: setDay(di, self.state.days[di].concat([{ id: ++self.nextId, text: v }])), q: setQ(di, '') });
+        }
+        var matches = ql ? recipes.filter(function (r) { return r[0].toLowerCase().indexOf(ql) >= 0; }).slice(0, 5) : [];
+        return {
+          name: names[di], date: dates[di], label: names[di] + ' ' + dates[di],
+          addLabel: 'Lisää ateria: ' + names[di],
+          q: q, open: !!ql, expanded: ql ? 'true' : 'false', hasMatches: matches.length > 0,
+          onQ: function (e) { self.setState({ q: setQ(di, e.target.value) }); },
+          addText: addText,
+          onKey: function (e) { if (e.key === 'Enter') { e.preventDefault(); addText(); } if (e.key === 'Escape') { self.setState({ q: setQ(di, '') }); } },
+          matches: matches.map(function (r) {
+            return {
+              title: r[0], time: r[1], thumb: thumb(r[2], 36),
+              pick: function () {
+                self.setState({ days: setDay(di, self.state.days[di].concat([{ id: ++self.nextId, title: r[0], time: r[1], tone: r[2], note: '' }])), q: setQ(di, '') });
+              }
+            };
+          }),
+          meals: meals.map(function (m, mi) {
+            var isRecipe = !!m.title;
+            function update(patch) {
+              var list = self.state.days[di].slice(); list[mi] = Object.assign({}, list[mi], patch);
+              self.setState({ days: setDay(di, list) });
+            }
+            return {
+              isRecipe: isRecipe, isText: !isRecipe,
+              title: m.title, time: m.time, thumb: isRecipe ? thumb(m.tone, 36) : '',
+              note: m.note || '', text: m.text || '',
+              noteLabel: 'Lisähuomio: ' + m.title, textLabel: 'Ateria, ' + names[di],
+              moveLabel: 'Siirrä ateriaa: ' + (m.title || m.text),
+              removeLabel: 'Poista ateria: ' + (m.title || m.text),
+              onNote: function (e) { update({ note: e.target.value }); },
+              onText: function (e) { update({ text: e.target.value }); },
+              remove: function () { self.setState({ days: setDay(di, self.state.days[di].filter(function (x) { return x.id !== m.id; })) }); }
+            };
+          })
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

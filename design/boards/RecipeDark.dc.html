@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Lohikeitto – tumma</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121614}
+a{color:#ECEEE8}a:hover{color:#F08A70}
+textarea::placeholder{color:#7F8982}
+textarea:focus{outline:2px solid #E0593B;outline-offset:1px;border-color:#E0593B}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #121614; color: #ECEEE8; font-family: Figtree, 'Segoe UI', system-ui, sans-serif; font-size: 17px; line-height: 1.55">
+
+  <header style="border-bottom: 1px solid #2A322D">
+    <div style="max-width: 1160px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+      <a href="MainDark.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ECEEE8">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#C4472B"></circle><path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#F5F6F2"></path><path d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4" stroke="#F5F6F2" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <span style="font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em">Keittokirja</span>
+      </a>
+      <nav aria-label="Osiot" style="display: flex; gap: 4px">
+        <a href="MainDark.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #C9D0CA">Reseptit</a>
+        <a href="WeekView.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #C9D0CA">Viikko</a>
+      </nav>
+      <div style="display: flex; gap: 4px; margin-left: auto; align-items: center">
+        <button type="button" aria-label="Käyttäjä: Tuukka" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #3A433D; background: #1B211D; font: 600 15px Figtree, sans-serif; color: #ECEEE8">T</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1160px; margin: 0 auto; padding: 24px 24px 72px; display: flex; flex-direction: column; gap: 32px">
+    <a href="MainDark.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; align-self: flex-start; text-decoration: none; font-weight: 600; font-size: 15px; color: #A3ACA5">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+      Kaikki reseptit
+    </a>
+
+    <section style="display: flex; flex-direction: column; gap: 28px">
+      <h1 lang="fi" style="margin: 0; max-width: 100%; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; overflow-wrap: break-word; hyphens: auto">Lohikeitto</h1>
+      <div style="display: flex; flex-wrap: wrap; gap: 32px 48px; align-items: flex-start">
+      <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <a href="MainDark.dc.html" style="padding: 4px 12px; border-radius: 999px; background: #262D28; text-decoration: none; font-size: 14px; font-weight: 500; color: #ECEEE8">keitto</a>
+          <a href="MainDark.dc.html" style="padding: 4px 12px; border-radius: 999px; background: #262D28; text-decoration: none; font-size: 14px; font-weight: 500; color: #ECEEE8">kala</a>
+          <a href="MainDark.dc.html" style="padding: 4px 12px; border-radius: 999px; background: #262D28; text-decoration: none; font-size: 14px; font-weight: 500; color: #ECEEE8">arki</a>
+        </div>
+        <p style="margin: 0; font-size: 19px; color: #C9D0CA; max-width: 34em; text-wrap: pretty">Kermainen, tillintuoksuinen arjen klassikko, joka valmistuu alle tunnissa.</p>
+        <dl style="margin: 0; display: flex; flex-wrap: wrap; gap: 12px 32px; font-size: 15px">
+          <div style="display: flex; flex-direction: column">
+            <dt style="color: #A3ACA5">Annokset</dt>
+            <dd style="margin: 0; font-weight: 600; font-size: 17px">4 annosta</dd>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <dt style="color: #A3ACA5">Työaika</dt>
+            <dd style="margin: 0; font-weight: 600; font-size: 17px">20 min</dd>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <dt style="color: #A3ACA5">Kokonaisaika</dt>
+            <dd style="margin: 0; font-weight: 600; font-size: 17px">45 min</dd>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <dt style="color: #A3ACA5">Lähde</dt>
+            <dd style="margin: 0; font-weight: 600; font-size: 17px"><a href="#lahde" style="color: #F08A70; text-underline-offset: 3px">[lähdesivu]</a></dd>
+          </div>
+        </dl>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; padding-top: 6px">
+          <a href="Cooking.dc.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 999px; background: #C4472B; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 17px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18v2a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7v-2Z"></path><path d="M9 7c0-1.5 1.5-1.5 1.5-3M14 7c0-1.5 1.5-1.5 1.5-3"></path></svg>
+            Kokkaa tästä
+          </a>
+          <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #3A433D; background: #1B211D; color: #ECEEE8; text-decoration: none; font-weight: 600; font-size: 16px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path></svg>
+            Muokkaa
+          </a>
+          <a href="Revisions.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #3A433D; background: #1B211D; color: #ECEEE8; text-decoration: none; font-weight: 600; font-size: 16px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path></svg>
+            Historia
+          </a>
+        </div>
+      </div>
+      <div style="flex: 0.32 1 420px; min-width: 0; aspect-ratio: 4 / 3; border-radius: 24px; background: #262C24; display: grid; place-items: center">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; color: #A3ACA5; font-size: 14px">
+          <svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="rgba(236,238,232,.3)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
+          Reseptin kuva
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section style="display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: flex-start; padding-top: 8px; border-top: 1px solid #2A322D">
+      <div style="flex: 1 1 380px; max-width: 500px; min-width: 0; display: flex; flex-direction: column; gap: 24px; padding-top: 28px">
+        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.02em">Ainekset</h2>
+        <sc-for list="{{ingGroups}}" as="g" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <h3 style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3ACA5">{{g.name}}</h3>
+            <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px">
+              <sc-for list="{{g.items}}" as="i" hint-placeholder-count="6">
+                <li style="display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 14px; padding: 3px 0; align-items: baseline; line-height: 1.4">
+                  <span style="font-weight: 600; font-variant-numeric: tabular-nums">{{i.amount}}</span>
+                  <span style="display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 0; min-width: 0">
+                    <span>{{i.name}}</span>
+                    <sc-if value="{{i.note}}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size: 14px; line-height: 1.4; color: #A3ACA5">{{i.note}}</span>
+                    </sc-if>
+                  </span>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px; padding-top: 28px">
+        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.02em">Valmistus</h2>
+        <sc-for list="{{stepGroups}}" as="g" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <h3 style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3ACA5">{{g.name}}</h3>
+            <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 20px">
+              <sc-for list="{{g.steps}}" as="s" hint-placeholder-count="4">
+                <li style="display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start">
+                  <span style="width: 36px; height: 36px; border-radius: 999px; background: #ECEEE8; color: #121614; display: grid; place-items: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 16px">{{s.n}}</span>
+                  <p style="margin: 5px 0 0; font-size: 18px; text-wrap: pretty">{{s.text}}</p>
+                </li>
+              </sc-for>
+            </ol>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="notes-h" style="display: flex; flex-direction: column; gap: 18px; padding-top: 32px; border-top: 1px solid #2A322D; max-width: 760px">
+      <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+        <h2 id="notes-h" style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.02em">Muistiinpanot</h2>
+        <span style="font-size: 15px; color: #A3ACA5">{{noteCount}}</span>
+      </div>
+      <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
+        <sc-for list="{{notes}}" as="n" hint-placeholder-count="2">
+          <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; padding: 16px 18px; background: #1B211D; border: 1px solid #262D28; border-radius: 16px">
+            <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 999px; background: #2A322D; display: grid; place-items: center; font-weight: 600; font-size: 15px">{{n.initial}}</span>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <div style="display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap">
+                <strong style="font-weight: 600; font-size: 16px">{{n.author}}</strong>
+                <span style="font-size: 14px; color: #A3ACA5">{{n.when}}</span>
+              </div>
+              <p style="margin: 0; font-size: 17px; text-wrap: pretty; white-space: pre-line">{{n.text}}</p>
+            </div>
+          </li>
+        </sc-for>
+      </ul>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <label style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 14px; font-weight: 600; color: #C9D0CA">Lisää muistiinpano</span>
+          <textarea rows="2" value="{{draft}}" onChange="{{onDraft}}" placeholder="Miten onnistui? Mitä muuttaisit ensi kerralla?" style="box-sizing: border-box; width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #3A433D; background: #1B211D; font: 400 16px/1.5 Figtree, sans-serif; color: #ECEEE8; resize: vertical"></textarea>
+        </label>
+        <button type="button" onClick="{{addNote}}" style="align-self: flex-end; min-height: 44px; padding: 0 22px; border-radius: 999px; border: 0; background: #ECEEE8; color: #121614; font: 600 15px Figtree, sans-serif; cursor: pointer">Tallenna muistiinpano</button>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2260}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      draft: '',
+      notes: [
+        { author: 'Tuukka', when: '6.10.2026', text: 'Kaurakermalla yhtä hyvää kuin kuohukermalla. Tuplasatsi riitti kahdeksi päiväksi.' },
+        { author: 'Tuukka', when: '21.9.2026', text: 'Lohi kannattaa lisätä vasta ihan lopuksi, niin se pysyy mehevänä.' }
+      ]
+    };
+  }
+  renderVals() {
+    var self = this;
+    var n = 0;
+    function steps(list) { return list.map(function (t) { n++; return { n: n, text: t }; }); }
+    var notes = this.state.notes;
+    return {
+      ingGroups: [
+        { name: 'Keittoon', items: [
+          { amount: '600 g', name: 'lohifilettä', note: 'nahaton ja ruodoton säästää aikaa' },
+          { amount: '500–600 g', name: 'kiinteitä perunoita', note: 'esim. Siikli tai Annabelle' },
+          { amount: '1', name: 'sipuli', note: '' },
+          { amount: '1 pieni', name: 'purjo', note: 'vain vaalea osa, ohuiksi renkaiksi' },
+          { amount: '1', name: 'porkkana', note: '' },
+          { amount: '1 rkl', name: 'voita', note: '' },
+          { amount: '1 l', name: 'vettä', note: '' },
+          { amount: '1', name: 'kalaliemikuutio', note: 'esim. Knorr' },
+          { amount: '6', name: 'maustepippuria', note: '' },
+          { amount: '1', name: 'laakerinlehti', note: '' },
+          { amount: '2 dl', name: 'kaurakermaa', note: 'ruoanvalmistukseen tarkoitettu' },
+          { amount: '1 rkl', name: 'maissitärkkelystä', note: 'sekoitettuna tilkkaan kylmää vettä, jos haluat keitosta paksumman' }
+        ] },
+        { name: 'Viimeistelyyn', items: [
+          { amount: '1 ruukku', name: 'tilliä', note: 'tuore; pakastetilli käy myös' },
+          { amount: '½', name: 'sitruunan mehu', note: 'lisää vähitellen ja maista välissä' },
+          { amount: '', name: 'suolaa', note: '' },
+          { amount: 'ripaus', name: 'valkopippuria', note: '' }
+        ] },
+        { name: 'Tarjoiluun', items: [
+          { amount: '', name: 'ruisleipää ja voita', note: 'tuore ruisleipä tai hapankorput, kumpi tahansa sopii hyvin' },
+          { amount: '1', name: 'sitruuna', note: 'lohkoiksi' }
+        ] }
+      ],
+      stepGroups: [
+        { name: 'Keittopohja', steps: steps([
+          'Kuori ja kuutioi perunat ja porkkana. Hienonna sipuli.',
+          'Kuullota sipulia ja purjoa voissa kattilassa muutama minuutti.',
+          'Lisää vesi, liemikuutio, maustepippurit ja laakerinlehti. Kiehauta.',
+          'Lisää perunat ja porkkana. Keitä kannen alla noin 15 minuuttia, kunnes perunat ovat kypsiä.'
+        ]) },
+        { name: 'Kala ja viimeistely', steps: steps([
+          'Poista lohesta nahka ja ruodot ja leikkaa se isoiksi kuutioiksi.',
+          'Lisää kaurakerma ja lohi. Hauduta miedolla lämmöllä 5–7 minuuttia — älä anna kiehua voimakkaasti.',
+          'Tarkista suola ja sekoita joukkoon hienonnettu tilli juuri ennen tarjoilua.'
+        ]) }
+      ],
+      notes: notes.map(function (x) { return { author: x.author, when: x.when, text: x.text, initial: x.author.charAt(0) }; }),
+      noteCount: notes.length + ' kpl',
+      draft: this.state.draft,
+      onDraft: function (e) { self.setState({ draft: e.target.value }); },
+      addNote: function () {
+        var t = (self.state.draft || '').trim();
+        if (!t) return;
+        self.setState({ draft: '', notes: [{ author: 'Tuukka', when: 'juuri nyt', text: t }].concat(self.state.notes) });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -18,6 +18,11 @@ Run `npm test`. The goal is confidence that the app works, not full coverage.
 - API tests cover authentication, authorization and input validation, plus a
   few requests that check that data goes in and comes out.
 
+## Design
+
+The UI design is in `design/boards/`, synced from the Claude Design canvas. See
+`design/CLAUDE.md` for the boards and the sync steps.
+
 ## Specs
 
 Requirements live in `specs/`, one file per app area. See `specs/README.md` for
