@@ -34,6 +34,80 @@ describe('tools', () => {
     const { tools } = await client.listTools();
     expect(tools.filter((t) => !t.outputSchema).map((t) => t.name)).toEqual([]);
   });
+
+  it('describe the input and output fields', async () => {
+    const { tools } = await client.listTools();
+    const tool = (name: string) => tools.find((t) => t.name === name);
+
+    expect(tool('create_recipe')?.inputSchema).toMatchObject({
+      properties: {
+        recipe: {
+          properties: {
+            activeMinutes: { description: 'Hands-on time in minutes.' },
+            ingredientGroups: {
+              items: {
+                properties: {
+                  ingredients: {
+                    items: {
+                      properties: {
+                        note: {
+                          description: 'Preparation or other detail, such as "hienonnettuna".',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    expect(tool('update_week_plan_entry')?.inputSchema).toMatchObject({
+      properties: { note: { description: 'Null clears the note.' } },
+    });
+    expect(tool('get_recipe')?.outputSchema).toMatchObject({
+      properties: {
+        photoUrl: {
+          description: 'Path of the photo on the cookbook site, or null if there is no photo.',
+        },
+        notes: { description: 'Newest first.' },
+      },
+    });
+    expect(tool('get_week_plan')?.outputSchema).toMatchObject({
+      properties: {
+        entries: {
+          items: {
+            properties: {
+              text: { description: 'What the plan shows. It can differ from the recipe title.' },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('leave out format patterns and safe integer bounds', async () => {
+    const { tools } = await client.listTools();
+    const json = JSON.stringify(tools);
+    expect(json).not.toContain('"pattern"');
+    expect(json).not.toContain(String(Number.MAX_SAFE_INTEGER));
+
+    // The formats and the bounds that mean something stay.
+    const tool = (name: string) => tools.find((t) => t.name === name);
+    expect(tool('get_recipe')?.inputSchema).toMatchObject({
+      properties: { id: { type: 'string', format: 'uuid' } },
+    });
+    expect(tool('create_recipe')?.inputSchema).toMatchObject({
+      properties: {
+        recipe: {
+          properties: {
+            activeMinutes: { anyOf: [{ type: 'integer', minimum: 0 }, { type: 'null' }] },
+          },
+        },
+      },
+    });
+  });
 });
 
 describe('search_recipes', () => {

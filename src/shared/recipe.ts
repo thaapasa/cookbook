@@ -15,23 +15,23 @@ const Minutes = z
 
 // Descriptions that both the input and the output schemas use.
 const groupNameInfo =
-  'A heading such as "Sauce" when the recipe has several parts. Null when there is only one group.';
+  'A heading such as "Kastike" when the recipe has several parts. Null when there is only one group.';
 const activeMinutesInfo = 'Hands-on time in minutes.';
 const totalMinutesInfo = 'Time from start to finish in minutes, including waiting and baking.';
 const photoUrlInfo = 'Path of the photo on the cookbook site, or null if there is no photo.';
 
 export const IngredientInput = z.object({
   amount: OptionalText.describe(
-    'Quantity and unit as text, such as "2 dl" or "1–2". Null when there is no amount, as with salt to taste.',
+    'Quantity and unit as text, such as "2 dl" or "1–2". Null when there is no amount, as with "suolaa".',
   ),
   name: z
     .string()
     .trim()
     .min(1)
     .describe(
-      'The ingredient alone, such as "onion". Reuse a name from list_ingredient_names when one fits, so that shopping lists combine the same ingredient.',
+      'The ingredient alone, such as "sipuli". Reuse a name from list_ingredient_names when one fits, so that shopping lists combine the same ingredient.',
     ),
-  note: OptionalText.describe('Preparation or other detail, such as "finely chopped".'),
+  note: OptionalText.describe('Preparation or other detail, such as "hienonnettuna".'),
 });
 export type IngredientInput = z.infer<typeof IngredientInput>;
 
@@ -55,18 +55,18 @@ export const RecipeInput = z.object({
   description: OptionalText.describe(
     'A short introduction to the dish, shown under the title. Plain text.',
   ),
-  servings: OptionalText.describe(
-    'Free text, such as "4 servings" or "1 baking tray (24 pieces)".',
-  ),
+  servings: OptionalText.describe('Free text, such as "4 annosta" or "1 pelti (24 palaa)".'),
   activeMinutes: Minutes.describe(activeMinutesInfo),
   totalMinutes: Minutes.describe(totalMinutesInfo),
   source: OptionalText.describe(
-    'Where the recipe comes from: a web page URL, which the recipe page shows as a link, or free text such as the name of a book.',
+    'Where the recipe comes from: the page URL for a recipe from the web, which the recipe page shows as a link, or free text such as "Mummon vihko".',
   ),
   tags: z
     .array(z.string().trim().min(1))
     .default([])
-    .describe('Reuse names from list_tags when they fit. New tags are created as needed.'),
+    .describe(
+      'Such as "kasvis" or "leivonta". Reuse names from list_tags when they fit. New tags are created as needed.',
+    ),
   ingredientGroups: z.array(IngredientGroupInput).default([]),
   stepGroups: z.array(StepGroupInput).default([]),
 });
@@ -76,7 +76,9 @@ export type RecipeContent = z.output<typeof RecipeInput>;
 /** The body of a request that creates or updates a recipe. */
 export const SaveRecipeRequest = z.object({
   recipe: RecipeInput,
-  revisionNote: OptionalText.describe('What changed, shown in the revision history.'),
+  revisionNote: OptionalText.describe(
+    'Shown in the revision history. For a change, what changed, such as "Lisätty tilliä". For a new recipe, where it came from, such as "Tuotu sivulta k-ruoka.fi".',
+  ),
 });
 export type SaveRecipeRequest = z.input<typeof SaveRecipeRequest>;
 

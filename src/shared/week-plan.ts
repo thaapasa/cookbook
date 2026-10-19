@@ -53,7 +53,7 @@ export const AddEntryInput = z.object({
   text: EntryText.describe(
     'What the plan shows, such as a dish name. With a recipe, use its title unless the user asks for other text.',
   ),
-  note: OptionalText.describe('Extra details, such as "double batch".'),
+  note: OptionalText.describe('Extra details, such as "tuplasatsi".'),
   recipeId: z
     .uuid()
     .nullish()
