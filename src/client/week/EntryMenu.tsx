@@ -20,7 +20,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
-import { type WeekPlanEntry,weekStartDay } from '../../shared/week-plan.ts';
+import { type WeekPlanEntry, weekStartDay } from '../../shared/week-plan.ts';
 import { ChevronLeftIcon, ChevronRightIcon, MoreIcon, SearchIcon } from '../components/icons.tsx';
 import type { EntryUpdate } from './changes.ts';
 import { RecipeOption, useRecipeSuggestions } from './RecipeSearch.tsx';

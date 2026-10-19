@@ -38,7 +38,11 @@ function renumber(entries: WeekPlanEntry[]): WeekPlanEntry[] {
  * Applies an update the way the server does, so the view can show it before the
  * server answers. An entry that moves out of the week starting on `start` drops out.
  */
-function applyUpdate(entries: WeekPlanEntry[], update: EntryUpdate, start: string): WeekPlanEntry[] {
+function applyUpdate(
+  entries: WeekPlanEntry[],
+  update: EntryUpdate,
+  start: string,
+): WeekPlanEntry[] {
   const entry = entries.find((e) => e.id === update.id);
   if (!entry) return entries;
   const changed: WeekPlanEntry = {
