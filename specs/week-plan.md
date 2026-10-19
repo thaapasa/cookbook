@@ -34,9 +34,8 @@ keep their dates and only the grouping into weeks changes.
       entries shows as empty.
 - [x] Each week has its own URL, so a link or a reload opens the same week.
 - [x] An entry that links to a recipe links to the recipe page.
-- [ ] Today is selected by default. User can select another day by tapping it.
-- [ ] The entries of the selected day that link to a recipe have a button that
-      opens the cooking view.
+- [x] Each entry that links to a recipe has a button that opens the cooking
+      view, on every day and in every week.
 - [x] If another user changes the week, the view shows the change without a
       reload.
 

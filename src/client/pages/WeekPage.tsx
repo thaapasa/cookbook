@@ -157,7 +157,7 @@ function DayRow(props: { date: string; isToday: boolean; entries: WeekPlanEntry[
       </div>
       <div className="flex min-w-0 flex-col gap-2.5 sm:gap-3">
         {entries.length ? (
-          entries.map((entry) => <EntryItem key={entry.id} entry={entry} isToday={isToday} />)
+          entries.map((entry) => <EntryItem key={entry.id} entry={entry} />)
         ) : (
           <span className="text-[15px] text-faint italic sm:py-3.5 sm:text-base">
             {t('week.noEntries')}
@@ -172,7 +172,7 @@ const entryGrid =
   'grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[56px_minmax(0,1fr)_auto] sm:gap-3.5';
 const thumbClass = 'size-11 rounded-[10px] sm:size-14 sm:rounded-xl';
 
-function EntryItem({ entry, isToday }: { entry: WeekPlanEntry; isToday: boolean }) {
+function EntryItem({ entry }: { entry: WeekPlanEntry }) {
   const { t } = useTranslation();
   const formatMinutes = useFormatMinutes();
   const { recipe } = entry;
@@ -218,17 +218,15 @@ function EntryItem({ entry, isToday }: { entry: WeekPlanEntry; isToday: boolean 
         </Link>
         {note}
       </div>
-      {isToday && (
-        <Link
-          to="/recipes/$recipeId/cook"
-          params={{ recipeId: recipe.id }}
-          aria-label={t('week.cookRecipe', { name: entry.text })}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-field bg-card text-[15px] font-semibold text-ink no-underline max-sm:size-11 max-sm:justify-center sm:px-3.5"
-        >
-          <PotIcon />
-          <span className="max-sm:hidden">{t('week.cook')}</span>
-        </Link>
-      )}
+      <Link
+        to="/recipes/$recipeId/cook"
+        params={{ recipeId: recipe.id }}
+        aria-label={t('week.cookRecipe', { name: entry.text })}
+        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-field bg-card text-[15px] font-semibold text-ink no-underline max-sm:size-11 max-sm:justify-center sm:px-3.5"
+      >
+        <PotIcon />
+        <span className="max-sm:hidden">{t('week.cook')}</span>
+      </Link>
     </div>
   );
 }
