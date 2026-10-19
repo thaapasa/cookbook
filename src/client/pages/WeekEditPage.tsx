@@ -28,6 +28,8 @@ import { useFormatMinutes } from '../format.ts';
 import { AddEntryField } from '../week/AddEntryField.tsx';
 import { type EntryUpdate, useWeekPlanChanges } from '../week/changes.ts';
 import { useFormatDay } from '../week/dates.ts';
+import { EntryMenu } from '../week/EntryMenu.tsx';
+import { WeekHistory } from '../week/WeekHistory.tsx';
 
 const route = getRouteApi('/week/$start/edit');
 
@@ -162,6 +164,7 @@ function WeekEditor() {
             );
           })
         )}
+        <WeekHistory start={start} />
       </main>
     </>
   );
@@ -175,7 +178,7 @@ function DropAtEnd(props: { onDrop: (id: string) => void; children: ReactNode })
     'before',
   );
   return (
-    <div ref={ref} {...dropProps} className="relative sm:pr-13 sm:pl-11">
+    <div ref={ref} {...dropProps} className="relative sm:pr-26 sm:pl-11">
       {props.children}
       <DropIndicator position={position} />
     </div>
@@ -203,7 +206,7 @@ function EntryRow(props: {
       ref={ref}
       {...dropProps}
       {...{ [dragRowAttribute]: '' }}
-      className={`relative grid grid-cols-[36px_minmax(0,1fr)_44px] items-start gap-1 rounded-[14px] bg-card sm:gap-2 ${
+      className={`relative grid grid-cols-[36px_minmax(0,1fr)_44px_44px] items-start gap-1 rounded-[14px] bg-card sm:gap-2 ${
         dragging ? 'opacity-40' : ''
       }`}
     >
@@ -262,6 +265,7 @@ function EntryRow(props: {
           inputClassName="min-h-10 text-[15px]"
         />
       </div>
+      <EntryMenu entry={entry} onUpdate={onUpdate} />
       <Button
         onPress={onRemove}
         aria-label={t('weekEdit.remove', { name: entry.text })}

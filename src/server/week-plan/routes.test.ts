@@ -6,6 +6,7 @@ import { addRecipe, createUser, resetDatabase } from '../test/db.ts';
 
 const missingId = '00000000-0000-7000-8000-000000000000';
 const week = '/api/week-plan?from=2026-10-17&to=2026-10-23';
+const changes = '/api/week-plan/changes?from=2026-10-17&to=2026-10-23';
 
 let userId: string;
 let cookie: string;
@@ -27,6 +28,7 @@ describe('authorization', () => {
     const entry = await add({ date: '2026-10-17', text: 'Lohta' });
     const requests = [
       request(week),
+      request(changes),
       request('/api/week-plan/entries', {
         method: 'POST',
         json: { date: '2026-10-17', text: 'X' },
@@ -48,6 +50,7 @@ describe('validation', () => {
       'from=17.10.2026&to=23.10.2026',
     ]) {
       expect((await request(`/api/week-plan?${query}`, { cookie })).status).toBe(400);
+      expect((await request(`/api/week-plan/changes?${query}`, { cookie })).status).toBe(400);
     }
   });
 
@@ -125,5 +128,22 @@ describe('entries', () => {
     });
     expect(del.status).toBe(204);
     expect(await (await request(week, { cookie })).json()).toMatchObject([{ id: lohi.id }]);
+  });
+});
+
+describe('changes', () => {
+  it('returns the changes of the range with the user', async () => {
+    await add({ date: '2026-10-17', text: 'Lohta' });
+    const res = await request(changes, { cookie });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject([
+      {
+        user: 'cook display',
+        source: 'app',
+        before: null,
+        after: { date: '2026-10-17', text: 'Lohta' },
+        recipes: {},
+      },
+    ]);
   });
 });

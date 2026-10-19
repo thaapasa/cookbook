@@ -3,6 +3,7 @@ import type postgres from 'postgres';
 import type {
   AddEntry,
   UpdateEntry,
+  WeekPlanChange,
   WeekPlanEntry,
   WeekPlanSnapshot,
 } from '../../shared/week-plan.ts';
@@ -62,6 +63,43 @@ async function readEntry(tx: Tx, id: string): Promise<WeekPlanEntry | null> {
 /** Returns the entries from `from` to `to`, both included, ordered by date and position. */
 export function listEntries(from: string, to: string): Promise<WeekPlanEntry[]> {
   return readEntries(sql, sql`e.date BETWEEN ${from} AND ${to}`);
+}
+
+/** The most changes that one request returns. */
+const maxChanges = 200;
+
+type ChangeRow = Omit<WeekPlanChange, 'at' | 'recipes'> & { at: Date };
+
+/**
+ * Returns the changes to the entries from `from` to `to`, both included, newest
+ * first. A move between dates shows on both dates.
+ */
+export async function listChanges(from: string, to: string): Promise<WeekPlanChange[]> {
+  const rows = await sql<ChangeRow[]>`
+    SELECT c.id, c.created_at AS at, u.display_name AS user, c.source, c.before, c.after
+    FROM week_plan_changes c JOIN users u ON u.id = c.user_id
+    WHERE (c.before->>'date') BETWEEN ${from} AND ${to}
+       OR (c.after->>'date') BETWEEN ${from} AND ${to}
+    ORDER BY c.id DESC
+    LIMIT ${maxChanges}
+  `;
+  const linked = (r: ChangeRow) =>
+    [r.before?.recipeId, r.after?.recipeId].filter((id): id is string => !!id);
+  const recipeIds = [...new Set(rows.flatMap(linked))];
+  const recipes = recipeIds.length
+    ? await sql<{ id: string; title: string }[]>`
+        SELECT id, title FROM recipes WHERE id = ANY(${recipeIds}::uuid[])
+      `
+    : [];
+  const titles = new Map(recipes.map((r) => [r.id, r.title]));
+
+  return rows.map((row) => ({
+    ...row,
+    at: row.at.toISOString(),
+    recipes: Object.fromEntries(
+      linked(row).flatMap((id) => (titles.has(id) ? [[id, titles.get(id)!]] : [])),
+    ),
+  }));
 }
 
 /** Adds an entry. */

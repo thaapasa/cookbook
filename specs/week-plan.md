@@ -50,11 +50,11 @@ keep their dates and only the grouping into weeks changes.
       it and its text starts as the recipe title. The user can also add the
       typed text without a link.
 - [x] User can edit the text and the note of an entry, and remove the entry.
-- [ ] User can add, change and remove the recipe link of an existing entry.
+- [x] User can add, change and remove the recipe link of an existing entry.
 - [x] User can reorder entries within a day and move them to another day of the
       same week by dragging.
-- [ ] User can move an entry to any date, also in another week, by picking
+- [x] User can move an entry to any date, also in another week, by picking
       the date from a date picker.
 - [x] The app records each change with the user who made it and what changed.
-- [ ] User can view the change history of a week in the edit view. The
+- [x] User can view the change history of a week in the edit view. The
       history is for reading only, so the user restores an old entry by hand.

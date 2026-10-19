@@ -112,3 +112,17 @@ export type WeekPlanSnapshot = {
   note: string | null;
   recipeId: string | null;
 };
+
+/** A change to an entry. `before` is null when the entry was added, `after` when it was removed. */
+export type WeekPlanChange = {
+  id: string;
+  /** The time of the change as an ISO timestamp. */
+  at: string;
+  /** The display name of the user who made the change. */
+  user: string;
+  source: 'app' | 'mcp';
+  before: WeekPlanSnapshot | null;
+  after: WeekPlanSnapshot | null;
+  /** The current titles of the linked recipes, by id. A deleted recipe has no title. */
+  recipes: Record<string, string>;
+};

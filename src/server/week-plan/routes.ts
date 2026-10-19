@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { AddEntryInput, UpdateEntryInput, WeekPlanQuery } from '../../shared/week-plan.ts';
 import { type AuthEnv, requireUser } from '../auth/routes.ts';
-import { addEntry, listEntries, removeEntry, updateEntry } from './repository.ts';
+import { addEntry, listChanges, listEntries, removeEntry, updateEntry } from './repository.ts';
 
 const IdParam = z.object({ id: z.uuid() });
 
@@ -15,6 +15,10 @@ export const weekPlanRoutes = new Hono<AuthEnv>()
   .get('/', zValidator('query', WeekPlanQuery), async (c) => {
     const { from, to } = c.req.valid('query');
     return c.json(await listEntries(from, to));
+  })
+  .get('/changes', zValidator('query', WeekPlanQuery), async (c) => {
+    const { from, to } = c.req.valid('query');
+    return c.json(await listChanges(from, to));
   })
   .post('/entries', zValidator('json', AddEntryInput), async (c) => {
     const entry = await addEntry(c.req.valid('json'), { userId: c.var.user!.id, source: 'app' });

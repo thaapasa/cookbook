@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import type { UpdateEntryInput, WeekPlanEntry } from '../../shared/week-plan.ts';
+import {
+  addDays,
+  type UpdateEntryInput,
+  type WeekPlanEntry,
+  type WeekPlanRecipe,
+} from '../../shared/week-plan.ts';
 import {
   addWeekPlanEntry,
   removeWeekPlanEntry,
@@ -11,7 +16,11 @@ import {
 
 const mutationKey = ['week-plan'];
 
-export type EntryUpdate = UpdateEntryInput & { id: string };
+/**
+ * A change to an entry. `recipe` is the recipe of a new `recipeId`, so the
+ * view can show the link before the server answers. It is not sent.
+ */
+export type EntryUpdate = UpdateEntryInput & { id: string; recipe?: WeekPlanRecipe | null };
 
 /** Sorts the entries by date, keeps their order within a date, and renumbers the positions. */
 function renumber(entries: WeekPlanEntry[]): WeekPlanEntry[] {
@@ -25,8 +34,11 @@ function renumber(entries: WeekPlanEntry[]): WeekPlanEntry[] {
     });
 }
 
-/** Applies an update the way the server does, so the view can show it before the server answers. */
-function applyUpdate(entries: WeekPlanEntry[], update: EntryUpdate): WeekPlanEntry[] {
+/**
+ * Applies an update the way the server does, so the view can show it before the
+ * server answers. An entry that moves out of the week starting on `start` drops out.
+ */
+function applyUpdate(entries: WeekPlanEntry[], update: EntryUpdate, start: string): WeekPlanEntry[] {
   const entry = entries.find((e) => e.id === update.id);
   if (!entry) return entries;
   const changed: WeekPlanEntry = {
@@ -34,8 +46,10 @@ function applyUpdate(entries: WeekPlanEntry[], update: EntryUpdate): WeekPlanEnt
     text: update.text?.trim() || entry.text,
     note: update.note !== undefined ? update.note?.trim() || null : entry.note,
     date: update.date ?? entry.date,
+    recipe: update.recipe !== undefined ? update.recipe : entry.recipe,
   };
   const others = entries.filter((e) => e.id !== entry.id);
+  if (changed.date < start || changed.date > addDays(start, 6)) return renumber(others);
   if (changed.date === entry.date && update.position === undefined) {
     return entries.map((e) => (e.id === entry.id ? changed : e));
   }
@@ -89,8 +103,9 @@ export function useWeekPlanChanges(start: string) {
 
   const update = useMutation({
     mutationKey,
-    mutationFn: ({ id, ...input }: EntryUpdate) => updateWeekPlanEntry(id, input),
-    onMutate: (vars) => showNow((entries) => applyUpdate(entries, vars)),
+    mutationFn: ({ id, text, note, recipeId, date, position }: EntryUpdate) =>
+      updateWeekPlanEntry(id, { text, note, recipeId, date, position }),
+    onMutate: (vars) => showNow((entries) => applyUpdate(entries, vars, start)),
     ...handlers,
   });
 

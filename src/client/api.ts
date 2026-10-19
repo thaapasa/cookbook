@@ -13,6 +13,7 @@ import {
   addDays,
   type AddEntryInput,
   type UpdateEntryInput,
+  type WeekPlanChange,
   type WeekPlanEntry,
 } from '../shared/week-plan.ts';
 
@@ -127,6 +128,15 @@ export const weekPlanQuery = (start: string) =>
   queryOptions({
     queryKey: ['week-plan', start],
     queryFn: () => request<WeekPlanEntry[]>(`/api/week-plan?from=${start}&to=${addDays(start, 6)}`),
+    refetchInterval: weekPlanPollMs,
+  });
+
+/** The change history of a week. Its key is under the week's, so refreshing the week refreshes it too. */
+export const weekPlanChangesQuery = (start: string) =>
+  queryOptions({
+    queryKey: ['week-plan', start, 'changes'],
+    queryFn: () =>
+      request<WeekPlanChange[]>(`/api/week-plan/changes?from=${start}&to=${addDays(start, 6)}`),
     refetchInterval: weekPlanPollMs,
   });
 

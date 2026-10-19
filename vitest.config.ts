@@ -10,7 +10,7 @@ testUrl.pathname = `${testUrl.pathname}_test`;
 
 export default defineConfig({
   test: {
-    include: ['src/server/**/*.test.ts', 'src/shared/**/*.test.ts'],
+    include: ['src/server/**/*.test.ts', 'src/shared/**/*.test.ts', 'src/client/**/*.test.ts'],
     environment: 'node',
     env: { DATABASE_URL: testUrl.href, IMAGES_DIR: 'data/test-images' },
     globalSetup: ['src/server/test/global-setup.ts'],

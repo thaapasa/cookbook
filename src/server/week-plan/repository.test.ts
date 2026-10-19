@@ -4,7 +4,7 @@ import { AddEntryInput, UpdateEntryInput } from '../../shared/week-plan.ts';
 import { sql } from '../db.ts';
 import { type Author, deleteRecipe } from '../recipes/repository.ts';
 import { addRecipe, createUser, resetDatabase } from '../test/db.ts';
-import { addEntry, listEntries, removeEntry, updateEntry } from './repository.ts';
+import { addEntry, listChanges, listEntries, removeEntry, updateEntry } from './repository.ts';
 
 const missingId = '00000000-0000-7000-8000-000000000000';
 
@@ -208,6 +208,55 @@ describe('removeEntry', () => {
 
   it('returns false for a missing entry', async () => {
     expect(await removeEntry(missingId, author)).toBe(false);
+  });
+});
+
+describe('listChanges', () => {
+  it('returns the changes in the range newest first, with the user and the source', async () => {
+    const entry = await add('2026-10-17', 'Lohta');
+    await add('2026-10-24', 'Next week');
+    await update(entry.id, { text: 'Uunilohta' }, { userId: author.userId, source: 'mcp' });
+
+    expect(await listChanges('2026-10-17', '2026-10-23')).toMatchObject([
+      {
+        user: 'cook display',
+        source: 'mcp',
+        before: { text: 'Lohta' },
+        after: { text: 'Uunilohta' },
+        recipes: {},
+      },
+      { user: 'cook display', source: 'app', before: null, after: { text: 'Lohta' } },
+    ]);
+  });
+
+  it('shows a move between weeks in both weeks, and a removal', async () => {
+    const entry = await add('2026-10-17', 'Lohta');
+    await update(entry.id, { date: '2026-10-24' });
+    await removeEntry(entry.id, author);
+
+    const moved = { before: { date: '2026-10-17' }, after: { date: '2026-10-24' } };
+    expect(await listChanges('2026-10-17', '2026-10-23')).toMatchObject([moved, { before: null }]);
+    expect(await listChanges('2026-10-24', '2026-10-30')).toMatchObject([
+      { before: { date: '2026-10-24' }, after: null },
+      moved,
+    ]);
+  });
+
+  it('returns the titles of the linked recipes that still exist', async () => {
+    const lohi = await addRecipe(author, { title: 'Uunilohi' });
+    const keitto = await addRecipe(author, { title: 'Lohikeitto' });
+    const entry = await add('2026-10-17', 'Lohta', { recipeId: lohi });
+    await update(entry.id, { recipeId: keitto });
+    await deleteRecipe(lohi);
+
+    const [relinked, added] = await listChanges('2026-10-17', '2026-10-17');
+    expect(relinked).toMatchObject({
+      before: { recipeId: lohi },
+      after: { recipeId: keitto },
+      recipes: { [keitto]: 'Lohikeitto' },
+    });
+    expect(relinked.recipes).not.toHaveProperty(lohi);
+    expect(added.recipes).toEqual({});
   });
 });
 

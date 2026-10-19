@@ -59,6 +59,19 @@ export const PlusIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const MoreIcon = (p: IconProps) => (
+  <Stroke strokeWidth={3} {...p}>
+    <path d="M5 12h.01M12 12h.01M19 12h.01" />
+  </Stroke>
+);
+
+export const CalendarIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <rect x="4" y="5" width="16" height="15" rx="2" />
+    <path d="M4 10h16M9 3v4M15 3v4" />
+  </Stroke>
+);
+
 export const CheckIcon = (p: IconProps) => (
   <Stroke strokeWidth={2.2} {...p}>
     <path d="m5 12 5 5L20 7" />
