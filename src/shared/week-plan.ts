@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { OptionalText } from './recipe.ts';
+import { OptionalText, Recipe } from './recipe.ts';
 
 /** A date as `YYYY-MM-DD`. */
 export const IsoDate = z.iso.date();
@@ -50,13 +50,16 @@ const EntryText = z.string().trim().min(1);
 /** A new entry. Without a position, the entry goes last on its date. */
 export const AddEntryInput = z.object({
   date: IsoDate,
-  text: EntryText,
-  note: OptionalText,
+  text: EntryText.describe(
+    'What the plan shows, such as a dish name. With a recipe, use its title unless the user asks for other text.',
+  ),
+  note: OptionalText.describe('Extra details, such as "double batch".'),
   recipeId: z
     .uuid()
     .nullish()
-    .transform((id) => id ?? null),
-  position: z.int().min(0).optional(),
+    .transform((id) => id ?? null)
+    .describe('Recipe to link, from search_recipes.'),
+  position: z.int().min(0).optional().describe('Place within the date, from 0. Default: last.'),
 });
 export type AddEntryInput = z.input<typeof AddEntryInput>;
 export type AddEntry = z.output<typeof AddEntryInput>;
@@ -74,10 +77,17 @@ export const UpdateEntryInput = z
       .trim()
       .nullable()
       .transform((s) => s || null)
-      .optional(),
-    recipeId: z.uuid().nullable().optional(),
-    date: IsoDate.optional(),
-    position: z.int().min(0).optional(),
+      .optional()
+      .describe('Null clears the note.'),
+    recipeId: z.uuid().nullable().optional().describe('Null removes the recipe link.'),
+    date: IsoDate.optional().describe('Moves the entry to this date.'),
+    position: z
+      .int()
+      .min(0)
+      .optional()
+      .describe(
+        'Place within the date, from 0. A new date without a position puts the entry last on that date.',
+      ),
   })
   .refine((u) => Object.values(u).some((v) => v !== undefined), {
     message: 'Nothing to change',
@@ -86,23 +96,24 @@ export type UpdateEntryInput = z.input<typeof UpdateEntryInput>;
 export type UpdateEntry = z.output<typeof UpdateEntryInput>;
 
 /** The recipe that an entry links to. */
-export type WeekPlanRecipe = {
-  id: string;
-  title: string;
-  activeMinutes: number | null;
-  totalMinutes: number | null;
-  photoUrl: string | null;
-};
+export const WeekPlanRecipe = Recipe.pick({
+  id: true,
+  title: true,
+  activeMinutes: true,
+  totalMinutes: true,
+  photoUrl: true,
+});
+export type WeekPlanRecipe = z.infer<typeof WeekPlanRecipe>;
 
-export type WeekPlanEntry = {
-  id: string;
-  date: string;
-  /** The order within the date, from 0. */
-  position: number;
-  text: string;
-  note: string | null;
-  recipe: WeekPlanRecipe | null;
-};
+export const WeekPlanEntry = z.object({
+  id: z.uuid(),
+  date: IsoDate,
+  position: z.int().describe('Order within the date, from 0.'),
+  text: z.string().describe('What the plan shows. It can differ from the recipe title.'),
+  note: z.string().nullable(),
+  recipe: WeekPlanRecipe.nullable().describe('The linked recipe, or null for a free-text entry.'),
+});
+export type WeekPlanEntry = z.infer<typeof WeekPlanEntry>;
 
 /** An entry as the change history stores it. */
 export type WeekPlanSnapshot = {

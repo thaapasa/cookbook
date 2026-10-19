@@ -2,12 +2,22 @@ import { type CallToolResult, McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 
 import type { User } from '../../shared/auth.ts';
-import { NoteInput, SaveRecipeRequest } from '../../shared/recipe.ts';
+import {
+  IngredientNameCount,
+  Note,
+  NoteInput,
+  Recipe,
+  RecipeIngredients,
+  RecipeList,
+  SaveRecipeRequest,
+  TagCount,
+} from '../../shared/recipe.ts';
 import {
   AddEntryInput,
   IsoDate,
   maxPlanDays,
   UpdateEntryInput,
+  WeekPlanEntry,
   WeekPlanQuery,
 } from '../../shared/week-plan.ts';
 import { DownloadError, downloadImage } from '../image-download.ts';
@@ -28,8 +38,7 @@ import { addEntry, listEntries, removeEntry, updateEntry } from '../week-plan/re
 const recipeId = z.uuid().describe('Recipe id from search_recipes.');
 const entryId = z.uuid().describe('Week plan entry id from get_week_plan.');
 
-const entryFields = AddEntryInput.shape;
-const updateFields = UpdateEntryInput.shape;
+const IdResult = z.object({ id: z.uuid() });
 
 function result(data: Record<string, unknown>): CallToolResult {
   return { content: [{ type: 'text', text: JSON.stringify(data) }], structuredContent: data };
@@ -49,12 +58,13 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Search recipes',
       description:
-        'Finds recipes by words and tags. Words match the title, tags, ingredients, description and steps, including parts of words and Finnish inflected forms. Without a query, lists all recipes in alphabetical order. With a query, title matches come first. Returns one page of 12 summaries (id, title, activeMinutes, totalMinutes, photoUrl, tags) with total, page and pageSize. Use this to find recipe ids for the other tools. Summaries do not include ingredients or steps: use get_recipe for one recipe or get_ingredients for several.',
+        'Finds recipes by words and tags. Words match the title, tags, ingredients, description and steps, including parts of words and Finnish inflected forms. Without a query, lists all recipes in alphabetical order. With a query, title matches come first. Returns one page of 12 summaries. Use this to find recipe ids for the other tools. Summaries do not include ingredients or steps: use get_recipe for one recipe or get_ingredients for several.',
       inputSchema: z.object({
-        query: z.string().optional().describe('Words to search for in titles and content.'),
+        query: z.string().optional(),
         tags: z.array(z.string()).optional().describe('Only recipes that have all these tags.'),
-        page: z.int().min(1).optional().describe('Page number, starting from 1.'),
+        page: z.int().min(1).optional(),
       }),
+      outputSchema: RecipeList,
       annotations: { readOnlyHint: true },
     },
     async ({ query, tags, page }) =>
@@ -66,8 +76,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Get recipe',
       description:
-        'Returns the full content of one recipe by id: title, description, servings, activeMinutes, totalMinutes, source, tags, ingredientGroups (each ingredient has amount, name and note), stepGroups, photoUrl and notes (newest first, with author and date). Use this to show or cook a recipe, and always before update_recipe. Get the id from search_recipes. For only the ingredients of several recipes, use get_ingredients.',
+        'Returns the full content of one recipe by id, with its photo and notes. Use this to show or cook a recipe, and always before update_recipe. For only the ingredients of several recipes, use get_ingredients.',
       inputSchema: z.object({ id: recipeId }),
+      outputSchema: Recipe,
       annotations: { readOnlyHint: true },
     },
     async ({ id }) => {
@@ -81,8 +92,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Create recipe',
       description:
-        'Creates a new recipe, for example when importing one from a web page, photo or text. Only title is required. Put ingredients in ingredientGroups and steps in stepGroups. Give a group a name, such as "Sauce", when the recipe has several parts, and leave it null when there is only one group. In an ingredient, amount holds the quantity and unit ("2 dl"), name the ingredient and note any extra detail ("finely chopped"). Times are whole minutes. New tags are created as needed. Call list_ingredient_names and list_tags first to reuse existing names. revisionNote is shown in the revision history. Returns the id of the new recipe. Do NOT use to change an existing recipe: use update_recipe.',
+        'Creates a new recipe, for example when importing one from a web page, photo or text. Call list_ingredient_names and list_tags first to reuse existing names. Do NOT use to change an existing recipe: use update_recipe.',
       inputSchema: SaveRecipeRequest,
+      outputSchema: IdResult,
     },
     async ({ recipe, revisionNote }) =>
       result({ id: await createRecipe(recipe, author, revisionNote) }),
@@ -93,8 +105,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Update recipe',
       description:
-        'Replaces the full content of an existing recipe by id and records a revision with revisionNote. Takes the same recipe fields as create_recipe. Fields that are left out or null are cleared, so read the recipe with get_recipe first and send back all of its content with the changes. Does not change the photo or the notes: use set_recipe_photo and add_note for those. Returns the recipe id, or an error if no recipe has the id.',
+        'Replaces the full content of an existing recipe by id and records a revision. Fields that are left out or null are cleared, so read the recipe with get_recipe first and send back all of its content with the changes. Does not change the photo or the notes: use set_recipe_photo and add_note for those.',
       inputSchema: z.object({ id: recipeId, ...SaveRecipeRequest.shape }),
+      outputSchema: IdResult,
     },
     async ({ id, recipe, revisionNote }) =>
       (await updateRecipe(id, recipe, author, revisionNote))
@@ -107,8 +120,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Delete recipe',
       description:
-        'Deletes a recipe permanently by id, with its photo, notes and revision history. It cannot be restored. Use only when the user explicitly asks to delete the recipe. Returns the id of the deleted recipe, or an error if no recipe has the id.',
+        'Deletes a recipe permanently by id, with its photo, notes and revision history. It cannot be restored. Use only when the user explicitly asks to delete the recipe.',
       inputSchema: z.object({ id: recipeId }),
+      outputSchema: IdResult,
       annotations: { destructiveHint: true },
     },
     async ({ id }) =>
@@ -120,7 +134,7 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Set recipe photo',
       description:
-        'Sets the photo of a recipe by id and replaces the old one. Takes the image file as base64 or as a base64 data URL, up to about 25 MB. Supported formats are JPEG, PNG, WebP, GIF, AVIF and TIFF, and the server detects the format from the data. HEIC is not supported, so convert iPhone photos to JPEG first. The server shrinks the image to fit 1600 × 1600 pixels and stores it as WebP. Returns the recipe id, or an error if no recipe has the id or the data is not an image. For an image with a public URL, use set_recipe_photo_from_url instead.',
+        'Sets the photo of a recipe by id and replaces the old one. The image can be up to about 25 MB. Supported formats are JPEG, PNG, WebP, GIF, AVIF and TIFF, and the server detects the format from the data. HEIC is not supported, so convert iPhone photos to JPEG first. The server shrinks the image to fit 1600 × 1600 pixels and stores it as WebP. For an image with a public URL, use set_recipe_photo_from_url instead.',
       inputSchema: z.object({
         id: recipeId,
         data: z
@@ -129,6 +143,7 @@ export function createMcpServer(user: User): McpServer {
           .pipe(z.base64())
           .describe('The image file as base64, or as a base64 data URL.'),
       }),
+      outputSchema: IdResult,
     },
     async ({ id, data }) => {
       const saved = await replacePhoto(id, Buffer.from(data, 'base64'));
@@ -143,13 +158,14 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Set recipe photo from URL',
       description:
-        'Sets the photo of a recipe by id from a public http or https image URL, and replaces the old one. The server downloads the image, so the URL must point to the image file itself, not to a web page. When importing a recipe from a web page, the og:image meta tag or the main <img> of the page usually holds the photo URL. The image can be up to 25 MB, and the formats are the same as in set_recipe_photo. Returns the recipe id, or an error if no recipe has the id or the download fails. Use set_recipe_photo instead for an image that has no public URL.',
+        'Sets the photo of a recipe by id from a public image URL, and replaces the old one. The server downloads the image. When importing a recipe from a web page, the og:image meta tag or the main <img> of the page usually holds the photo URL. The image can be up to 25 MB, and the formats are the same as in set_recipe_photo. Use set_recipe_photo instead for an image that has no public URL.',
       inputSchema: z.object({
         id: recipeId,
         url: z
           .url({ protocol: /^https?$/ })
-          .describe('Public http or https URL of the image file.'),
+          .describe('URL of the image file itself, not of a web page.'),
       }),
+      outputSchema: IdResult,
     },
     async ({ id, url }) => {
       let data: Buffer;
@@ -171,8 +187,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Add note',
       description:
-        'Adds a dated note to a recipe by id, such as how it turned out or what to try next time. Notes are signed by the user and shown on the recipe page. They are not part of the recipe content and do not create a revision. Returns the new note (id, authorName, text, createdAt). Do NOT use to change the recipe itself: use update_recipe.',
+        'Adds a dated note to a recipe by id, such as how it turned out or what to try next time. Notes are signed by the user and shown on the recipe page. They are not part of the recipe content and do not create a revision. Do NOT use to change the recipe itself: use update_recipe.',
       inputSchema: z.object({ id: recipeId, ...NoteInput.shape }),
+      outputSchema: Note,
     },
     async ({ id, text }) => {
       const note = await addNote(id, user.id, text);
@@ -185,8 +202,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'List tags',
       description:
-        'Lists all tags in use with the number of recipes for each, most used first. Returns the name and count of each tag. Use this to reuse existing tags when creating or updating a recipe, and to find tag names for the tags filter of search_recipes.',
+        'Lists all tags in use, most used first. Use this to reuse existing tags when creating or updating a recipe, and to find tag names for the tags filter of search_recipes.',
       inputSchema: z.object({}),
+      outputSchema: z.object({ tags: z.array(TagCount) }),
       annotations: { readOnlyHint: true },
     },
     async () => result({ tags: await listTags() }),
@@ -197,10 +215,11 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'List ingredient names',
       description:
-        'Lists the ingredient names in use, in alphabetical order, with the number of recipes for each. The optional query keeps only names that contain the text, ignoring case. Use this before create_recipe or update_recipe to reuse an existing name instead of a new variant of it, so that shopping lists combine the same ingredient. Does not return amounts or recipes: use get_ingredients for those.',
+        'Lists the ingredient names in use, in alphabetical order. Use this before create_recipe or update_recipe to reuse an existing name instead of a new variant of it, so that shopping lists combine the same ingredient. Does not return amounts or recipes: use get_ingredients for those.',
       inputSchema: z.object({
-        query: z.string().optional().describe('Only names that contain this text.'),
+        query: z.string().optional().describe('Only names that contain this text, ignoring case.'),
       }),
+      outputSchema: z.object({ ingredients: z.array(IngredientNameCount) }),
       annotations: { readOnlyHint: true },
     },
     async ({ query }) => result({ ingredients: await listIngredientNames(query) }),
@@ -211,9 +230,17 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Get ingredients',
       description:
-        'Returns the ingredients of up to 50 recipes by id in one call, for example to build a shopping list for planned dishes. For each recipe returns id, title, servings and ingredientGroups (each ingredient has amount, name and note), in the order of the ids. missing lists the ids that match no recipe. Does not include steps or other content: use get_recipe for one full recipe.',
+        'Returns the ingredients of several recipes by id in one call, for example to build a shopping list for planned dishes. Does not include steps or other content: use get_recipe for one full recipe.',
       inputSchema: z.object({
-        ids: z.array(z.uuid()).min(1).max(50).describe('Recipe ids from search_recipes.'),
+        ids: z
+          .array(z.uuid())
+          .min(1)
+          .max(50)
+          .describe('Recipe ids from search_recipes or get_week_plan.'),
+      }),
+      outputSchema: z.object({
+        recipes: z.array(RecipeIngredients).describe('In the order of the ids.'),
+        missing: z.array(z.uuid()).describe('The ids that match no recipe.'),
       }),
       annotations: { readOnlyHint: true },
     },
@@ -228,12 +255,9 @@ export function createMcpServer(user: User): McpServer {
     'get_week_plan',
     {
       title: 'Get week plan',
-      description:
-        'Returns the week plan entries from one date to another, both included, up to 366 days. The household shares one plan. A week starts on Saturday, the grocery delivery day. Each entry has id, date (YYYY-MM-DD), position (the order within the date, from 0), text, note and recipe. recipe is null for a free-text entry. Otherwise it has id, title, activeMinutes, totalMinutes and photoUrl. The text is what the plan shows, and it can differ from the recipe title. Dates without entries are left out. To build a shopping list, pass the recipe ids to get_ingredients.',
-      inputSchema: z.object({
-        from: IsoDate.describe('First date, YYYY-MM-DD.'),
-        to: IsoDate.describe('Last date, YYYY-MM-DD.'),
-      }),
+      description: `Returns the week plan entries from one date to another, both included, up to ${maxPlanDays} days. The household shares one plan. A week starts on Saturday, the grocery delivery day. Dates without entries are left out. To build a shopping list, pass the recipe ids to get_ingredients.`,
+      inputSchema: z.object({ from: IsoDate, to: IsoDate }),
+      outputSchema: z.object({ entries: z.array(WeekPlanEntry) }),
       annotations: { readOnlyHint: true },
     },
     async (range) => {
@@ -248,14 +272,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Add week plan entry',
       description:
-        'Adds a meal to the week plan on a date. text is what the plan shows, such as a dish name. To link a recipe, find its id with search_recipes and use the recipe title as the text, unless the user asks for other text. note holds extra details, such as "double batch". The entry goes last on its date, unless position gives its place from 0. Returns the new entry, or an error if no recipe has the id.',
-      inputSchema: z.object({
-        date: entryFields.date.describe('Date, YYYY-MM-DD.'),
-        text: entryFields.text.describe('The text that the plan shows.'),
-        note: entryFields.note.describe('Optional extra details.'),
-        recipeId: entryFields.recipeId.describe('Optional recipe id from search_recipes.'),
-        position: entryFields.position.describe('Optional place within the date, from 0.'),
-      }),
+        'Adds a meal to the week plan on a date, as free text or linked to a recipe. Returns the new entry.',
+      inputSchema: AddEntryInput,
+      outputSchema: WeekPlanEntry,
     },
     async (input) => {
       const entry = await addEntry(input, author);
@@ -268,15 +287,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Update week plan entry',
       description:
-        'Changes a week plan entry by id. Fields that are left out keep their values. A null note clears the note, and a null recipeId removes the recipe link. Give a date to move the entry to another date, and a position to reorder it within its date. A new date without a position puts the entry last on that date. Returns the changed entry, or an error if no entry or recipe has the id.',
-      inputSchema: z.object({
-        id: entryId,
-        text: updateFields.text.describe('New text.'),
-        note: updateFields.note.describe('New note, or null to clear it.'),
-        recipeId: updateFields.recipeId.describe('New recipe id, or null to remove the link.'),
-        date: updateFields.date.describe('New date, YYYY-MM-DD.'),
-        position: updateFields.position.describe('New place within the date, from 0.'),
-      }),
+        'Changes a week plan entry by id. Fields that are left out keep their values. Give a date to move the entry to another date, and a position to reorder it within its date. Returns the changed entry.',
+      inputSchema: z.object({ id: entryId, ...UpdateEntryInput.shape }),
+      outputSchema: WeekPlanEntry,
     },
     async ({ id, ...update }) => {
       const entry = await updateEntry(id, update, author);
@@ -291,8 +304,9 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Remove week plan entry',
       description:
-        'Removes an entry from the week plan by id. The change history keeps a copy of it. Returns the id, or an error if no entry has the id.',
+        'Removes an entry from the week plan by id. The change history keeps a copy of it.',
       inputSchema: z.object({ id: entryId }),
+      outputSchema: IdResult,
       annotations: { destructiveHint: true },
     },
     async ({ id }) =>

@@ -29,6 +29,13 @@ async function callTool(name: string, args: Record<string, unknown>) {
   return client.callTool({ name, arguments: args });
 }
 
+describe('tools', () => {
+  it('declare an output schema', async () => {
+    const { tools } = await client.listTools();
+    expect(tools.filter((t) => !t.outputSchema).map((t) => t.name)).toEqual([]);
+  });
+});
+
 describe('search_recipes', () => {
   it('finds recipes by search words and tags', async () => {
     const author = { userId: user.id, source: 'app' } as const;
