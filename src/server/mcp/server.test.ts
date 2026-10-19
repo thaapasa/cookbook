@@ -173,6 +173,21 @@ describe('set_recipe_photo', () => {
   });
 });
 
+describe('set_recipe_photo_from_url', () => {
+  it('refuses local and non-http URLs', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const local = await callTool('set_recipe_photo_from_url', {
+      id,
+      url: 'http://localhost:3000/images/photo.webp',
+    });
+    expect(local.isError).toBe(true);
+    expect((local.content as { text: string }[])[0].text).toMatch(/not a public address/);
+    const file = await callTool('set_recipe_photo_from_url', { id, url: 'file:///etc/passwd' });
+    expect(file.isError).toBe(true);
+    expect((await getRecipe(id))?.photoUrl).toBeNull();
+  });
+});
+
 describe('add_note', () => {
   it('adds a note as the user', async () => {
     const id = await addRecipe(author, { title: 'Pulla' });

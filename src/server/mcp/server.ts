@@ -10,6 +10,7 @@ import {
   UpdateEntryInput,
   WeekPlanQuery,
 } from '../../shared/week-plan.ts';
+import { DownloadError, downloadImage } from '../image-download.ts';
 import { deleteRecipeWithPhoto, replacePhoto } from '../recipes/photos.ts';
 import {
   addNote,
@@ -119,7 +120,7 @@ export function createMcpServer(user: User): McpServer {
     {
       title: 'Set recipe photo',
       description:
-        'Sets the photo of a recipe by id and replaces the old one. Takes the image file as base64 or as a base64 data URL, up to about 25 MB. Supported formats are JPEG, PNG, WebP, GIF, AVIF and TIFF, and the server detects the format from the data. HEIC is not supported, so convert iPhone photos to JPEG first. The server shrinks the image to fit 1600 × 1600 pixels and stores it as WebP. Returns the recipe id, or an error if no recipe has the id or the data is not an image.',
+        'Sets the photo of a recipe by id and replaces the old one. Takes the image file as base64 or as a base64 data URL, up to about 25 MB. Supported formats are JPEG, PNG, WebP, GIF, AVIF and TIFF, and the server detects the format from the data. HEIC is not supported, so convert iPhone photos to JPEG first. The server shrinks the image to fit 1600 × 1600 pixels and stores it as WebP. Returns the recipe id, or an error if no recipe has the id or the data is not an image. For an image with a public URL, use set_recipe_photo_from_url instead.',
       inputSchema: z.object({
         id: recipeId,
         data: z
@@ -133,6 +134,34 @@ export function createMcpServer(user: User): McpServer {
       const saved = await replacePhoto(id, Buffer.from(data, 'base64'));
       if (saved === 'not-found') return error(`No recipe ${id}`);
       if (saved === 'not-an-image') return error('The data is not an image');
+      return result({ id });
+    },
+  );
+
+  server.registerTool(
+    'set_recipe_photo_from_url',
+    {
+      title: 'Set recipe photo from URL',
+      description:
+        'Sets the photo of a recipe by id from a public http or https image URL, and replaces the old one. The server downloads the image, so the URL must point to the image file itself, not to a web page. When importing a recipe from a web page, the og:image meta tag or the main <img> of the page usually holds the photo URL. The image can be up to 25 MB, and the formats are the same as in set_recipe_photo. Returns the recipe id, or an error if no recipe has the id or the download fails. Use set_recipe_photo instead for an image that has no public URL.',
+      inputSchema: z.object({
+        id: recipeId,
+        url: z
+          .url({ protocol: /^https?$/ })
+          .describe('Public http or https URL of the image file.'),
+      }),
+    },
+    async ({ id, url }) => {
+      let data: Buffer;
+      try {
+        data = await downloadImage(url);
+      } catch (e) {
+        if (e instanceof DownloadError) return error(e.message);
+        throw e;
+      }
+      const saved = await replacePhoto(id, data);
+      if (saved === 'not-found') return error(`No recipe ${id}`);
+      if (saved === 'not-an-image') return error('The URL does not point to an image');
       return result({ id });
     },
   );
