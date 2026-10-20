@@ -1,6 +1,7 @@
 import './styles.css';
 import './i18n.ts';
 import './theme.ts';
+import './update-check.ts';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';

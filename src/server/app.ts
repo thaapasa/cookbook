@@ -1,5 +1,5 @@
 import { serveStatic } from '@hono/node-server/serve-static';
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { csrf } from 'hono/csrf';
 
 import { type AuthEnv, authRoutes, sessionMiddleware } from './auth/routes.ts';
@@ -30,17 +30,36 @@ app.all('/api/*', (c) => c.notFound());
 // MCP clients authenticate with a bearer token instead of the session cookie.
 app.route('/mcp', mcpRoutes);
 
+const immutable = 'public, max-age=31536000, immutable';
+
 // Each upload gets a new file name, so the files never change.
 app.use(
   '/images/*',
+  cacheControl(immutable),
   serveStatic({
     root: imagesDir,
     rewriteRequestPath: (p) => p.replace(/^\/images/, ''),
-    onFound: (_path, c) => c.header('cache-control', 'public, max-age=31536000, immutable'),
   }),
 );
 app.all('/images/*', (c) => c.notFound());
 
-app.use('/*', serveStatic({ root: clientDir }));
+// Built assets have a content hash in the file name.
+app.use('/assets/*', cacheControl(immutable), serveStatic({ root: clientDir }));
+app.all('/assets/*', (c) => c.notFound());
+
+// Other files, such as index.html and version.json, must be checked on each load
+// to get a new version.
+app.use('/*', cacheControl('no-cache'), serveStatic({ root: clientDir }));
 // Client-side routes get the app shell.
-app.get('*', serveStatic({ path: `${clientDir}/index.html` }));
+app.get('*', cacheControl('no-cache'), serveStatic({ path: `${clientDir}/index.html` }));
+
+/**
+ * Sets `cache-control` on successful responses. The `onFound` option of
+ * `serveStatic` runs after the response is built, so headers set there are lost.
+ */
+function cacheControl(value: string): MiddlewareHandler {
+  return async (c, next) => {
+    await next();
+    if (c.res.ok) c.header('cache-control', value);
+  };
+}
