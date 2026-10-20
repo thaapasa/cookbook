@@ -13,7 +13,7 @@ export const optionClass =
   'grid min-h-12 cursor-pointer grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 rounded-[10px] px-2.5 py-1.5 outline-none data-focused:bg-panel';
 
 export const suggestionsPopoverClass =
-  'w-(--trigger-width) rounded-[14px] border border-line bg-card p-1.5 shadow-[0_12px_28px_var(--color-shadow)]';
+  'w-(--trigger-width) max-h-none! rounded-[14px] border border-line bg-card p-1.5 shadow-[0_12px_28px_var(--color-shadow)]';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value);

@@ -124,7 +124,7 @@ function UserMenu({ user }: { user: User }) {
       </Button>
       <Popover
         placement="bottom end"
-        className="min-w-48 rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_var(--color-shadow)]"
+        className="min-w-48 max-h-none! rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_var(--color-shadow)]"
       >
         <div className="px-3 pt-2 pb-1 text-sm text-muted">{user.displayName}</div>
         <Menu className="outline-none">

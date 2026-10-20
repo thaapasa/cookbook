@@ -110,6 +110,17 @@ function EntryInput({ onEnter }: { onEnter: () => void }) {
     });
     return () => cancelAnimationFrame(frame);
   }, [input]);
+  // React Aria closes the menu when the page scrolls, which happens easily on
+  // touch screens. The menu moves with the page, so this opens it again in the
+  // same event, and React renders it as if it never closed.
+  useEffect(() => {
+    const onScroll = () => {
+      const current = latest.current;
+      if (current?.isFocused && current.isOpen) current.open(null, 'input');
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const onKeyDownCapture = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && state?.selectionManager.focusedKey == null) {

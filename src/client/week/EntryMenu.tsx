@@ -28,7 +28,7 @@ import { RecipeOption, useRecipeSuggestions } from './RecipeSearch.tsx';
 const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
 const popoverClass =
-  'rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_var(--color-shadow)]';
+  'max-h-none! rounded-2xl border border-line-soft bg-card p-1.5 shadow-[0_10px_28px_var(--color-shadow)]';
 
 const itemClass =
   'flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-[15px] font-semibold outline-none data-focused:bg-chip';
