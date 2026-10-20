@@ -5,7 +5,8 @@ See `README.md` for the app and the stack.
 ## Linting
 
 After editing code, run `npm run lint -- --fix`. It sorts imports and reports
-the remaining problems. Fix every error and warning.
+the remaining problems. Fix every error and warning. Then, run `npm run format`
+to format code with Prettier.
 
 ## Tests
 

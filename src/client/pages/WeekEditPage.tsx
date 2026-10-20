@@ -172,11 +172,7 @@ function WeekEditor() {
 
 /** Takes dropped entries and puts them last on the day. */
 function DropAtEnd(props: { onDrop: (id: string) => void; children: ReactNode }) {
-  const { ref, position } = useDropTarget<HTMLDivElement>(
-    dragType,
-    props.onDrop,
-    'before',
-  );
+  const { ref, position } = useDropTarget<HTMLDivElement>(dragType, props.onDrop, 'before');
   return (
     <div ref={ref} className="relative sm:pr-26 sm:pl-11">
       {props.children}

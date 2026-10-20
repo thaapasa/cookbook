@@ -230,11 +230,7 @@ function GroupHeader(props: {
 }) {
   const { ref, position } = useDropTarget<HTMLDivElement>(props.type, props.onDrop);
   return (
-    <div
-      ref={ref}
-      {...{ [dragRowAttribute]: '' }}
-      className="relative flex items-center gap-1.5"
-    >
+    <div ref={ref} {...{ [dragRowAttribute]: '' }} className="relative flex items-center gap-1.5">
       {props.children}
       <DropIndicator position={position} />
     </div>
@@ -266,11 +262,7 @@ function AddItemButton(props: {
   onPress: () => void;
   children: ReactNode;
 }) {
-  const { ref, position } = useDropTarget<HTMLDivElement>(
-    props.type,
-    props.onDrop,
-    'before',
-  );
+  const { ref, position } = useDropTarget<HTMLDivElement>(props.type, props.onDrop, 'before');
   return (
     <div ref={ref} className="relative self-stretch">
       <Button
