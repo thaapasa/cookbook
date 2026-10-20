@@ -172,13 +172,13 @@ function WeekEditor() {
 
 /** Takes dropped entries and puts them last on the day. */
 function DropAtEnd(props: { onDrop: (id: string) => void; children: ReactNode }) {
-  const { ref, dropProps, position } = useDropTarget<HTMLDivElement>(
+  const { ref, position } = useDropTarget<HTMLDivElement>(
     dragType,
     props.onDrop,
     'before',
   );
   return (
-    <div ref={ref} {...dropProps} className="relative sm:pr-26 sm:pl-11">
+    <div ref={ref} className="relative sm:pr-26 sm:pl-11">
       {props.children}
       <DropIndicator position={position} />
     </div>
@@ -196,7 +196,7 @@ function EntryRow(props: {
   const { entry, dayName, onDrop, onStep, onUpdate, onRemove } = props;
   const { t } = useTranslation();
   const formatMinutes = useFormatMinutes();
-  const { ref, dropProps, position } = useDropTarget<HTMLLIElement>(dragType, onDrop);
+  const { ref, position } = useDropTarget<HTMLLIElement>(dragType, onDrop);
   const [dragging, setDragging] = useState(false);
   const { recipe } = entry;
   const minutes = recipe && (recipe.totalMinutes ?? recipe.activeMinutes);
@@ -204,7 +204,6 @@ function EntryRow(props: {
   return (
     <li
       ref={ref}
-      {...dropProps}
       {...{ [dragRowAttribute]: '' }}
       className={`relative grid grid-cols-[36px_minmax(0,1fr)_44px_44px] items-start gap-1 rounded-[14px] bg-card sm:gap-2 ${
         dragging ? 'opacity-40' : ''

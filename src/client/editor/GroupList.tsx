@@ -228,11 +228,10 @@ function GroupHeader(props: {
   onDrop: (key: string, position: 'before' | 'after') => void;
   children: ReactNode;
 }) {
-  const { ref, dropProps, position } = useDropTarget<HTMLDivElement>(props.type, props.onDrop);
+  const { ref, position } = useDropTarget<HTMLDivElement>(props.type, props.onDrop);
   return (
     <div
       ref={ref}
-      {...dropProps}
       {...{ [dragRowAttribute]: '' }}
       className="relative flex items-center gap-1.5"
     >
@@ -247,12 +246,11 @@ function ItemRow(props: {
   onDrop: (key: string, position: 'before' | 'after') => void;
   children: (onDraggingChange: (dragging: boolean) => void) => ReactNode;
 }) {
-  const { ref, dropProps, position } = useDropTarget<HTMLLIElement>(props.type, props.onDrop);
+  const { ref, position } = useDropTarget<HTMLLIElement>(props.type, props.onDrop);
   const [dragging, setDragging] = useState(false);
   return (
     <li
       ref={ref}
-      {...dropProps}
       {...{ [dragRowAttribute]: '' }}
       className={`relative rounded-xl bg-card ${dragging ? 'opacity-40' : ''}`}
     >
@@ -268,13 +266,13 @@ function AddItemButton(props: {
   onPress: () => void;
   children: ReactNode;
 }) {
-  const { ref, dropProps, position } = useDropTarget<HTMLDivElement>(
+  const { ref, position } = useDropTarget<HTMLDivElement>(
     props.type,
     props.onDrop,
     'before',
   );
   return (
-    <div ref={ref} {...dropProps} className="relative self-stretch">
+    <div ref={ref} className="relative self-stretch">
       <Button
         onPress={props.onPress}
         className="min-h-11 cursor-pointer px-1 text-[15px] font-semibold text-accent-strong"
