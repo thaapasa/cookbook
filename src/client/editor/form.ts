@@ -7,8 +7,13 @@ import {
   type SaveRecipeRequest,
 } from '../../shared/recipe.ts';
 
-/** A client-side key for list items, used for React keys and focus. */
-export const newKey = () => crypto.randomUUID();
+let keyCounter = 0;
+
+/**
+ * A client-side key for list items, used for React keys and focus. Not
+ * `crypto.randomUUID()`, which browsers only offer on HTTPS and localhost.
+ */
+export const newKey = () => `k${++keyCounter}`;
 
 const Minutes = z
   .string()
