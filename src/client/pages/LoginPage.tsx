@@ -5,6 +5,7 @@ import { Button, Form, Input, Label, TextField } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { ApiError, login, meQuery } from '../api.ts';
+import { useGoBack } from '../back.tsx';
 import {
   errorClass,
   fieldClass,
@@ -17,7 +18,7 @@ const route = getRouteApi('/_main/login');
 export function LoginPage() {
   const { t } = useTranslation();
   const { redirect = '/' } = route.useSearch();
-  const navigate = route.useNavigate();
+  const goBack = useGoBack();
   const queryClient = useQueryClient();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +26,7 @@ export function LoginPage() {
     mutationFn: () => login({ username, password }),
     onSuccess: async (user) => {
       queryClient.setQueryData(meQuery.queryKey, { user });
-      await navigate({ to: redirect });
+      await goBack({ href: redirect });
     },
   });
 

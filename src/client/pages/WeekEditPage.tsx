@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { addDays, weekDates, type WeekPlanEntry } from '../../shared/week-plan.ts';
 import { weekPlanQuery } from '../api.ts';
+import { BackLink, useBackState } from '../back.tsx';
 import { primaryButtonClass } from '../components/fieldStyles.ts';
 import {
   CheckIcon,
@@ -85,20 +86,22 @@ function WeekEditor() {
     <>
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-250 flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3.5 sm:px-6">
-          <Link
-            to="/week/$start"
-            params={{ start }}
+          <BackLink
+            fallback={{ to: '/week/$start', params: { start } }}
             className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
           >
             <ChevronLeftIcon />
             {t('weekEdit.back')}
-          </Link>
+          </BackLink>
           <h1 className="font-display text-xl font-bold">{t('weekEdit.title')}</h1>
           <span className="text-muted tabular-nums">{format.range(start, addDays(start, 6))}</span>
-          <Link to="/week/$start" params={{ start }} className={`${primaryButtonClass} ml-auto`}>
+          <BackLink
+            fallback={{ to: '/week/$start', params: { start } }}
+            className={`${primaryButtonClass} ml-auto`}
+          >
             <CheckIcon />
             {t('weekEdit.done')}
-          </Link>
+          </BackLink>
         </div>
       </header>
 
@@ -192,6 +195,7 @@ function EntryRow(props: {
   const { entry, dayName, onDrop, onStep, onUpdate, onRemove } = props;
   const { t } = useTranslation();
   const formatMinutes = useFormatMinutes();
+  const backState = useBackState('weekEdit.title');
   const { ref, position } = useDropTarget<HTMLLIElement>(dragType, onDrop);
   const [dragging, setDragging] = useState(false);
   const { recipe } = entry;
@@ -245,6 +249,7 @@ function EntryRow(props: {
             <Link
               to="/recipes/$recipeId"
               params={{ recipeId: recipe.id }}
+              state={backState}
               className="inline-flex min-h-11 flex-none items-center gap-1.25 text-[13px] text-muted hover:text-accent-strong"
             >
               <LinkIcon size={14} />

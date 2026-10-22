@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import { z } from 'zod';
 
+import type { BackTarget } from './back.tsx';
 import { AppHeader } from './components/AppHeader.tsx';
 import { CookingPage } from './pages/CookingPage.tsx';
 import { EditorPage } from './pages/EditorPage.tsx';
@@ -139,5 +140,11 @@ export const router = createRouter({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
+  }
+}
+
+declare module '@tanstack/history' {
+  interface HistoryState {
+    back?: BackTarget;
   }
 }

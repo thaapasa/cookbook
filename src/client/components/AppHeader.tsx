@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { User } from '../../shared/auth.ts';
 import { logout, meQuery } from '../api.ts';
+import { useBackState } from '../back.tsx';
 import { setThemeMode, type ThemeMode, themeModes, useThemeMode } from '../theme.ts';
 import { ContrastIcon, LogoIcon, MoonIcon, PlusIcon, SunIcon } from './icons.tsx';
 
@@ -13,6 +14,7 @@ export function AppHeader() {
   const me = useQuery(meQuery);
   const user = me.data?.user;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const backState = useBackState();
 
   return (
     <header className="border-b border-line">
@@ -27,6 +29,7 @@ export function AppHeader() {
             <>
               <Link
                 to="/recipes/new"
+                state={backState}
                 className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:text-on-ink"
               >
                 <PlusIcon />
@@ -41,7 +44,8 @@ export function AppHeader() {
               {me.isSuccess && pathname !== '/login' && (
                 <Link
                   to="/login"
-                  search={{ redirect: pathname }}
+                  search={{ redirect: backState.back.href }}
+                  state={backState}
                   className="inline-flex min-h-11 items-center px-3 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
                 >
                   {t('app.login')}

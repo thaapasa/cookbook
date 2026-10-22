@@ -50,6 +50,7 @@ export const fi = {
   },
   recipe: {
     allRecipes: 'Kaikki reseptit',
+    weekPlan: 'Viikon ruoat',
     photo: 'Reseptin kuva',
     servings: 'Annokset',
     activeTime: 'Työaika',

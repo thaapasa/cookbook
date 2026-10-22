@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
 import { recipeListQuery, tagsQuery } from '../api.ts';
+import { useBackState } from '../back.tsx';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -113,11 +114,13 @@ export function RecipeListPage() {
 
 function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
   const formatMinutes = useFormatMinutes();
+  const backState = useBackState('recipe.allRecipes');
   const minutes = recipe.totalMinutes ?? recipe.activeMinutes;
   return (
     <Link
       to="/recipes/$recipeId"
       params={{ recipeId: recipe.id }}
+      state={backState}
       className="flex w-full flex-col gap-3 rounded-[18px] border border-line-soft bg-card p-2.5 pb-4 text-ink no-underline transition hover:-translate-y-0.5 hover:shadow-[0_10px_28px_var(--color-shadow)]"
     >
       <RecipePhoto recipeId={recipe.id} photoUrl={recipe.photoUrl} className="rounded-xl" />

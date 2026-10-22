@@ -19,3 +19,5 @@ Shows a single recipe.
       notes and revision history.
 - [x] Step groups are shown under their names.
 - [x] The source is shown as a link when it is a URL, otherwise as text.
+- [x] The back link names the page it returns to, such as the recipe list or
+      the week plan.

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, Navigate, useLocation, useNavigate, useParams } from '@tanstack/react-router';
+import { Navigate, useLocation, useNavigate, useParams } from '@tanstack/react-router';
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Button, Form } from 'react-aria-components';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -20,6 +20,7 @@ import {
   updateRecipe,
   uploadPhoto,
 } from '../api.ts';
+import { BackLink, useGoBack } from '../back.tsx';
 import { errorClass, primaryButtonClass, secondaryButtonClass } from '../components/fieldStyles.ts';
 import { CheckIcon, ChevronLeftIcon } from '../components/icons.tsx';
 import { FormTextField, Section } from '../editor/fields.tsx';
@@ -79,6 +80,7 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const form = useForm<EditorValues, unknown, EditorOutput>({
     resolver: zodResolver(EditorForm),
     defaultValues: toFormValues(recipe),
@@ -134,7 +136,9 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
         queryClient.invalidateQueries(recipeQuery(id)),
         queryClient.invalidateQueries({ queryKey: ['tags'] }),
       ]);
-      await navigate({ to: '/recipes/$recipeId', params: { recipeId: id } });
+      // A new recipe replaces the editor, so that going back does not open an empty editor.
+      if (recipe) await goBack({ to: '/recipes/$recipeId', params: { recipeId: id } });
+      else await navigate({ to: '/recipes/$recipeId', params: { recipeId: id }, replace: true });
     },
   });
 
@@ -152,13 +156,13 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
     <FormProvider {...form}>
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-230 flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3.5 sm:px-6">
-          <Link
-            {...cancel}
+          <BackLink
+            fallback={cancel}
             className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
           >
             <ChevronLeftIcon />
             {t('editor.cancel')}
-          </Link>
+          </BackLink>
           <h1 className="font-display text-xl font-bold">
             {recipe ? t('editor.editTitle') : t('editor.newTitle')}
           </h1>
@@ -257,9 +261,12 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
               </p>
             )}
             <div className="flex flex-wrap justify-end gap-2.5">
-              <Link {...cancel} className={`${secondaryButtonClass} min-h-12 hover:text-ink`}>
+              <BackLink
+                fallback={cancel}
+                className={`${secondaryButtonClass} min-h-12 hover:text-ink`}
+              >
                 {t('editor.cancel')}
-              </Link>
+              </BackLink>
               <Button
                 type="submit"
                 isDisabled={save.isPending}

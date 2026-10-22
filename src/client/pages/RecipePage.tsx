@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRouteApi, Link, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, Link } from '@tanstack/react-router';
 import { type FormEvent, useState } from 'react';
 import {
   Button,
@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
 import { addNote, ApiError, deleteRecipe, meQuery, recipeQuery } from '../api.ts';
+import { BackLink, useBackState, useBackTarget, useGoBack } from '../back.tsx';
 import { errorClass, primaryButtonClass, secondaryButtonClass } from '../components/fieldStyles.ts';
 import { ChevronLeftIcon, PencilIcon, PotIcon, TrashIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
@@ -31,16 +32,17 @@ export function RecipePage() {
   const { t } = useTranslation();
   const { recipeId } = route.useParams();
   const recipe = useQuery(recipeQuery(recipeId));
+  const back = useBackTarget();
 
   return (
     <main className="mx-auto flex max-w-290 flex-col gap-8 px-4 pt-4 pb-18 sm:px-6 sm:pt-6">
-      <Link
-        to="/"
+      <BackLink
+        fallback={{ to: '/' }}
         className="inline-flex min-h-11 items-center gap-1.5 self-start text-[15px] font-semibold text-muted no-underline hover:text-accent-strong"
       >
         <ChevronLeftIcon />
-        {t('recipe.allRecipes')}
-      </Link>
+        {t(back?.label ?? 'recipe.allRecipes')}
+      </BackLink>
       {recipe.isPending ? (
         <p className="text-muted">{t('common.loading')}</p>
       ) : recipe.isError ? (
@@ -58,6 +60,7 @@ export function RecipePage() {
 
 function RecipeContent({ recipe }: { recipe: Recipe }) {
   const { t } = useTranslation();
+  const backState = useBackState();
   const formatMinutes = useFormatMinutes();
   const user = useQuery(meQuery).data?.user;
   const facts = [
@@ -121,6 +124,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
               <Link
                 to="/recipes/$recipeId/cook"
                 params={{ recipeId: recipe.id }}
+                state={backState}
                 className={`${primaryButtonClass} min-h-13 px-6 text-base hover:text-on-ink`}
               >
                 <PotIcon />
@@ -131,6 +135,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
                   <Link
                     to="/recipes/$recipeId/edit"
                     params={{ recipeId: recipe.id }}
+                    state={backState}
                     className={`${secondaryButtonClass} min-h-13 px-5 text-base hover:text-ink`}
                   >
                     <PencilIcon />
@@ -217,11 +222,11 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
 function DeleteRecipeButton({ recipe }: { recipe: Recipe }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const goBack = useGoBack();
   const remove = useMutation({
     mutationFn: () => deleteRecipe(recipe.id),
     onSuccess: async () => {
-      await navigate({ to: '/' });
+      await goBack({ to: '/' });
       queryClient.removeQueries(recipeQuery(recipe.id));
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['recipes'] }),
@@ -293,6 +298,7 @@ function Notes({ recipe }: { recipe: Recipe }) {
   const { t } = useTranslation();
   const formatDate = useFormatDate();
   const user = useQuery(meQuery).data?.user;
+  const backState = useBackState();
 
   return (
     <section
@@ -341,6 +347,7 @@ function Notes({ recipe }: { recipe: Recipe }) {
         <Link
           to="/login"
           search={{ redirect: `/recipes/${recipe.id}` }}
+          state={backState}
           className="self-start text-sm text-muted underline-offset-3 hover:text-accent-strong"
         >
           {t('recipe.loginToAddNote')}

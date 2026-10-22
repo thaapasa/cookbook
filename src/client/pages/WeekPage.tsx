@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { addDays, weekDates, type WeekPlanEntry } from '../../shared/week-plan.ts';
 import { weekPlanQuery } from '../api.ts';
+import { useBackState } from '../back.tsx';
 import { primaryButtonClass } from '../components/fieldStyles.ts';
 import {
   ChevronLeftIcon,
@@ -31,6 +32,7 @@ function WeekView() {
   const { t } = useTranslation();
   const { start } = route.useParams();
   const plan = useQuery(weekPlanQuery(start));
+  const backState = useBackState();
   const todayDate = today();
   const end = addDays(start, 6);
 
@@ -43,6 +45,7 @@ function WeekView() {
         <Link
           to="/week/$start/edit"
           params={{ start }}
+          state={backState}
           className={`${primaryButtonClass} col-start-2 row-start-1 max-sm:size-11 max-sm:px-0 sm:row-span-2 sm:min-h-12`}
         >
           <PencilIcon />
@@ -71,7 +74,12 @@ function WeekView() {
           <p className="font-display text-xl font-bold sm:text-2xl">
             {end < todayDate ? t('week.emptyPast') : t('week.emptyFuture')}
           </p>
-          <Link to="/week/$start/edit" params={{ start }} className={primaryButtonClass}>
+          <Link
+            to="/week/$start/edit"
+            params={{ start }}
+            state={backState}
+            className={primaryButtonClass}
+          >
             {t('week.plan')}
           </Link>
         </div>
@@ -174,6 +182,7 @@ const thumbClass = 'size-11 rounded-[10px] sm:size-14 sm:rounded-xl';
 
 function EntryItem({ entry }: { entry: WeekPlanEntry }) {
   const { t } = useTranslation();
+  const backState = useBackState('recipe.weekPlan');
   const formatMinutes = useFormatMinutes();
   const { recipe } = entry;
   const note = entry.note && (
@@ -198,7 +207,11 @@ function EntryItem({ entry }: { entry: WeekPlanEntry }) {
   }
 
   const minutes = recipe.totalMinutes ?? recipe.activeMinutes;
-  const link = { to: '/recipes/$recipeId', params: { recipeId: recipe.id } } as const;
+  const link = {
+    to: '/recipes/$recipeId',
+    params: { recipeId: recipe.id },
+    state: backState,
+  } as const;
   return (
     <div className={entryGrid}>
       <Link {...link} tabIndex={-1} aria-hidden="true">
@@ -221,6 +234,7 @@ function EntryItem({ entry }: { entry: WeekPlanEntry }) {
       <Link
         to="/recipes/$recipeId/cook"
         params={{ recipeId: recipe.id }}
+        state={backState}
         aria-label={t('week.cookRecipe', { name: entry.text })}
         className="inline-flex min-h-11 items-center gap-2 rounded-full border border-field bg-card text-[15px] font-semibold text-ink no-underline max-sm:size-11 max-sm:justify-center sm:px-3.5"
       >

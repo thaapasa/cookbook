@@ -15,3 +15,8 @@ Requirements that apply to the whole app.
 - [x] Passwords are stored as Argon2id hashes (Node's built-in
       `crypto.argon2`) in PHC string format.
 - [x] A login lasts 90 days from the last use. Logging out ends the session.
+- [x] After logging in, the user returns to the page they were on.
+- [x] Back, close, cancel and done links, and saving or deleting, return to the
+      page the user came from, as it was: the same search, filters, page and
+      scroll position. When there is no such page, such as in a new tab, they
+      go to a default page.

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRouteApi, Link } from '@tanstack/react-router';
+import { getRouteApi } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Checkbox, ToggleButton } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
 import { ApiError, recipeQuery } from '../api.ts';
+import { BackLink } from '../back.tsx';
 import { CloseIcon, SunIcon } from '../components/icons.tsx';
 import { useFormatMinutes } from '../format.ts';
 
@@ -65,14 +66,13 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
   return (
     <>
       <header className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-cook-line px-4 py-4.5 sm:px-8">
-        <Link
-          to="/recipes/$recipeId"
-          params={{ recipeId: recipe.id }}
+        <BackLink
+          fallback={{ to: '/recipes/$recipeId', params: { recipeId: recipe.id } }}
           aria-label={t('cooking.close')}
           className="grid size-13 shrink-0 place-items-center rounded-full bg-cook-raised text-cook-ink hover:text-accent-strong"
         >
           <CloseIcon size={22} strokeWidth={2.2} />
-        </Link>
+        </BackLink>
         <h1 className="min-w-0 font-display text-[34px] leading-tight font-bold tracking-[-0.02em] break-words">
           {recipe.title}
         </h1>

@@ -15,3 +15,5 @@ Editing recipes in the browser.
       them by dragging, also between groups.
 - [x] User can add, remove, rename and reorder step groups.
 - [x] User can edit and remove the notes of a recipe.
+- [x] Saving a new recipe opens the recipe page. Going back from there does not
+      reopen the empty editor.
