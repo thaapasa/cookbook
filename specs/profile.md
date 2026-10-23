@@ -28,16 +28,13 @@ the user who is logged in.
 ## Tokens
 
 - [x] Each user has a personal MCP token and a personal integration token. The
-      integration token is for an integration API for other systems, which is
-      not built yet.
+      integration token is for the [integration API](integration-api.md).
 - [x] Each kind of token starts with a short prefix that tells the kind.
 - [x] For each token, the page shows whether the user has one, when it was
       generated and its last 4 characters.
 - [x] User can generate each token. The server generates the token and saves
       it, which replaces the old one. The page then shows it once, with a
       button that copies it.
-- [ ] Changes made with the integration token are recorded as made by the
-      token's user, and marked as made through the integration API.
 
 ## Confirmation
 

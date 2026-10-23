@@ -22,3 +22,26 @@ Requirements that apply to the whole app.
       page the user came from, as it was: the same search, filters, page and
       scroll position. When there is no such page, such as in a new tab, they
       go to a default page.
+- [ ] A page opened from a link in another system, such as the family
+      dashboard, has back and close links that go back to that system. The
+      links that the integration API returns mark the page as opened this way.
+      When the browser has no page to go back to, such as in a new tab, the
+      links go to the default page.
+
+## Photos
+
+- [ ] Besides the full photo, the server stores two smaller sizes of each
+      recipe photo: 256 px and 768 px on the short side. Photos are cropped to
+      fit their place, so the short side decides how sharp they look. The
+      smaller sizes are made from the full photo and are never larger than it.
+- [ ] The file name of each smaller size tells its size. A change of sizes
+      gives new file names, so cached old files are never shown.
+- [ ] At startup, the server creates the missing smaller sizes and deletes the
+      smaller sizes that are no longer in use. It leaves the full photos and
+      other files alone.
+- [ ] The small thumbnails in the week view, the week edit view and the recipe
+      suggestions show the 256 px size.
+- [ ] The recipe list offers all three sizes, and the browser picks the
+      smallest one that looks sharp on the screen, up to 4x pixel density.
+- [ ] The recipe page, the cooking view and the editor show the full photo.
+- [ ] Clients get the photo URLs from the server and do not build them.

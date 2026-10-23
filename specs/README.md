@@ -22,4 +22,6 @@ implementation details to the code.
 - [Revisions](revisions.md): recipe history and undo.
 - [Week plan](week-plan.md): planning the meals of each week.
 - [MCP server](mcp.md): managing recipes with Claude.
+- [Integration API](integration-api.md): the week plan for other systems,
+  such as the family dashboard.
 - [Profile](profile.md): the user's own name, password and tokens.
