@@ -12,7 +12,7 @@ import {
   ModalOverlay,
   TextField,
 } from 'react-aria-components';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import type { Profile, TokenKind } from '../../shared/profile.ts';
 import {
@@ -30,11 +30,13 @@ import {
   primaryButtonClass,
   secondaryButtonClass,
 } from '../components/fieldStyles.ts';
+import { CheckIcon, CopyIcon } from '../components/icons.tsx';
 import { PageMessage, RequireUser } from '../components/RequireUser.tsx';
 import { useFormatDate } from '../format.ts';
 
-const cardClass = 'flex flex-col gap-4 rounded-[18px] border border-line-soft bg-card p-5.5';
-const cardHeading = 'font-display text-xl font-bold tracking-[-0.01em]';
+const cardClass = 'flex flex-col gap-3.5 rounded-[20px] border border-line-soft bg-card p-5.5';
+const cardHeading = 'font-display text-[19px] font-bold tracking-[-0.01em]';
+const monoClass = 'font-mono text-[15px]';
 
 export function ProfilePage() {
   return (
@@ -51,8 +53,8 @@ function ProfileContent() {
   if (profile.isPending) return <PageMessage>{t('common.loading')}</PageMessage>;
   if (profile.isError) return <PageMessage>{t('common.loadError')}</PageMessage>;
   return (
-    <main className="mx-auto flex max-w-160 flex-col gap-6 px-4 pt-8 pb-16 sm:pt-12">
-      <h1 className="font-display text-[34px] leading-tight font-bold tracking-[-0.03em]">
+    <main className="mx-auto flex max-w-140 flex-col gap-5 px-4 pt-12 pb-20 sm:px-6">
+      <h1 className="mb-1.5 font-display text-[clamp(34px,5vw,46px)] leading-[1.05] font-bold tracking-[-0.03em]">
         {t('profile.heading')}
       </h1>
       <NameCard profile={profile.data} />
@@ -85,10 +87,11 @@ function NameCard({ profile }: { profile: Profile }) {
     <section className={cardClass}>
       <h2 className={cardHeading}>{t('profile.name')}</h2>
       <p className="text-ink-soft">
-        {t('profile.created', {
-          username: profile.username,
-          date: formatDate(profile.createdAt),
-        })}
+        <Trans
+          i18nKey="profile.created"
+          values={{ username: profile.username, date: formatDate(profile.createdAt) }}
+          components={{ strong: <strong className="font-semibold" /> }}
+        />
       </p>
       <Form onSubmit={onSubmit} className="flex flex-col gap-4">
         <TextField
@@ -149,33 +152,47 @@ function PasswordCard({ profile }: { profile: Profile }) {
 }
 
 const tokenTexts = {
-  mcp: { title: 'profile.mcpToken', info: 'profile.mcpTokenInfo' },
-  integration: { title: 'profile.integrationToken', info: 'profile.integrationTokenInfo' },
+  mcp: {
+    title: 'profile.mcpToken',
+    info: 'profile.mcpTokenInfo',
+    newTitle: 'profile.newMcpToken',
+    newInfo: 'profile.newMcpTokenInfo',
+  },
+  integration: {
+    title: 'profile.integrationToken',
+    info: 'profile.integrationTokenInfo',
+    newTitle: 'profile.newIntegrationToken',
+    newInfo: 'profile.newIntegrationTokenInfo',
+  },
 } as const;
 
 function TokenCard({ kind, profile }: { kind: TokenKind; profile: Profile }) {
   const { t } = useTranslation();
   const formatDate = useFormatDate();
   const token = profile.tokens[kind];
+  const texts = tokenTexts[kind];
   return (
     <section className={cardClass}>
       <div className="flex flex-col gap-1">
-        <h2 className={cardHeading}>{t(tokenTexts[kind].title)}</h2>
-        <p className="text-sm text-muted">{t(tokenTexts[kind].info)}</p>
+        <h2 className={cardHeading}>{t(texts.title)}</h2>
+        <p className="mt-0.5 text-sm text-muted">{t(texts.info)}</p>
       </div>
       <p className="text-ink-soft">
-        {token
-          ? t('profile.tokenCreated', {
-              date: formatDate(token.createdAt),
-              lastChars: `…${token.lastChars}`,
-            })
-          : t('profile.noToken')}
+        {token ? (
+          <Trans
+            i18nKey="profile.tokenCreated"
+            values={{ date: formatDate(token.createdAt), lastChars: token.lastChars }}
+            components={{ mono: <span className={monoClass} /> }}
+          />
+        ) : (
+          t('profile.noToken')
+        )}
       </p>
       <CredentialDialog
         buttonLabel={t(token ? 'profile.regenerateToken' : 'profile.generateToken')}
         info={t('profile.generateTokenInfo')}
-        resultTitle={t('profile.newToken')}
-        resultInfo={t('profile.newTokenInfo')}
+        resultTitle={t(texts.newTitle)}
+        resultInfo={t(texts.newInfo)}
         action={(currentPassword) => generateToken(kind, currentPassword)}
       />
     </section>
@@ -217,22 +234,22 @@ function CredentialDialog(props: {
     <DialogTrigger onOpenChange={onOpenChange}>
       <Button className={`${secondaryButtonClass} self-start`}>{props.buttonLabel}</Button>
       <ModalOverlay className="fixed inset-0 z-50 grid place-items-center bg-scrim p-4">
-        <Modal className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl">
-          <Dialog className="flex flex-col gap-4 outline-none">
+        <Modal className="w-full max-w-110 rounded-3xl bg-card p-7 shadow-[0_24px_60px_var(--color-shadow)]">
+          <Dialog className="flex flex-col gap-4.5 outline-none">
             {({ close }) =>
               change.isSuccess ? (
                 <>
                   <DialogHeading>{props.resultTitle}</DialogHeading>
                   <p className="text-pretty text-ink-soft">{props.resultInfo}</p>
                   <SecretField label={props.resultTitle} value={change.data} />
-                  <div className="flex justify-end pt-2">
+                  <div className="flex justify-end pt-1">
                     <Button onPress={close} className={primaryButtonClass}>
                       {t('profile.close')}
                     </Button>
                   </div>
                 </>
               ) : (
-                <Form onSubmit={onSubmit} className="flex flex-col gap-4">
+                <Form onSubmit={onSubmit} className="flex flex-col gap-4.5">
                   <DialogHeading>{props.buttonLabel}</DialogHeading>
                   <p className="text-pretty text-ink-soft">{props.info}</p>
                   <TextField
@@ -254,7 +271,7 @@ function CredentialDialog(props: {
                         : t('profile.error')}
                     </p>
                   )}
-                  <div className="flex flex-wrap justify-end gap-2.5 pt-2">
+                  <div className="flex flex-wrap justify-end gap-2.5 pt-1">
                     <Button onPress={close} className={secondaryButtonClass}>
                       {t('profile.cancel')}
                     </Button>
@@ -278,11 +295,16 @@ function CredentialDialog(props: {
 
 function DialogHeading({ children }: { children: ReactNode }) {
   return (
-    <Heading slot="title" className="font-display text-2xl font-bold">
+    <Heading slot="title" className="font-display text-[26px] font-bold tracking-[-0.02em]">
       {children}
     </Heading>
   );
 }
+
+const secretFieldClass = fieldClass
+  .replace('min-h-12', 'min-h-13')
+  .replace('bg-card', 'bg-paper')
+  .replace('text-base', 'font-mono text-[17px] tracking-[0.02em]');
 
 /** A read-only field with a copy button. */
 function SecretField({ label, value }: { label: string; value: string }) {
@@ -291,6 +313,7 @@ function SecretField({ label, value }: { label: string; value: string }) {
   // The clipboard API only works on HTTPS and localhost. Elsewhere the user
   // selects the text.
   const canCopy = !!navigator.clipboard;
+  const copyLabel = copied ? t('profile.copied') : t('profile.copy');
 
   const copy = async () => {
     await navigator.clipboard.writeText(value);
@@ -298,16 +321,17 @@ function SecretField({ label, value }: { label: string; value: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <TextField value={value} isReadOnly aria-label={label}>
-        <Input
-          className={`${fieldClass} font-mono text-[15px]`}
-          onFocus={(e) => e.currentTarget.select()}
-        />
+    <div className="flex items-center gap-2">
+      <TextField value={value} isReadOnly aria-label={label} className="min-w-0 flex-1">
+        <Input className={secretFieldClass} onFocus={(e) => e.currentTarget.select()} />
       </TextField>
       {canCopy && (
-        <Button onPress={() => void copy()} className={`${secondaryButtonClass} self-start`}>
-          {copied ? t('profile.copied') : t('profile.copy')}
+        <Button
+          onPress={() => void copy()}
+          aria-label={copyLabel}
+          className="grid size-11 flex-none cursor-pointer place-items-center rounded-full border border-field bg-card text-ink"
+        >
+          {copied ? <CheckIcon size={22} /> : <CopyIcon size={22} />}
         </Button>
       )}
     </div>

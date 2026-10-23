@@ -6,14 +6,20 @@ import { useTranslation } from 'react-i18next';
 
 import { ApiError, login, meQuery } from '../api.ts';
 import { useGoBack } from '../back.tsx';
-import {
-  errorClass,
-  fieldClass,
-  labelClass,
-  primaryButtonClass,
-} from '../components/fieldStyles.ts';
+import { errorClass, fieldClass, primaryButtonClass } from '../components/fieldStyles.ts';
 
 const route = getRouteApi('/_main/login');
+
+// The login form has larger fields than the other forms.
+const loginFieldClass = fieldClass
+  .replace('min-h-12', 'min-h-13')
+  .replace('rounded-xl', 'rounded-[14px]')
+  .replace('px-3.5', 'px-4')
+  .replace('text-base', 'text-[17px]');
+const loginButtonClass = primaryButtonClass
+  .replace('min-h-11', 'mt-1 min-h-13')
+  .replace('text-[15px]', 'text-[17px]');
+const loginLabelClass = 'text-[15px] font-medium text-ink-soft';
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -36,13 +42,13 @@ export function LoginPage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-100 flex-col gap-6 px-4 pt-12 pb-16 sm:pt-16">
-      <h1 className="font-display text-[34px] leading-tight font-bold tracking-[-0.03em]">
+    <main className="mx-auto flex max-w-105 flex-col gap-7 px-4 pt-12 pb-20 sm:px-6 sm:pt-18">
+      <h1 className="font-display text-[clamp(32px,5vw,40px)] leading-[1.05] font-bold tracking-[-0.03em]">
         {t('login.heading')}
       </h1>
       <Form
         onSubmit={onSubmit}
-        className="flex flex-col gap-4 rounded-[18px] border border-line-soft bg-card p-5.5"
+        className="flex flex-col gap-5 rounded-[20px] border border-line-soft bg-card p-6"
       >
         <TextField
           value={username}
@@ -50,10 +56,10 @@ export function LoginPage() {
           isRequired
           autoComplete="username"
           autoFocus
-          className="flex flex-col gap-1.5"
+          className="flex flex-col gap-2"
         >
-          <Label className={labelClass}>{t('login.username')}</Label>
-          <Input className={fieldClass} autoCapitalize="none" autoCorrect="off" />
+          <Label className={loginLabelClass}>{t('login.username')}</Label>
+          <Input className={loginFieldClass} autoCapitalize="none" autoCorrect="off" />
         </TextField>
         <TextField
           value={password}
@@ -61,10 +67,10 @@ export function LoginPage() {
           isRequired
           type="password"
           autoComplete="current-password"
-          className="flex flex-col gap-1.5"
+          className="flex flex-col gap-2"
         >
-          <Label className={labelClass}>{t('login.password')}</Label>
-          <Input className={fieldClass} />
+          <Label className={loginLabelClass}>{t('login.password')}</Label>
+          <Input className={loginFieldClass} />
         </TextField>
         {submit.isError && (
           <p role="alert" className={errorClass}>
@@ -73,11 +79,7 @@ export function LoginPage() {
               : t('login.error')}
           </p>
         )}
-        <Button
-          type="submit"
-          isDisabled={submit.isPending}
-          className={`${primaryButtonClass} mt-1 min-h-12`}
-        >
+        <Button type="submit" isDisabled={submit.isPending} className={loginButtonClass}>
           {t('login.submit')}
         </Button>
       </Form>

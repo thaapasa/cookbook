@@ -36,7 +36,7 @@ export function AppHeader() {
                 {t('app.newRecipe')}
               </Link>
               <ThemeButton />
-              <UserMenu user={user} />
+              <UserMenu user={user} isProfile={pathname === '/profile'} />
             </>
           ) : (
             <>
@@ -113,7 +113,7 @@ function ThemeButton() {
 const menuItemClass =
   'flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-[15px] font-semibold outline-none data-focused:bg-chip';
 
-function UserMenu({ user }: { user: User }) {
+function UserMenu({ user, isProfile }: { user: User; isProfile: boolean }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -126,7 +126,7 @@ function UserMenu({ user }: { user: User }) {
     <MenuTrigger>
       <Button
         aria-label={t('app.user', { name: user.displayName })}
-        className="grid size-11 cursor-pointer place-items-center rounded-full border border-line bg-card text-[15px] font-semibold outline-accent"
+        className={`grid size-11 cursor-pointer place-items-center rounded-full bg-card text-[15px] font-semibold outline-accent ${isProfile ? 'border-2 border-ink' : 'border border-line'}`}
       >
         {user.displayName.charAt(0)}
       </Button>
