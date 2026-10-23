@@ -23,6 +23,9 @@ The board titles are in Finnish:
 - `Editor`: the recipe editor.
 - `Revisions`: the version history.
 - `WeekView`, `WeekEdit`, `WeekMobile`: the week plan.
+- `Login`: the login page.
+- `Profile`: the profile page. `ProfileChange` and `ProfileNewPassword` show
+  its password dialogs.
 
 Each board is an HTML page with inline styles and a `DCLogic` component
 script that fills in the sample data. The boards load `support.js` from the
@@ -31,8 +34,8 @@ for colors, spacing, type and structure, and open the canvas to see them.
 
 ## Last sync
 
-- Canvas version: `1792268768-e2ca`
-- Date: 2026-10-18
+- Canvas version: `1792755336-2add`
+- Date: 2026-10-23
 
 ## Sync
 
