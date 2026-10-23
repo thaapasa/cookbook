@@ -49,64 +49,64 @@ export const recipeListQuery = ({ q, tags = [], page = 1 }: RecipeListParams) =>
       if (q) params.set('q', q);
       for (const tag of tags) params.append('tag', tag);
       params.set('page', String(page));
-      return request<RecipeList>(`/api/recipes?${params}`);
+      return request<RecipeList>(`/api/app/recipes?${params}`);
     },
   });
 
 export const tagsQuery = queryOptions({
   queryKey: ['tags'],
-  queryFn: () => request<TagCount[]>('/api/tags'),
+  queryFn: () => request<TagCount[]>('/api/app/tags'),
 });
 
 export const recipeQuery = (id: string) =>
   queryOptions({
     queryKey: ['recipe', id],
-    queryFn: () => request<Recipe>(`/api/recipes/${id}`),
+    queryFn: () => request<Recipe>(`/api/app/recipes/${id}`),
   });
 
 export const meQuery = queryOptions({
   queryKey: ['me'],
-  queryFn: () => request<{ user: User | null }>('/api/auth/me'),
+  queryFn: () => request<{ user: User | null }>('/api/app/auth/me'),
 });
 
 export function addNote(recipeId: string, input: NoteInput): Promise<Note> {
-  return request<Note>(`/api/recipes/${recipeId}/notes`, {
+  return request<Note>(`/api/app/recipes/${recipeId}/notes`, {
     method: 'POST',
     body: JSON.stringify(input),
   });
 }
 
 export function updateNote(recipeId: string, noteId: string, input: NoteInput): Promise<void> {
-  return request(`/api/recipes/${recipeId}/notes/${noteId}`, {
+  return request(`/api/app/recipes/${recipeId}/notes/${noteId}`, {
     method: 'PUT',
     body: JSON.stringify(input),
   });
 }
 
 export function deleteNote(recipeId: string, noteId: string): Promise<void> {
-  return request(`/api/recipes/${recipeId}/notes/${noteId}`, { method: 'DELETE' });
+  return request(`/api/app/recipes/${recipeId}/notes/${noteId}`, { method: 'DELETE' });
 }
 
 export function login(input: LoginRequest): Promise<User> {
-  return request<User>('/api/auth/login', { method: 'POST', body: JSON.stringify(input) });
+  return request<User>('/api/app/auth/login', { method: 'POST', body: JSON.stringify(input) });
 }
 
 export function logout(): Promise<void> {
-  return request('/api/auth/logout', { method: 'POST' });
+  return request('/api/app/auth/logout', { method: 'POST' });
 }
 
 export const profileQuery = queryOptions({
   queryKey: ['profile'],
-  queryFn: () => request<Profile>('/api/profile'),
+  queryFn: () => request<Profile>('/api/app/profile'),
 });
 
 export function updateProfile(input: UpdateProfileRequest): Promise<User> {
-  return request<User>('/api/profile', { method: 'PATCH', body: JSON.stringify(input) });
+  return request<User>('/api/app/profile', { method: 'PATCH', body: JSON.stringify(input) });
 }
 
 /** Gives the user a new password and returns it. */
 export async function resetPassword(currentPassword: string): Promise<string> {
-  const { password } = await request<{ password: string }>('/api/profile/password', {
+  const { password } = await request<{ password: string }>('/api/app/profile/password', {
     method: 'POST',
     body: JSON.stringify({ currentPassword }),
   });
@@ -115,7 +115,7 @@ export async function resetPassword(currentPassword: string): Promise<string> {
 
 /** Gives the user a new token of the kind and returns it. */
 export async function generateToken(kind: TokenKind, currentPassword: string): Promise<string> {
-  const { token } = await request<{ token: string }>(`/api/profile/tokens/${kind}`, {
+  const { token } = await request<{ token: string }>(`/api/app/profile/tokens/${kind}`, {
     method: 'POST',
     body: JSON.stringify({ currentPassword }),
   });
@@ -124,7 +124,7 @@ export async function generateToken(kind: TokenKind, currentPassword: string): P
 
 /** Creates a recipe and returns its id. */
 export async function createRecipe(input: SaveRecipeRequest): Promise<string> {
-  const { id } = await request<{ id: string }>('/api/recipes', {
+  const { id } = await request<{ id: string }>('/api/app/recipes', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -132,21 +132,21 @@ export async function createRecipe(input: SaveRecipeRequest): Promise<string> {
 }
 
 export function updateRecipe(recipeId: string, input: SaveRecipeRequest): Promise<void> {
-  return request(`/api/recipes/${recipeId}`, { method: 'PUT', body: JSON.stringify(input) });
+  return request(`/api/app/recipes/${recipeId}`, { method: 'PUT', body: JSON.stringify(input) });
 }
 
 export function deleteRecipe(recipeId: string): Promise<void> {
-  return request(`/api/recipes/${recipeId}`, { method: 'DELETE' });
+  return request(`/api/app/recipes/${recipeId}`, { method: 'DELETE' });
 }
 
 export function uploadPhoto(recipeId: string, photo: File): Promise<void> {
   const body = new FormData();
   body.set('photo', photo);
-  return request(`/api/recipes/${recipeId}/photo`, { method: 'PUT', body });
+  return request(`/api/app/recipes/${recipeId}/photo`, { method: 'PUT', body });
 }
 
 export function deletePhoto(recipeId: string): Promise<void> {
-  return request(`/api/recipes/${recipeId}/photo`, { method: 'DELETE' });
+  return request(`/api/app/recipes/${recipeId}/photo`, { method: 'DELETE' });
 }
 
 /** Polls the week plan, so that changes by other users show without a reload. */
@@ -155,7 +155,8 @@ const weekPlanPollMs = 20_000;
 export const weekPlanQuery = (start: string) =>
   queryOptions({
     queryKey: ['week-plan', start],
-    queryFn: () => request<WeekPlanEntry[]>(`/api/week-plan?from=${start}&to=${addDays(start, 6)}`),
+    queryFn: () =>
+      request<WeekPlanEntry[]>(`/api/app/week-plan?from=${start}&to=${addDays(start, 6)}`),
     refetchInterval: weekPlanPollMs,
   });
 
@@ -164,24 +165,24 @@ export const weekPlanChangesQuery = (start: string) =>
   queryOptions({
     queryKey: ['week-plan', start, 'changes'],
     queryFn: () =>
-      request<WeekPlanChange[]>(`/api/week-plan/changes?from=${start}&to=${addDays(start, 6)}`),
+      request<WeekPlanChange[]>(`/api/app/week-plan/changes?from=${start}&to=${addDays(start, 6)}`),
     refetchInterval: weekPlanPollMs,
   });
 
 export function addWeekPlanEntry(input: AddEntryInput): Promise<WeekPlanEntry> {
-  return request<WeekPlanEntry>('/api/week-plan/entries', {
+  return request<WeekPlanEntry>('/api/app/week-plan/entries', {
     method: 'POST',
     body: JSON.stringify(input),
   });
 }
 
 export function updateWeekPlanEntry(id: string, input: UpdateEntryInput): Promise<WeekPlanEntry> {
-  return request<WeekPlanEntry>(`/api/week-plan/entries/${id}`, {
+  return request<WeekPlanEntry>(`/api/app/week-plan/entries/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(input),
   });
 }
 
 export function removeWeekPlanEntry(id: string): Promise<void> {
-  return request(`/api/week-plan/entries/${id}`, { method: 'DELETE' });
+  return request(`/api/app/week-plan/entries/${id}`, { method: 'DELETE' });
 }

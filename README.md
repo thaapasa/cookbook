@@ -116,7 +116,7 @@ The container needs:
   runs as user `node` (UID 1000), so the directory must be writable by UID 1000.
 
 The image also sets `PORT=3000` and `NODE_ENV=production`. The health check
-endpoint is `/api/health`.
+endpoint is `/health`.
 
 Users are added inside the container, for example
 `docker exec -it <container> npm run set-user -- <username> "<display name>"`.

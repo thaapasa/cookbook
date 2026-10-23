@@ -17,7 +17,7 @@ beforeEach(async () => {
 });
 
 async function createRecipe(recipe: unknown, revisionNote?: string): Promise<string> {
-  const res = await request('/api/recipes', {
+  const res = await request('/api/app/recipes', {
     method: 'POST',
     cookie,
     json: { recipe, revisionNote },
@@ -48,7 +48,7 @@ function photoUrlsOf(recipe: unknown): string[] {
 function uploadPhoto(id: string, data: Blob, from = origin) {
   const body = new FormData();
   body.set('photo', data, 'photo.jpg');
-  return app.request(`/api/recipes/${id}/photo`, {
+  return app.request(`/api/app/recipes/${id}/photo`, {
     method: 'PUT',
     headers: { cookie, origin: from },
     body,
@@ -58,9 +58,9 @@ function uploadPhoto(id: string, data: Blob, from = origin) {
 describe('authorization', () => {
   it('allows reading without a session', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    expect((await request('/api/recipes')).status).toBe(200);
-    expect((await request(`/api/recipes/${id}`)).status).toBe(200);
-    expect((await request('/api/tags')).status).toBe(200);
+    expect((await request('/api/app/recipes')).status).toBe(200);
+    expect((await request(`/api/app/recipes/${id}`)).status).toBe(200);
+    expect((await request('/api/app/tags')).status).toBe(200);
   });
 
   it('requires a session for every change', async () => {
@@ -68,13 +68,13 @@ describe('authorization', () => {
     const recipe = { recipe: { title: 'X' } };
     const note = { text: 'X' };
     const changes = [
-      request('/api/recipes', { method: 'POST', json: recipe }),
-      request(`/api/recipes/${id}`, { method: 'PUT', json: recipe }),
-      request(`/api/recipes/${id}`, { method: 'DELETE' }),
-      request(`/api/recipes/${id}/photo`, { method: 'DELETE' }),
-      request(`/api/recipes/${id}/notes`, { method: 'POST', json: note }),
-      request(`/api/recipes/${id}/notes/${missingId}`, { method: 'PUT', json: note }),
-      request(`/api/recipes/${id}/notes/${missingId}`, { method: 'DELETE' }),
+      request('/api/app/recipes', { method: 'POST', json: recipe }),
+      request(`/api/app/recipes/${id}`, { method: 'PUT', json: recipe }),
+      request(`/api/app/recipes/${id}`, { method: 'DELETE' }),
+      request(`/api/app/recipes/${id}/photo`, { method: 'DELETE' }),
+      request(`/api/app/recipes/${id}/notes`, { method: 'POST', json: note }),
+      request(`/api/app/recipes/${id}/notes/${missingId}`, { method: 'PUT', json: note }),
+      request(`/api/app/recipes/${id}/notes/${missingId}`, { method: 'DELETE' }),
     ];
     for (const res of await Promise.all(changes)) {
       expect(res.status).toBe(401);
@@ -82,7 +82,7 @@ describe('authorization', () => {
   });
 
   it('rejects a change with an unknown session', async () => {
-    const res = await request('/api/recipes', {
+    const res = await request('/api/app/recipes', {
       method: 'POST',
       cookie: 'session=forged',
       json: { recipe: { title: 'X' } },
@@ -99,7 +99,7 @@ describe('authorization', () => {
 
 describe('input validation', () => {
   async function postStatus(recipe: unknown) {
-    const res = await request('/api/recipes', { method: 'POST', cookie, json: { recipe } });
+    const res = await request('/api/app/recipes', { method: 'POST', cookie, json: { recipe } });
     return res.status;
   }
 
@@ -121,7 +121,7 @@ describe('input validation', () => {
   });
 
   it('rejects a body that is not JSON', async () => {
-    const res = await app.request('/api/recipes', {
+    const res = await app.request('/api/app/recipes', {
       method: 'POST',
       headers: { cookie, 'content-type': 'application/json' },
       body: '{',
@@ -130,17 +130,17 @@ describe('input validation', () => {
   });
 
   it('rejects an invalid id', async () => {
-    expect((await request('/api/recipes/123')).status).toBe(400);
+    expect((await request('/api/app/recipes/123')).status).toBe(400);
   });
 
   it('rejects an invalid page', async () => {
-    expect((await request('/api/recipes?page=0')).status).toBe(400);
-    expect((await request('/api/recipes?page=x')).status).toBe(400);
+    expect((await request('/api/app/recipes?page=0')).status).toBe(400);
+    expect((await request('/api/app/recipes?page=x')).status).toBe(400);
   });
 
   it('requires note text', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    const res = await request(`/api/recipes/${id}/notes`, {
+    const res = await request(`/api/app/recipes/${id}/notes`, {
       method: 'POST',
       cookie,
       json: { text: ' ' },
@@ -165,7 +165,7 @@ describe('recipes', () => {
       stepGroups: [{ name: null, steps: ['Leivo.'] }],
     });
 
-    expect(await getJson(`/api/recipes/${id}`)).toEqual({
+    expect(await getJson(`/api/app/recipes/${id}`)).toEqual({
       id,
       title: 'Pulla',
       description: null,
@@ -185,36 +185,36 @@ describe('recipes', () => {
 
   it('updates a recipe', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    const res = await request(`/api/recipes/${id}`, {
+    const res = await request(`/api/app/recipes/${id}`, {
       method: 'PUT',
       cookie,
       json: { recipe: { title: 'Korvapuusti' }, revisionNote: 'Uusi nimi' },
     });
     expect(res.status).toBe(204);
-    expect(await getJson(`/api/recipes/${id}`)).toMatchObject({ title: 'Korvapuusti' });
+    expect(await getJson(`/api/app/recipes/${id}`)).toMatchObject({ title: 'Korvapuusti' });
   });
 
   it('lists and searches recipes and tags', async () => {
     await createRecipe({ title: 'Pulla', tags: ['leivonnainen'] });
     await createRecipe({ title: 'Lohikeitto', tags: ['keitto'] });
 
-    expect(await getJson('/api/recipes?q=lohi')).toMatchObject({
+    expect(await getJson('/api/app/recipes?q=lohi')).toMatchObject({
       recipes: [{ title: 'Lohikeitto', tags: ['keitto'] }],
       total: 1,
       page: 1,
     });
-    expect(await getJson('/api/recipes?tag=leivonnainen')).toMatchObject({
+    expect(await getJson('/api/app/recipes?tag=leivonnainen')).toMatchObject({
       recipes: [{ title: 'Pulla' }],
     });
-    expect(await getJson('/api/tags')).toEqual([
+    expect(await getJson('/api/app/tags')).toEqual([
       { name: 'keitto', count: 1 },
       { name: 'leivonnainen', count: 1 },
     ]);
   });
 
   it('returns 404 for a missing recipe', async () => {
-    expect((await request(`/api/recipes/${missingId}`)).status).toBe(404);
-    const res = await request(`/api/recipes/${missingId}`, {
+    expect((await request(`/api/app/recipes/${missingId}`)).status).toBe(404);
+    const res = await request(`/api/app/recipes/${missingId}`, {
       method: 'PUT',
       cookie,
       json: { recipe: { title: 'X' } },
@@ -225,17 +225,21 @@ describe('recipes', () => {
   it('deletes a recipe and its photo', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
-    const urls = photoUrlsOf(await getJson(`/api/recipes/${id}`));
+    const urls = photoUrlsOf(await getJson(`/api/app/recipes/${id}`));
 
-    expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(204);
-    expect((await request(`/api/recipes/${id}`)).status).toBe(404);
+    expect((await request(`/api/app/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(
+      204,
+    );
+    expect((await request(`/api/app/recipes/${id}`)).status).toBe(404);
     for (const url of urls) expect((await app.request(url)).status).toBe(404);
-    expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(404);
+    expect((await request(`/api/app/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(
+      404,
+    );
   });
 
   it('adds, edits and deletes notes', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    const added = await request(`/api/recipes/${id}/notes`, {
+    const added = await request(`/api/app/recipes/${id}/notes`, {
       method: 'POST',
       cookie,
       json: { text: 'Hyvää!' },
@@ -244,14 +248,14 @@ describe('recipes', () => {
     const note = (await added.json()) as { id: string; authorName: string };
     expect(note.authorName).toBe('cook display');
 
-    const notePath = `/api/recipes/${id}/notes/${note.id}`;
+    const notePath = `/api/app/recipes/${id}/notes/${note.id}`;
     const edited = await request(notePath, {
       method: 'PUT',
       cookie,
       json: { text: 'Tosi hyvää!' },
     });
     expect(edited.status).toBe(204);
-    expect(await getJson(`/api/recipes/${id}`)).toMatchObject({
+    expect(await getJson(`/api/app/recipes/${id}`)).toMatchObject({
       notes: [{ text: 'Tosi hyvää!' }],
     });
 
@@ -262,7 +266,7 @@ describe('recipes', () => {
   it('stores an uploaded photo and serves it', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
-    const urls = photoUrlsOf(await getJson(`/api/recipes/${id}`));
+    const urls = photoUrlsOf(await getJson(`/api/app/recipes/${id}`));
     expect(urls).toEqual([
       expect.stringMatching(/^\/images\/[\w-]+\.webp$/),
       expect.stringMatching(/^\/images\/[\w-]+\.s256\.webp$/),
@@ -275,7 +279,7 @@ describe('recipes', () => {
       expect(image.headers.get('content-type')).toBe('image/webp');
     }
 
-    const removed = await request(`/api/recipes/${id}/photo`, { method: 'DELETE', cookie });
+    const removed = await request(`/api/app/recipes/${id}/photo`, { method: 'DELETE', cookie });
     expect(removed.status).toBe(204);
     for (const url of urls) expect((await app.request(url)).status).toBe(404);
   });

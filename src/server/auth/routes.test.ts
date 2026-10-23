@@ -9,10 +9,10 @@ beforeEach(async () => {
 });
 
 function postLogin(json: unknown) {
-  return request('/api/auth/login', { method: 'POST', json });
+  return request('/api/app/auth/login', { method: 'POST', json });
 }
 
-describe('POST /api/auth/login', () => {
+describe('POST /api/app/auth/login', () => {
   it('sets an HTTP-only session cookie and returns the user', async () => {
     const res = await postLogin({ username: 'cook', password: 'secret' });
     expect(res.status).toBe(200);
@@ -38,27 +38,27 @@ describe('POST /api/auth/login', () => {
   });
 });
 
-describe('GET /api/auth/me', () => {
+describe('GET /api/app/auth/me', () => {
   it('returns the logged-in user', async () => {
     const cookie = await login('cook', 'secret');
-    const res = await request('/api/auth/me', { cookie });
+    const res = await request('/api/app/auth/me', { cookie });
     expect(await res.json()).toMatchObject({ user: { username: 'cook' } });
   });
 
   it('returns null without a session', async () => {
-    expect(await (await request('/api/auth/me')).json()).toEqual({ user: null });
-    const forged = await request('/api/auth/me', { cookie: 'session=forged' });
+    expect(await (await request('/api/app/auth/me')).json()).toEqual({ user: null });
+    const forged = await request('/api/app/auth/me', { cookie: 'session=forged' });
     expect(await forged.json()).toEqual({ user: null });
   });
 });
 
-describe('POST /api/auth/logout', () => {
+describe('POST /api/app/auth/logout', () => {
   it('ends the session', async () => {
     const cookie = await login('cook', 'secret');
-    const res = await request('/api/auth/logout', { method: 'POST', cookie });
+    const res = await request('/api/app/auth/logout', { method: 'POST', cookie });
     expect(res.status).toBe(204);
 
-    const me = await request('/api/auth/me', { cookie });
+    const me = await request('/api/app/auth/me', { cookie });
     expect(await me.json()).toEqual({ user: null });
   });
 });

@@ -13,11 +13,11 @@ beforeEach(async () => {
 });
 
 function post(path: string, json: unknown, session = cookie) {
-  return request(`/api/profile${path}`, { method: 'POST', json, cookie: session });
+  return request(`/api/app/profile${path}`, { method: 'POST', json, cookie: session });
 }
 
 async function getProfile(): Promise<Profile> {
-  return (await (await request('/api/profile', { cookie })).json()) as Profile;
+  return (await (await request('/api/app/profile', { cookie })).json()) as Profile;
 }
 
 async function postJson<T>(path: string, json: unknown): Promise<T> {
@@ -28,8 +28,11 @@ async function postJson<T>(path: string, json: unknown): Promise<T> {
 
 describe('authentication', () => {
   it('rejects requests without a session', async () => {
-    expect((await request('/api/profile')).status).toBe(401);
-    const patch = await request('/api/profile', { method: 'PATCH', json: { displayName: 'X' } });
+    expect((await request('/api/app/profile')).status).toBe(401);
+    const patch = await request('/api/app/profile', {
+      method: 'PATCH',
+      json: { displayName: 'X' },
+    });
     expect(patch.status).toBe(401);
     expect((await post('/password', { currentPassword: 'secret' }, '')).status).toBe(401);
     expect((await post('/tokens/mcp', { currentPassword: 'secret' }, '')).status).toBe(401);
@@ -51,7 +54,11 @@ describe('authentication', () => {
 describe('validation', () => {
   it('rejects an empty display name', async () => {
     for (const displayName of ['', '   ']) {
-      const res = await request('/api/profile', { method: 'PATCH', json: { displayName }, cookie });
+      const res = await request('/api/app/profile', {
+        method: 'PATCH',
+        json: { displayName },
+        cookie,
+      });
       expect(res.status).toBe(400);
     }
   });
@@ -68,7 +75,7 @@ describe('validation', () => {
 
 describe('profile', () => {
   it('returns the profile and changes the display name', async () => {
-    const res = await request('/api/profile', {
+    const res = await request('/api/app/profile', {
       method: 'PATCH',
       json: { displayName: ' Kokki ' },
       cookie,
@@ -91,7 +98,7 @@ describe('profile', () => {
     await login('cook', password);
     await expect(login('cook', 'secret')).rejects.toThrow('401');
     // The session that reset the password stays.
-    const me = await request('/api/auth/me', { cookie });
+    const me = await request('/api/app/auth/me', { cookie });
     expect(await me.json()).toMatchObject({ user: { username: 'cook' } });
   });
 

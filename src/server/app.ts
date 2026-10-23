@@ -14,18 +14,18 @@ const clientDir = 'dist/client';
 
 export const app = new Hono<AuthEnv>();
 
-app.use('/api/*', csrf(), sessionMiddleware);
-
-app.get('/api/health', async (c) => {
+app.get('/health', async (c) => {
   await sql`SELECT 1`;
   return c.json({ status: 'ok' });
 });
 
-app.route('/api/auth', authRoutes);
-app.route('/api/profile', profileRoutes);
-app.route('/api/recipes', recipeRoutes);
-app.route('/api/tags', tagRoutes);
-app.route('/api/week-plan', weekPlanRoutes);
+// The API of the app's own client, which authenticates with the session cookie.
+app.use('/api/app/*', csrf(), sessionMiddleware);
+app.route('/api/app/auth', authRoutes);
+app.route('/api/app/profile', profileRoutes);
+app.route('/api/app/recipes', recipeRoutes);
+app.route('/api/app/tags', tagRoutes);
+app.route('/api/app/week-plan', weekPlanRoutes);
 
 app.all('/api/*', (c) => c.notFound());
 

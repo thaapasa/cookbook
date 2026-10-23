@@ -24,7 +24,7 @@ export function request(
 
 /** Logs in and returns the session cookie for the `cookie` header. */
 export async function login(username: string, password: string): Promise<string> {
-  const res = await request('/api/auth/login', {
+  const res = await request('/api/app/auth/login', {
     method: 'POST',
     json: { username, password },
   });
