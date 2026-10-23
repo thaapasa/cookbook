@@ -12,6 +12,7 @@ import { AppHeader } from './components/AppHeader.tsx';
 import { CookingPage } from './pages/CookingPage.tsx';
 import { EditorPage } from './pages/EditorPage.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
+import { ProfilePage } from './pages/ProfilePage.tsx';
 import { RecipeListPage } from './pages/RecipeListPage.tsx';
 import { RecipePage } from './pages/RecipePage.tsx';
 import { WeekEditPage } from './pages/WeekEditPage.tsx';
@@ -73,6 +74,12 @@ const loginRoute = createRoute({
   component: LoginPage,
 });
 
+const profileRoute = createRoute({
+  getParentRoute: () => mainRoute,
+  path: '/profile',
+  component: ProfilePage,
+});
+
 const newRecipeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/new',
@@ -128,7 +135,14 @@ const weekEditRoute = createRoute({
 
 export const router = createRouter({
   routeTree: rootRoute.addChildren([
-    mainRoute.addChildren([recipeListRoute, recipeRoute, loginRoute, weekRoute, weekViewRoute]),
+    mainRoute.addChildren([
+      recipeListRoute,
+      recipeRoute,
+      loginRoute,
+      profileRoute,
+      weekRoute,
+      weekViewRoute,
+    ]),
     newRecipeRoute,
     editRecipeRoute,
     cookingRoute,

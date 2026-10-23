@@ -17,9 +17,14 @@ const cookieName = 'session';
 // does not reveal which usernames exist.
 const dummyHash = hashPassword(crypto.randomUUID());
 
+/** Returns the session token from the cookie. */
+export function getSessionToken(c: Context): string | undefined {
+  return getCookie(c, cookieName);
+}
+
 /** Sets `c.var.user` from the session cookie. */
 export const sessionMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
-  const token = getCookie(c, cookieName);
+  const token = getSessionToken(c);
   c.set('user', token ? await getSessionUser(token) : null);
   await next();
 });
@@ -54,7 +59,7 @@ export const authRoutes = new Hono<AuthEnv>()
     return c.json({ id: row.id, username: row.username, displayName: row.displayName });
   })
   .post('/logout', async (c) => {
-    const token = getCookie(c, cookieName);
+    const token = getSessionToken(c);
     if (token) await deleteSession(token);
     deleteCookie(c, cookieName, { path: '/' });
     return c.body(null, 204);

@@ -3,7 +3,7 @@
 // --sql prints an SQL statement for manual use instead of writing to the database.
 import { parseArgs } from 'node:util';
 
-import { hashToken, newToken } from './auth/tokens.ts';
+import { newUserToken } from './auth/tokens.ts';
 import { sqlBytes, sqlString } from './sql-literal.ts';
 
 const { values, positionals } = parseArgs({
@@ -16,18 +16,24 @@ if (!username || positionals.length > 1) {
   process.exit(1);
 }
 
-const token = newToken();
-const tokenHash = hashToken(token);
+const { token, hash, lastChars } = newUserToken('mcp');
 
 if (values.sql) {
   console.log(
-    `UPDATE users SET mcp_token_hash = ${sqlBytes(tokenHash)} WHERE username = ${sqlString(username)};`,
+    `INSERT INTO user_tokens (user_id, kind, token_hash, last_chars)\n` +
+      `SELECT id, 'mcp', ${sqlBytes(hash)}, ${sqlString(lastChars)} FROM users WHERE username = ${sqlString(username)}\n` +
+      `ON CONFLICT (user_id, kind) DO UPDATE\n` +
+      `SET token_hash = excluded.token_hash, last_chars = excluded.last_chars, created_at = now();`,
   );
 } else {
   // Imported here, so that --sql works without DATABASE_URL.
   const { sql } = await import('./db.ts');
-  const updated =
-    await sql`UPDATE users SET mcp_token_hash = ${tokenHash} WHERE username = ${username}`;
+  const updated = await sql`
+    INSERT INTO user_tokens (user_id, kind, token_hash, last_chars)
+    SELECT id, 'mcp', ${hash}, ${lastChars} FROM users WHERE username = ${username}
+    ON CONFLICT (user_id, kind) DO UPDATE
+    SET token_hash = excluded.token_hash, last_chars = excluded.last_chars, created_at = now()
+  `;
   await sql.end();
   if (!updated.count) {
     console.error(`No user ${username}`);

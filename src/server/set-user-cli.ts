@@ -29,7 +29,8 @@ if (values.sql) {
     `INSERT INTO users (username, display_name, password_hash)\n` +
       `VALUES (${sqlString(username)}, ${sqlString(displayName)}, ${sqlString(passwordHash)})\n` +
       `ON CONFLICT (username) DO UPDATE\n` +
-      `SET display_name = excluded.display_name, password_hash = excluded.password_hash;`,
+      `SET display_name = excluded.display_name, password_hash = excluded.password_hash,\n` +
+      `    password_changed_at = now();`,
   );
 } else {
   // Imported here, so that --sql works without DATABASE_URL.
@@ -38,7 +39,8 @@ if (values.sql) {
     INSERT INTO users (username, display_name, password_hash)
     VALUES (${username}, ${displayName}, ${passwordHash})
     ON CONFLICT (username) DO UPDATE
-    SET display_name = excluded.display_name, password_hash = excluded.password_hash
+    SET display_name = excluded.display_name, password_hash = excluded.password_hash,
+        password_changed_at = now()
   `;
   console.log(`Saved user ${username}`);
   await sql.end();

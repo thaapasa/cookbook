@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { hashPassword, verifyPassword } from './password.ts';
+import { generatePassword, hashPassword, verifyPassword } from './password.ts';
 
 describe('password hashing', () => {
   it('verifies the right password and rejects a wrong one', async () => {
@@ -19,5 +19,15 @@ describe('password hashing', () => {
     expect(await verifyPassword('x', phc.replace('argon2id', 'argon2i'))).toBe(false);
     expect(await verifyPassword('x', phc.replace('v=19', 'v=16'))).toBe(false);
     expect(await verifyPassword('x', 'not a hash')).toBe(false);
+  });
+});
+
+describe('generatePassword', () => {
+  it('returns 20 letters and digits', () => {
+    expect(generatePassword()).toMatch(/^[A-Za-z0-9]{20}$/);
+  });
+
+  it('returns a different password each time', () => {
+    expect(generatePassword()).not.toBe(generatePassword());
   });
 });

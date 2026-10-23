@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useRouterState } from '@tanstack/react-router';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
@@ -110,9 +110,13 @@ function ThemeButton() {
   );
 }
 
+const menuItemClass =
+  'flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-[15px] font-semibold outline-none data-focused:bg-chip';
+
 function UserMenu({ user }: { user: User }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const signOut = useMutation({
     mutationFn: logout,
     onSuccess: () => queryClient.setQueryData(meQuery.queryKey, { user: null }),
@@ -132,10 +136,10 @@ function UserMenu({ user }: { user: User }) {
       >
         <div className="px-3 pt-2 pb-1 text-sm text-muted">{user.displayName}</div>
         <Menu className="outline-none">
-          <MenuItem
-            onAction={() => signOut.mutate()}
-            className="flex min-h-11 cursor-pointer items-center rounded-xl px-3 text-[15px] font-semibold outline-none data-focused:bg-chip"
-          >
+          <MenuItem onAction={() => void navigate({ to: '/profile' })} className={menuItemClass}>
+            {t('app.profile')}
+          </MenuItem>
+          <MenuItem onAction={() => signOut.mutate()} className={menuItemClass}>
             {t('app.logout')}
           </MenuItem>
         </Menu>

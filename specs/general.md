@@ -12,7 +12,7 @@ Requirements that apply to the whole app.
       revisions.
 - [x] Users log in with a username and password.
 - [x] Users are added directly to the database. The app cannot add users.
-- [ ] Users edit their own name and credentials on the
+- [x] Users edit their own name and credentials on the
       [profile page](profile.md).
 - [x] Passwords are stored as Argon2id hashes (Node's built-in
       `crypto.argon2`) in PHC string format.

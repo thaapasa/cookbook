@@ -43,8 +43,12 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
 - **Revision**: a full snapshot of a recipe after each save, with the user,
   the source of the change (the app or MCP) and an optional note on what
   changed.
-- **User**: username, display name, password hash and a hash of the personal
-  MCP token. Users are added with `npm run set-user`.
+- **User**: username, display name and password hash. Users are added with
+  `npm run set-user`. Each user edits their own name, password and tokens on the
+  profile page.
+- **Token**: a personal token of a user, one of each kind: the MCP token and the
+  integration token for other systems. The database stores a hash of the token
+  and its last 4 characters, to tell tokens apart.
 - **Session**: a login of a user. The database stores a hash of the session
   token, not the token.
 
@@ -114,8 +118,9 @@ The container needs:
 The image also sets `PORT=3000` and `NODE_ENV=production`. The health check
 endpoint is `/api/health`.
 
-Users and MCP tokens are managed inside the container, for example
+Users are added inside the container, for example
 `docker exec -it <container> npm run set-user -- <username> "<display name>"`.
+After that, users manage their own password and tokens on the profile page.
 
 ### Releases
 

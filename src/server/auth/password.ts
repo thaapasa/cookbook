@@ -1,4 +1,4 @@
-import { argon2, randomBytes, timingSafeEqual } from 'node:crypto';
+import { argon2, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 
 const argon2Async = promisify(argon2);
@@ -45,4 +45,18 @@ export async function verifyPassword(password: string, phc: string): Promise<boo
     parallelism: Number(p.p),
   });
   return timingSafeEqual(actual, expected);
+}
+
+const passwordChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+// 20 characters from 62 give about 119 bits. Letters and digits are easy to
+// type on an iPad if the password manager cannot fill the password in.
+const passwordLength = 20;
+
+/** Returns a random password for the user to save in a password manager. */
+export function generatePassword(): string {
+  // randomInt has no modulo bias.
+  return Array.from(
+    { length: passwordLength },
+    () => passwordChars[randomInt(passwordChars.length)],
+  ).join('');
 }

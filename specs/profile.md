@@ -8,32 +8,32 @@ the user who is logged in.
 
 ## Access
 
-- [ ] Only logged-in users can open the profile page.
-- [ ] The user menu in the header has a link to the profile page.
+- [x] Only logged-in users can open the profile page.
+- [x] The user menu in the header has a link to the profile page.
 
 ## Name
 
-- [ ] User can change their display name. The name cannot be empty.
-- [ ] The page shows when the account was created.
+- [x] User can change their display name. The name cannot be empty.
+- [x] The page shows when the account was created.
 
 ## Password
 
-- [ ] The page shows when the password was last reset.
-- [ ] User can reset their password. The server generates a random password of
+- [x] The page shows when the password was last reset.
+- [x] User can reset their password. The server generates a random password of
       20 letters and digits and saves it. The page then shows it once, with a
       button that copies it. The user cannot choose the password.
-- [ ] Resetting the password ends the user's other sessions. The current
+- [x] Resetting the password ends the user's other sessions. The current
       session stays.
 
 ## Tokens
 
-- [ ] Each user has a personal MCP token and a personal integration token. The
+- [x] Each user has a personal MCP token and a personal integration token. The
       integration token is for an integration API for other systems, which is
       not built yet.
-- [ ] Each kind of token starts with a short prefix that tells the kind.
-- [ ] For each token, the page shows whether the user has one, when it was
+- [x] Each kind of token starts with a short prefix that tells the kind.
+- [x] For each token, the page shows whether the user has one, when it was
       generated and its last 4 characters.
-- [ ] User can generate each token. The server generates the token and saves
+- [x] User can generate each token. The server generates the token and saves
       it, which replaces the old one. The page then shows it once, with a
       button that copies it.
 - [ ] Changes made with the integration token are recorded as made by the
@@ -41,5 +41,5 @@ the user who is logged in.
 
 ## Confirmation
 
-- [ ] User must enter their current password to reset the password or to
+- [x] User must enter their current password to reset the password or to
       generate a token.

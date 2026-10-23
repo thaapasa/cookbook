@@ -2,6 +2,7 @@ import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/cli
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { app } from '../app.ts';
+import { generateToken } from '../auth/user-tokens.ts';
 import { sql } from '../db.ts';
 import { origin } from '../test/api.ts';
 import { createUser, resetDatabase, setMcpToken } from '../test/db.ts';
@@ -52,6 +53,11 @@ describe('authentication', () => {
 
   it('rejects a token in another scheme', async () => {
     expect((await post(`Basic ${token}`)).status).toBe(401);
+  });
+
+  it('rejects an integration token', async () => {
+    const integration = await generateToken(userId, 'integration');
+    expect((await post(`Bearer ${integration}`)).status).toBe(401);
   });
 
   it('rejects a replaced token', async () => {

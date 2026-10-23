@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 
 import type { LoginRequest, User } from '../shared/auth.ts';
+import type { Profile, TokenKind, UpdateProfileRequest } from '../shared/profile.ts';
 import type {
   Note,
   NoteInput,
@@ -92,6 +93,33 @@ export function login(input: LoginRequest): Promise<User> {
 
 export function logout(): Promise<void> {
   return request('/api/auth/logout', { method: 'POST' });
+}
+
+export const profileQuery = queryOptions({
+  queryKey: ['profile'],
+  queryFn: () => request<Profile>('/api/profile'),
+});
+
+export function updateProfile(input: UpdateProfileRequest): Promise<User> {
+  return request<User>('/api/profile', { method: 'PATCH', body: JSON.stringify(input) });
+}
+
+/** Gives the user a new password and returns it. */
+export async function resetPassword(currentPassword: string): Promise<string> {
+  const { password } = await request<{ password: string }>('/api/profile/password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword }),
+  });
+  return password;
+}
+
+/** Gives the user a new token of the kind and returns it. */
+export async function generateToken(kind: TokenKind, currentPassword: string): Promise<string> {
+  const { token } = await request<{ token: string }>(`/api/profile/tokens/${kind}`, {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword }),
+  });
+  return token;
 }
 
 /** Creates a recipe and returns its id. */
