@@ -6,9 +6,19 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import type { MouseEvent, ReactNode } from 'react';
+import { z } from 'zod';
 
 /** Names of the pages that a back link can lead to, as translation keys. */
-export type BackLabel = 'recipe.allRecipes' | 'recipe.weekPlan' | 'weekEdit.title';
+export type BackLabel = 'common.back' | 'recipe.allRecipes' | 'recipe.weekPlan' | 'weekEdit.title';
+
+/**
+ * Search params of the pages that other systems link to. The integration API
+ * adds `from=external` to its links. The back links of such a page go back to
+ * the other system.
+ */
+export const ExternalSearch = z.object({
+  from: z.literal('external').optional().catch(undefined),
+});
 
 /**
  * The page that opened the current page. When this is set in the history
@@ -29,9 +39,22 @@ export function useBackState(label?: BackLabel): { back: BackTarget } {
   return { back: { href, label } };
 }
 
-/** The page that opened the current page, if it is the previous history entry. */
+/**
+ * The page that opened the current page, if it is the previous history entry.
+ * For a page opened from another system, that system's page, if the browser
+ * has a page to go back to.
+ */
 export function useBackTarget(): BackTarget | undefined {
-  return useLocation({ select: (location) => location.state.back });
+  const back = useLocation({ select: (location) => location.state.back });
+  const external = useLocation({
+    select: (location) => 'from' in location.search && location.search.from === 'external',
+  });
+  if (back) return back;
+  // A new tab has only the current page in its history.
+  if (external && window.history.length > 1) {
+    return { href: document.referrer, label: 'common.back' };
+  }
+  return undefined;
 }
 
 /**
@@ -55,7 +78,9 @@ export function BackLink(props: {
     e.preventDefault();
     router.history.back();
   };
-  return <a href={back.href} onClick={onClick} {...rest} />;
+  // The referrer of a page opened from another system can be empty.
+  const href = back.href || router.buildLocation(fallback).href;
+  return <a href={href} onClick={onClick} {...rest} />;
 }
 
 /**

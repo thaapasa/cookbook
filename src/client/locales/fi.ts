@@ -65,6 +65,7 @@ export const fi = {
     close: 'Sulje',
   },
   common: {
+    back: 'Takaisin',
     loading: 'Ladataan…',
     loadError: 'Lataus epäonnistui. Yritä uudelleen.',
   },

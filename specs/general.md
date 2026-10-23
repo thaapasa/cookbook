@@ -22,7 +22,7 @@ Requirements that apply to the whole app.
       page the user came from, as it was: the same search, filters, page and
       scroll position. When there is no such page, such as in a new tab, they
       go to a default page.
-- [ ] A page opened from a link in another system, such as the family
+- [x] A page opened from a link in another system, such as the family
       dashboard, has back and close links that go back to that system. The
       links that the integration API returns mark the page as opened this way.
       When the browser has no page to go back to, such as in a new tab, the

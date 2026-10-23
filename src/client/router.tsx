@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import type { BackTarget } from './back.tsx';
+import { type BackTarget, ExternalSearch } from './back.tsx';
 import { AppHeader } from './components/AppHeader.tsx';
 import { CookingPage } from './pages/CookingPage.tsx';
 import { EditorPage } from './pages/EditorPage.tsx';
@@ -55,6 +55,7 @@ const recipeListRoute = createRoute({
 const recipeRoute = createRoute({
   getParentRoute: () => mainRoute,
   path: '/recipes/$recipeId',
+  validateSearch: ExternalSearch,
   component: RecipePage,
 });
 
@@ -95,6 +96,7 @@ const editRecipeRoute = createRoute({
 const cookingRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/$recipeId/cook',
+  validateSearch: ExternalSearch,
   component: CookingPage,
 });
 
