@@ -39,6 +39,29 @@ export function useBackState(label?: BackLabel): { back: BackTarget } {
   return { back: { href, label } };
 }
 
+const hasPageBeforeAppKey = 'hasPageBeforeApp';
+
+/**
+ * Whether the tab has a page before the first history entry of the app, such
+ * as the page of another system that opened the app.
+ *
+ * `history.length` also counts the entries after the current one, so it is
+ * only read when the app opens in a new history entry. The browser has then
+ * dropped the later entries. The answer is kept for reloads and for coming
+ * back to the app with the browser's back and forward buttons.
+ */
+function readHasPageBeforeApp(): boolean {
+  const [navigation] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  if (navigation?.type === 'navigate') {
+    const hasPage = window.history.length > 1;
+    sessionStorage.setItem(hasPageBeforeAppKey, String(hasPage));
+    return hasPage;
+  }
+  return sessionStorage.getItem(hasPageBeforeAppKey) === 'true';
+}
+
+const hasPageBeforeApp = readHasPageBeforeApp();
+
 /**
  * The page that opened the current page, if it is the previous history entry.
  * For a page opened from another system, that system's page, if the browser
@@ -49,9 +72,10 @@ export function useBackTarget(): BackTarget | undefined {
   const external = useLocation({
     select: (location) => 'from' in location.search && location.search.from === 'external',
   });
+  // The other system's page is before the first history entry of the app.
+  const firstEntry = useLocation({ select: (location) => location.state.__TSR_index === 0 });
   if (back) return back;
-  // A new tab has only the current page in its history.
-  if (external && window.history.length > 1) {
+  if (external && firstEntry && hasPageBeforeApp) {
     return { href: document.referrer, label: 'common.back' };
   }
   return undefined;
