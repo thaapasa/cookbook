@@ -55,7 +55,7 @@ describe('addEntry and listEntries', () => {
           title: 'Uunilohi',
           activeMinutes: null,
           totalMinutes: 35,
-          photoUrl: null,
+          photo: null,
         },
       },
     ]);

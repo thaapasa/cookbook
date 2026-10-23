@@ -8,7 +8,8 @@ import type {
   WeekPlanSnapshot,
 } from '../../shared/week-plan.ts';
 import { sql } from '../db.ts';
-import { type Author, photoUrl } from '../recipes/repository.ts';
+import { photoUrls } from '../images.ts';
+import type { Author } from '../recipes/repository.ts';
 
 type Tx = postgres.TransactionSql<Record<string, never>>;
 type Db = typeof sql | Tx;
@@ -49,7 +50,7 @@ async function readEntries(db: Db, where: postgres.Fragment): Promise<WeekPlanEn
             title: r.recipeTitle,
             activeMinutes: r.recipeActiveMinutes,
             totalMinutes: r.recipeTotalMinutes,
-            photoUrl: photoUrl(r.recipePhotoPath),
+            photo: photoUrls(r.recipePhotoPath),
           }
         : null,
   }));

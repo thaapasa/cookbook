@@ -101,7 +101,7 @@ export const WeekPlanRecipe = Recipe.pick({
   title: true,
   activeMinutes: true,
   totalMinutes: true,
-  photoUrl: true,
+  photo: true,
 });
 export type WeekPlanRecipe = z.infer<typeof WeekPlanRecipe>;
 

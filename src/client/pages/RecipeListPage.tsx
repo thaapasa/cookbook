@@ -112,6 +112,16 @@ export function RecipeListPage() {
   );
 }
 
+// The width of the photo in the recipe grid above: the page is up to 1160 px wide
+// with 16 or 24 px padding, the columns are at least 250 px with a 24 px gap, and
+// the card has 10 px padding. Each value is the widest photo in its range.
+const photoSizes = [
+  '(min-width: 1120px) 270px',
+  '(min-width: 846px) calc((100vw - 96px) / 3 - 20px)',
+  '(min-width: 556px) calc((100vw - 56px) / 2 - 20px)',
+  'calc(100vw - 52px)',
+].join(', ');
+
 function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
   const formatMinutes = useFormatMinutes();
   const backState = useBackState('recipe.allRecipes');
@@ -123,7 +133,12 @@ function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
       state={backState}
       className="flex w-full flex-col gap-3 rounded-[18px] border border-line-soft bg-card p-2.5 pb-4 text-ink no-underline transition hover:-translate-y-0.5 hover:shadow-[0_10px_28px_var(--color-shadow)]"
     >
-      <RecipePhoto recipeId={recipe.id} photoUrl={recipe.photoUrl} className="rounded-xl" />
+      <RecipePhoto
+        recipeId={recipe.id}
+        photo={recipe.photo}
+        sizes={photoSizes}
+        className="rounded-xl"
+      />
       <div className="flex flex-col gap-1.5 px-1.5">
         <h2 className="font-display text-xl leading-tight font-bold tracking-[-0.01em]">
           {recipe.title}

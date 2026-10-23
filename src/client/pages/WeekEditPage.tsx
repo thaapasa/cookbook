@@ -221,7 +221,7 @@ function EntryRow(props: {
           {recipe ? (
             <RecipeThumb
               recipeId={recipe.id}
-              photoUrl={recipe.photoUrl}
+              photo={recipe.photo}
               className="size-9 rounded-[9px]"
             />
           ) : (

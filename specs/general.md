@@ -30,18 +30,18 @@ Requirements that apply to the whole app.
 
 ## Photos
 
-- [ ] Besides the full photo, the server stores two smaller sizes of each
+- [x] Besides the full photo, the server stores two smaller sizes of each
       recipe photo: 256 px and 768 px on the short side. Photos are cropped to
       fit their place, so the short side decides how sharp they look. The
       smaller sizes are made from the full photo and are never larger than it.
-- [ ] The file name of each smaller size tells its size. A change of sizes
+- [x] The file name of each smaller size tells its size. A change of sizes
       gives new file names, so cached old files are never shown.
-- [ ] At startup, the server creates the missing smaller sizes and deletes the
+- [x] At startup, the server creates the missing smaller sizes and deletes the
       smaller sizes that are no longer in use. It leaves the full photos and
       other files alone.
-- [ ] The small thumbnails in the week view, the week edit view and the recipe
+- [x] The small thumbnails in the week view, the week edit view and the recipe
       suggestions show the 256 px size.
-- [ ] The recipe list offers all three sizes, and the browser picks the
+- [x] The recipe list offers all three sizes, and the browser picks the
       smallest one that looks sharp on the screen, up to 4x pixel density.
-- [ ] The recipe page, the cooking view and the editor show the full photo.
-- [ ] Clients get the photo URLs from the server and do not build them.
+- [x] The recipe page and the editor show the full photo.
+- [x] Clients get the photo URLs from the server and do not build them.

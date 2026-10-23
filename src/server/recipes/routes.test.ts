@@ -1,6 +1,7 @@
 import sharp from 'sharp';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import type { Recipe } from '../../shared/recipe.ts';
 import { app } from '../app.ts';
 import { login, origin, request } from '../test/api.ts';
 import { createUser, resetDatabase } from '../test/db.ts';
@@ -36,6 +37,12 @@ function jpeg(): Promise<Buffer> {
   return sharp({ create: { width: 40, height: 30, channels: 3, background: '#c84' } })
     .jpeg()
     .toBuffer();
+}
+
+/** The URLs of the full photo and its smaller sizes in a recipe response. */
+function photoUrlsOf(recipe: unknown): string[] {
+  const { photo } = recipe as Recipe;
+  return photo ? [photo.url, ...photo.sizes.map((s) => s.url)] : [];
 }
 
 function uploadPhoto(id: string, data: Blob, from = origin) {
@@ -166,7 +173,7 @@ describe('recipes', () => {
       activeMinutes: null,
       totalMinutes: 90,
       source: null,
-      photoUrl: null,
+      photo: null,
       tags: ['leivonnainen'],
       ingredientGroups: [
         { name: null, ingredients: [{ amount: '5 dl', name: 'maito', note: null }] },
@@ -218,11 +225,11 @@ describe('recipes', () => {
   it('deletes a recipe and its photo', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
-    const { photoUrl } = (await getJson(`/api/recipes/${id}`)) as { photoUrl: string };
+    const urls = photoUrlsOf(await getJson(`/api/recipes/${id}`));
 
     expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(204);
     expect((await request(`/api/recipes/${id}`)).status).toBe(404);
-    expect((await app.request(photoUrl)).status).toBe(404);
+    for (const url of urls) expect((await app.request(url)).status).toBe(404);
     expect((await request(`/api/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(404);
   });
 
@@ -255,15 +262,21 @@ describe('recipes', () => {
   it('stores an uploaded photo and serves it', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
-    const { photoUrl } = (await getJson(`/api/recipes/${id}`)) as { photoUrl: string };
-    expect(photoUrl).toMatch(/^\/images\/[\w-]+\.webp$/);
+    const urls = photoUrlsOf(await getJson(`/api/recipes/${id}`));
+    expect(urls).toEqual([
+      expect.stringMatching(/^\/images\/[\w-]+\.webp$/),
+      expect.stringMatching(/^\/images\/[\w-]+\.s256\.webp$/),
+      expect.stringMatching(/^\/images\/[\w-]+\.s768\.webp$/),
+    ]);
 
-    const image = await app.request(photoUrl);
-    expect(image.status).toBe(200);
-    expect(image.headers.get('content-type')).toBe('image/webp');
+    for (const url of urls) {
+      const image = await app.request(url);
+      expect(image.status).toBe(200);
+      expect(image.headers.get('content-type')).toBe('image/webp');
+    }
 
     const removed = await request(`/api/recipes/${id}/photo`, { method: 'DELETE', cookie });
     expect(removed.status).toBe(204);
-    expect((await app.request(photoUrl)).status).toBe(404);
+    for (const url of urls) expect((await app.request(url)).status).toBe(404);
   });
 });

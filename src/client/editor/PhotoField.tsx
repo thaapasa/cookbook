@@ -20,7 +20,12 @@ export function PhotoField(props: {
   return (
     <div className="flex flex-col gap-2">
       <span className={labelClass}>{t('editor.photo')}</span>
-      <RecipePhoto recipeId={recipeId} photoUrl={url} iconSize={48} className="rounded-2xl" />
+      <RecipePhoto
+        recipeId={recipeId}
+        photo={url ? { url, sizes: [] } : null}
+        iconSize={48}
+        className="rounded-2xl"
+      />
       <div className="flex flex-wrap gap-2">
         <FileTrigger
           acceptedFileTypes={['image/*']}

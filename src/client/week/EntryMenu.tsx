@@ -49,10 +49,10 @@ export function EntryMenu(props: {
   const link = (recipe: RecipeSummary) => {
     setPanel(null);
     if (recipe.id === entry.recipe?.id) return;
-    const { id, title, activeMinutes, totalMinutes, photoUrl } = recipe;
+    const { id, title, activeMinutes, totalMinutes, photo } = recipe;
     onUpdate({
       recipeId: id,
-      recipe: { id, title, activeMinutes, totalMinutes, photoUrl },
+      recipe: { id, title, activeMinutes, totalMinutes, photo },
       // Text that the user wrote stays. Text that came from the old recipe follows the new one.
       ...(entry.text === entry.recipe?.title ? { text: title } : {}),
     });

@@ -215,7 +215,7 @@ function EntryItem({ entry }: { entry: WeekPlanEntry }) {
   return (
     <div className={entryGrid}>
       <Link {...link} tabIndex={-1} aria-hidden="true">
-        <RecipeThumb recipeId={recipe.id} photoUrl={recipe.photoUrl} className={thumbClass} />
+        <RecipeThumb recipeId={recipe.id} photo={recipe.photo} className={thumbClass} />
       </Link>
       <div className="flex min-w-0 flex-col">
         <Link

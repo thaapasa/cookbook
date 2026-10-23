@@ -41,11 +41,7 @@ export function RecipeOption({ recipe }: { recipe: RecipeSummary }) {
   const minutes = recipe.totalMinutes ?? recipe.activeMinutes;
   return (
     <ListBoxItem id={recipe.id} textValue={recipe.title} className={optionClass}>
-      <RecipeThumb
-        recipeId={recipe.id}
-        photoUrl={recipe.photoUrl}
-        className="size-9 rounded-[9px]"
-      />
+      <RecipeThumb recipeId={recipe.id} photo={recipe.photo} className="size-9 rounded-[9px]" />
       <span className="truncate font-semibold">{recipe.title}</span>
       <span className="text-sm text-muted">{minutes !== null && formatMinutes(minutes)}</span>
     </ListBoxItem>

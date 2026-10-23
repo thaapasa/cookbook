@@ -18,7 +18,6 @@ const groupNameInfo =
   'A heading such as "Kastike" when the recipe has several parts. Null when there is only one group.';
 const activeMinutesInfo = 'Hands-on time in minutes.';
 const totalMinutesInfo = 'Time from start to finish in minutes, including waiting and baking.';
-const photoUrlInfo = 'Path of the photo on the cookbook site, or null if there is no photo.';
 
 export const IngredientInput = z.object({
   amount: OptionalText.describe(
@@ -109,6 +108,19 @@ const StepGroup = z.object({
   steps: z.array(z.string()),
 });
 
+export const Photo = z.object({
+  url: z.string().describe('Path of the full photo on the cookbook site.'),
+  sizes: z
+    .array(
+      z.object({
+        size: z.int().describe('Length of the short side in pixels.'),
+        url: z.string(),
+      }),
+    )
+    .describe('Smaller sizes of the photo, smallest first.'),
+});
+export type Photo = z.infer<typeof Photo>;
+
 export const Recipe = z.object({
   id: z.uuid(),
   title: z.string(),
@@ -120,7 +132,7 @@ export const Recipe = z.object({
   tags: z.array(z.string()),
   ingredientGroups: z.array(IngredientGroup),
   stepGroups: z.array(StepGroup),
-  photoUrl: z.string().nullable().describe(photoUrlInfo),
+  photo: Photo.nullable().describe('Null if there is no photo.'),
   notes: z.array(Note).describe('Newest first.'),
 });
 export type Recipe = z.infer<typeof Recipe>;
@@ -130,7 +142,7 @@ export const RecipeSummary = Recipe.pick({
   title: true,
   activeMinutes: true,
   totalMinutes: true,
-  photoUrl: true,
+  photo: true,
   tags: true,
 });
 export type RecipeSummary = z.infer<typeof RecipeSummary>;

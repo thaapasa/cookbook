@@ -11,15 +11,12 @@ import {
   type TagCount,
 } from '../../shared/recipe.ts';
 import { sql } from '../db.ts';
+import { photoUrls } from '../images.ts';
 
 /** The user who saved a recipe, and whether it was saved in the app or through MCP. */
 export type Author = { userId: string; source: 'app' | 'mcp' };
 
 type Tx = postgres.TransactionSql<Record<string, never>>;
-
-export function photoUrl(photoPath: string | null): string | null {
-  return photoPath ? `/images/${photoPath}` : null;
-}
 
 function searchWords(q: string): string[] {
   return q.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
@@ -93,7 +90,7 @@ export async function listRecipes(opts: {
       title: r.title,
       activeMinutes: r.activeMinutes,
       totalMinutes: r.totalMinutes,
-      photoUrl: photoUrl(r.photoPath),
+      photo: photoUrls(r.photoPath),
       tags: r.tags,
     })),
     total: Number(rows[0]?.total ?? 0),
@@ -194,7 +191,7 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
   const { photoPath, ...rest } = recipe;
   return {
     ...rest,
-    photoUrl: photoUrl(photoPath),
+    photo: photoUrls(photoPath),
     tags: tags.map((t) => t.name),
     ingredientGroups: [...ingredientGroups],
     stepGroups: [...stepGroups],

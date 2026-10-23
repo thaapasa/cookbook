@@ -64,7 +64,7 @@ describe('createRecipe and getRecipe', () => {
       activeMinutes: 30,
       totalMinutes: 75,
       source: 'https://example.com/piirakka',
-      photoUrl: null,
+      photo: null,
       tags: ['jälkiruoka', 'leivonnainen'],
       ingredientGroups: [
         {
@@ -415,7 +415,13 @@ describe('setPhotoPath', () => {
 
     expect(await setPhotoPath(id, 'a.webp')).toBeNull();
     expect(await setPhotoPath(id, 'b.webp')).toBe('a.webp');
-    expect((await getRecipe(id))?.photoUrl).toBe('/images/b.webp');
+    expect((await getRecipe(id))?.photo).toEqual({
+      url: '/images/b.webp',
+      sizes: [
+        { size: 256, url: '/images/b.s256.webp' },
+        { size: 768, url: '/images/b.s768.webp' },
+      ],
+    });
   });
 
   it('returns undefined for a missing recipe', async () => {

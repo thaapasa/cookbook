@@ -110,7 +110,7 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
       }
 
       if (photo) await uploadPhoto(id, photo.file);
-      else if (photoRemoved && recipe?.photoUrl) await deletePhoto(id);
+      else if (photoRemoved && recipe?.photo) await deletePhoto(id);
 
       // Notes have no revisions, so they are saved one by one.
       const saved = new Map((recipe?.notes ?? []).map((n) => [n.id, n.text]));
@@ -190,7 +190,7 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
               <div className="flex-[1_1_260px]">
                 <PhotoField
                   recipeId={recipe?.id ?? 'new'}
-                  url={photo?.url ?? (photoRemoved ? null : (recipe?.photoUrl ?? null))}
+                  url={photo?.url ?? (photoRemoved ? null : (recipe?.photo?.url ?? null))}
                   onSelect={(file) => setPhoto({ file, url: URL.createObjectURL(file) })}
                   onRemove={() => {
                     setPhoto(null);

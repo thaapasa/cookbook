@@ -148,7 +148,7 @@ function RecipeContent({ recipe }: { recipe: Recipe }) {
           </div>
           <RecipePhoto
             recipeId={recipe.id}
-            photoUrl={recipe.photoUrl}
+            photo={recipe.photo}
             label={t('recipe.photo')}
             iconSize={56}
             className="order-first -mx-4 mb-1.5 sm:mx-0 sm:rounded-3xl md:order-none md:mb-0"

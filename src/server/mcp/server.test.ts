@@ -68,9 +68,7 @@ describe('tools', () => {
     });
     expect(tool('get_recipe')?.outputSchema).toMatchObject({
       properties: {
-        photoUrl: {
-          description: 'Path of the photo on the cookbook site, or null if there is no photo.',
-        },
+        photo: { description: 'Null if there is no photo.' },
         notes: { description: 'Newest first.' },
       },
     });
@@ -227,9 +225,9 @@ describe('set_recipe_photo', () => {
 
     const res = await callTool('set_recipe_photo', { id, data: jpeg.toString('base64') });
     expect(res.isError).toBeFalsy();
-    const photoUrl = (await getRecipe(id))?.photoUrl;
-    expect(photoUrl).toMatch(/^\/images\/[\w-]+\.webp$/);
-    expect((await app.request(photoUrl!)).status).toBe(200);
+    const photo = (await getRecipe(id))?.photo;
+    expect(photo?.url).toMatch(/^\/images\/[\w-]+\.webp$/);
+    expect((await app.request(photo!.url)).status).toBe(200);
   });
 
   it('accepts a data URL', async () => {
@@ -242,7 +240,7 @@ describe('set_recipe_photo', () => {
 
     const data = `data:image/png;base64,${png.toString('base64')}`;
     expect((await callTool('set_recipe_photo', { id, data })).isError).toBeFalsy();
-    expect((await getRecipe(id))?.photoUrl).toMatch(/\.webp$/);
+    expect((await getRecipe(id))?.photo?.url).toMatch(/\.webp$/);
   });
 
   it('rejects data that is not an image', async () => {
@@ -250,7 +248,7 @@ describe('set_recipe_photo', () => {
     const data = Buffer.from('not an image').toString('base64');
     expect((await callTool('set_recipe_photo', { id, data })).isError).toBe(true);
     expect((await callTool('set_recipe_photo', { id, data: '%%%' })).isError).toBe(true);
-    expect((await getRecipe(id))?.photoUrl).toBeNull();
+    expect((await getRecipe(id))?.photo).toBeNull();
   });
 });
 
@@ -265,7 +263,7 @@ describe('set_recipe_photo_from_url', () => {
     expect((local.content as { text: string }[])[0].text).toMatch(/not a public address/);
     const file = await callTool('set_recipe_photo_from_url', { id, url: 'file:///etc/passwd' });
     expect(file.isError).toBe(true);
-    expect((await getRecipe(id))?.photoUrl).toBeNull();
+    expect((await getRecipe(id))?.photo).toBeNull();
   });
 });
 
