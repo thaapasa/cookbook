@@ -5,6 +5,7 @@ import { csrf } from 'hono/csrf';
 import { type AuthEnv, authRoutes, sessionMiddleware } from './auth/routes.ts';
 import { sql } from './db.ts';
 import { imagesDir } from './images.ts';
+import { integrationRoutes } from './integration/routes.ts';
 import { mcpRoutes } from './mcp/routes.ts';
 import { profileRoutes } from './profile/routes.ts';
 import { recipeRoutes, tagRoutes } from './recipes/routes.ts';
@@ -26,6 +27,9 @@ app.route('/api/app/profile', profileRoutes);
 app.route('/api/app/recipes', recipeRoutes);
 app.route('/api/app/tags', tagRoutes);
 app.route('/api/app/week-plan', weekPlanRoutes);
+
+// Other systems authenticate with an integration token instead of the session cookie.
+app.route('/api/v1', integrationRoutes);
 
 app.all('/api/*', (c) => c.notFound());
 

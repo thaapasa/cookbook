@@ -100,7 +100,9 @@ types and the JSON Schema that MCP tool definitions need.
 ## Deployment
 
 The app is served at `https://reseptit.pomeranssi.fi`. The MCP endpoint is
-`https://reseptit.pomeranssi.fi/mcp`.
+`https://reseptit.pomeranssi.fi/mcp`. The integration API is at
+`https://reseptit.pomeranssi.fi/api/v1`, and its OpenAPI description at
+`https://reseptit.pomeranssi.fi/api/v1/openapi.json`.
 
 The app runs as a single Docker image, `ghcr.io/thaapasa/cookbook:<version>`.
 A reverse proxy such as Caddy sits in front of it and handles TLS. PostgreSQL
@@ -111,6 +113,9 @@ The container needs:
 - `DATABASE_URL`: the PostgreSQL connection, such as
   `postgres://cookbook:<password>@db:5432/cookbook`. The app applies pending
   migrations at startup.
+- `PUBLIC_URL`: the public address of the app, `https://reseptit.pomeranssi.fi`.
+  The integration API uses it in the links that it returns. The server does not
+  start without it.
 - `IMAGES_DIR`: the path of the recipe images in the container. The image sets
   it to `/data/images`. Mount a host directory at `/data/images`. The container
   runs as user `node` (UID 1000), so the directory must be writable by UID 1000.
@@ -138,7 +143,7 @@ Versions start from 0.x.x. Use `minor` for features and `patch` for fixes.
 ## Development
 
 Start the local database with `docker compose up -d`. Copy `.env.example` to
-`.env` for the matching `DATABASE_URL`. Set `DB_PORT` to use a port other
+`.env` for the matching `DATABASE_URL` and `PUBLIC_URL`. Set `DB_PORT` to use a port other
 than 15432.
 
 Then install dependencies with `npm install` and run:

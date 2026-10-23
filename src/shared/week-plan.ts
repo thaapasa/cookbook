@@ -37,7 +37,10 @@ export function toIsoDate(date: Date): string {
 
 /** Query parameters for reading the plan from `from` to `to`, both included. */
 export const WeekPlanQuery = z
-  .object({ from: IsoDate, to: IsoDate })
+  .object({
+    from: IsoDate.describe('The first date.'),
+    to: IsoDate.describe('The last date, included.'),
+  })
   .refine(({ from, to }) => from <= to && to <= addDays(from, maxPlanDays - 1), {
     message: `The range must be 1–${maxPlanDays} days`,
     // Zod runs the check also when a date failed, and `addDays` needs valid dates.
