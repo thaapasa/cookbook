@@ -257,7 +257,7 @@ describe('set_recipe_photo_from_url', () => {
     const id = await addRecipe(author, { title: 'Pulla' });
     const local = await callTool('set_recipe_photo_from_url', {
       id,
-      url: 'http://localhost:3000/images/photo.webp',
+      url: 'http://localhost:10300/images/photo.webp',
     });
     expect(local.isError).toBe(true);
     expect((local.content as { text: string }[])[0].text).toMatch(/not a public address/);

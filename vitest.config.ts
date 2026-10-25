@@ -2,7 +2,7 @@ import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 const env = loadEnv('test', process.cwd(), '');
-const devUrl = env.DATABASE_URL ?? 'postgres://cookbook:cookbook@localhost:15432/cookbook';
+const devUrl = env.DATABASE_URL ?? 'postgres://cookbook:cookbook@localhost:10332/cookbook';
 
 // The tests use a separate database next to the development database.
 const testUrl = new URL(devUrl);

@@ -142,16 +142,22 @@ Versions start from 0.x.x. Use `minor` for features and `patch` for fixes.
 
 ## Development
 
+The dev ports follow the shared local port scheme, where cookbook is app `03`:
+
+- 10300: the server (`PORT`)
+- 10310: the Vite dev server
+- 10332: PostgreSQL (`DB_PORT` in docker-compose)
+
 Start the local database with `docker compose up -d`. Copy `.env.example` to
-`.env` for the matching `DATABASE_URL` and `PUBLIC_URL`. Set `DB_PORT` to use a port other
-than 15432.
+`.env` for the matching `DATABASE_URL` and `PUBLIC_URL`.
 
 Then install dependencies with `npm install` and run:
 
-- `npm run dev`: the server on port 3000, restarted on changes. It applies
-  pending migrations at startup.
-- `npm run dev:client`: the Vite dev server, which proxies `/api` and `/mcp` to
-  the server.
+- `npm run dev`: the server, restarted on changes. It applies pending
+  migrations at startup.
+- `npm run dev:client`: the Vite dev server at `http://localhost:10310`. It
+  proxies `/api`, `/mcp` and `/images` to the server. If the port is taken,
+  Vite stops instead of picking another port.
 - `npm run migrate`: applies pending migrations without starting the server.
 - `npm run set-user -- <username> "<display name>"`: creates a user, or sets the
   display name and password of an existing user. Asks for the password.

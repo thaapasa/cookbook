@@ -30,11 +30,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 10310,
+    strictPort: true,
     proxy: {
       // Prefix keys need the trailing slash, or '/api' would also catch the client module /api.ts
-      '/api/': 'http://localhost:3000',
-      '^/mcp(?:[/?]|$)': 'http://localhost:3000',
-      '/images/': 'http://localhost:3000',
+      '/api/': 'http://localhost:10300',
+      '^/mcp(?:[/?]|$)': 'http://localhost:10300',
+      '/images/': 'http://localhost:10300',
     },
   },
 });

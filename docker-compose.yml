@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: cookbook
       POSTGRES_DB: cookbook
     ports:
-      - '${DB_PORT:-15432}:5432'
+      - '${DB_PORT:-10332}:5432'
     volumes:
       - db-data:/var/lib/postgresql
     healthcheck:

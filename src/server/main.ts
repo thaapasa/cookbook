@@ -4,7 +4,7 @@ import { app } from './app.ts';
 import { syncPhotoSizes } from './images.ts';
 import { migrate } from './migrate.ts';
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT ?? 10300);
 
 await migrate();
 
