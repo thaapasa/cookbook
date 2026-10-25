@@ -1,9 +1,11 @@
 // Fills the database with test recipes for development.
 // Usage: npm run seed [-- --reset]
-// Also creates the user `demo` with the password `demo`.
+// Also creates the user `demo` with the password `demo`, and gives it the
+// integration token `ckb_int_local_dev_token`.
 // --reset deletes all existing recipes and tags first.
 import { RecipeInput } from '../shared/recipe.ts';
 import { hashPassword } from './auth/password.ts';
+import { hashToken } from './auth/tokens.ts';
 import { sql } from './db.ts';
 import { migrate } from './migrate.ts';
 import { createRecipe } from './recipes/repository.ts';
@@ -33,6 +35,18 @@ const [demo] = await sql<{ id: string }[]>`
   VALUES ('demo', 'Demo', ${await hashPassword('demo')})
   ON CONFLICT (username) DO UPDATE SET username = excluded.username
   RETURNING id
+`;
+
+// The same fixed token that scripts/copy-prod-db.sh sets, so that other services
+// in local dev can call the integration API. Token hashes are unique, so the
+// token is first taken from any other user who has it.
+const devToken = 'ckb_int_local_dev_token';
+await sql`DELETE FROM user_tokens WHERE token_hash = ${hashToken(devToken)}`;
+await sql`
+  INSERT INTO user_tokens (user_id, kind, token_hash, last_chars)
+  VALUES (${demo.id}, 'integration', ${hashToken(devToken)}, ${devToken.slice(-4)})
+  ON CONFLICT (user_id, kind) DO UPDATE
+  SET token_hash = excluded.token_hash, last_chars = excluded.last_chars, created_at = now()
 `;
 
 for (const [index, { notes = [], ...recipe }] of seedRecipes.entries()) {

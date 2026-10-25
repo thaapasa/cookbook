@@ -53,4 +53,29 @@ psql --quiet --set=ON_ERROR_STOP=1 --set=hash="$password_hash" "$dev_url" <<'SQL
 UPDATE users SET password_hash = :'hash';
 SQL
 
+# A fixed integration token, so that other services in local dev can use the
+# same token after every copy. The oldest user with an integration token gets
+# it. If no user has one, the oldest user gets it.
+dev_token='ckb_int_local_dev_token'
+token_user="$(psql --quiet --set=ON_ERROR_STOP=1 --no-psqlrc --tuples-only --no-align \
+  --set=token="$dev_token" "$dev_url" <<'SQL'
+WITH target AS (
+  SELECT u.id, u.username FROM users u
+  ORDER BY
+    EXISTS (SELECT 1 FROM user_tokens t WHERE t.user_id = u.id AND t.kind = 'integration') DESC,
+    u.created_at, u.id
+  LIMIT 1
+), saved AS (
+  INSERT INTO user_tokens (user_id, kind, token_hash, last_chars)
+  SELECT id, 'integration', sha256(convert_to(:'token', 'UTF8')), right(:'token', 4) FROM target
+  ON CONFLICT (user_id, kind) DO UPDATE
+  SET token_hash = excluded.token_hash, last_chars = excluded.last_chars, created_at = now()
+)
+SELECT username FROM target;
+SQL
+)"
+
 echo "Done. Every user's password is now \"password\"."
+if [[ -n "$token_user" ]]; then
+  echo "The integration token of $token_user is now $dev_token."
+fi

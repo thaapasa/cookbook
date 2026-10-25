@@ -167,7 +167,8 @@ Then install dependencies with `npm install` and run:
   writing to the database, for example for the production database. They do
   not need `DATABASE_URL` then.
 - `npm run seed`: adds test recipes and the user `demo` with the password
-  `demo`. `npm run seed -- --reset` replaces all existing recipes and tags.
+  `demo` and the integration token `ckb_int_local_dev_token`.
+  `npm run seed -- --reset` replaces all existing recipes and tags.
 - `npm run build`: builds the client into `dist/client`, which the server
   serves.
 - `npm test`: runs the tests with [Vitest](https://vitest.dev).
@@ -181,6 +182,10 @@ Then install dependencies with `npm install` and run:
   checks them.
 - `scripts/copy-prod-db.sh`: replaces the local database with a copy of the
   production database from `PROD_DB_URL` in `.env`, and sets every password
-  to `password`. Needs Tailscale.
+  to `password`. It also gives one user the integration token
+  `ckb_int_local_dev_token`, so that services in local dev can call the
+  integration API at `http://localhost:10300/api/v1` with a fixed token. The
+  token goes to the oldest user with an integration token, or to the oldest
+  user if no one has one. Needs Tailscale.
 - `scripts/copy-prod-images.sh`: copies the recipe images from production to
   `data/images`. Needs Tailscale.
