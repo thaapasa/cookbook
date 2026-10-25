@@ -75,6 +75,11 @@ SELECT username FROM target;
 SQL
 )"
 
+# A restored database has no planner statistics and an empty visibility map,
+# so collect the statistics and vacuum to allow index-only scans.
+echo "Vacuuming and analyzing local database"
+psql --quiet --set=ON_ERROR_STOP=1 --command='VACUUM ANALYZE' "$dev_url"
+
 echo "Done. Every user's password is now \"password\"."
 if [[ -n "$token_user" ]]; then
   echo "The integration token of $token_user is now $dev_token."
