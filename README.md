@@ -32,12 +32,13 @@ The dev ports follow the shared local port scheme, where cookbook is app `03`:
 - 10332: PostgreSQL (`DB_PORT` in docker-compose)
 
 Install [mise](https://mise.jdx.dev) and run `mise install`. It installs the
-Node.js version and the PostgreSQL client tools from `mise.toml`.
+Node.js version and the PostgreSQL client tools from `mise.toml`, and then runs
+`npm install`.
 
 Start the local database with `docker compose up -d`. Copy `.env.example` to
 `.env` for the matching `DATABASE_URL` and `PUBLIC_URL`.
 
-Then install dependencies with `npm install` and run:
+Then run:
 
 - `npm run dev`: the server, restarted on changes. It applies pending
   migrations at startup.

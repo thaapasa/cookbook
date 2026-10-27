@@ -26,11 +26,12 @@ jobs:
       DATABASE_URL: postgres://cookbook:cookbook@localhost:5432/cookbook
     steps:
       - uses: actions/checkout@v5
-      - uses: jdx/mise-action@v5
       - uses: actions/cache@v6
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      # Installs the tools from mise.toml, and then the npm dependencies.
+      - uses: jdx/mise-action@v5
       - name: Check that the Dockerfile uses the Node.js version from mise.toml
         run: |
           MISE_NODE=$(mise current node)
@@ -39,8 +40,8 @@ jobs:
             echo "::error::Dockerfile has Node.js $DOCKER_NODE, mise.toml has $MISE_NODE"
             exit 1
           fi
-      - run: npm ci
       - run: npm run format:check
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run build
       - run: npm test

@@ -7,3 +7,8 @@ node = "24.22.1"
 # dump a server with a newer major version, so keep this at the major version
 # of the production database.
 postgres = "18"
+
+[hooks]
+# Install the npm dependencies after the tools. CI installs the exact versions
+# from package-lock.json.
+postinstall = 'if [ -n "$CI" ]; then npm ci; else npm install; fi'

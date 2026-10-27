@@ -75,6 +75,10 @@
 *.yml text eol=lf
 *.toml text eol=lf
 
+# iCal feeds use CRLF (RFC 5545), but some servers send LF. Keep the saved
+# sample responses byte for byte as the server sent them.
+*.ics -text
+
 # Config & Build files
 *.properties text
 *.settings text
