@@ -1,4 +1,4 @@
-# Builds the production image. See "Deployment" in README.md.
+# Builds the production image. See "Running" in README.md.
 
 # Keep NODE_VERSION equal to the node version in mise.toml.
 ARG NODE_VERSION=24.22.1

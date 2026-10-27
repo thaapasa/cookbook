@@ -1,6 +1,17 @@
 # Cookbook
 
-See `README.md` for the app and the stack.
+- `README.md`: what the app is, the dev setup, the environment variables and
+  the admin tasks.
+- `ARCHITECTURE.md`: the data model, the design decisions and the stack. Read
+  it before you plan a change.
+- `HOSTING.md`: the production server.
+
+The user configures the production server, and you have no access to it. If a
+change affects what the server must provide, such as a new environment
+variable or a volume, update "Running" in `README.md` and tell the user.
+
+If you make a design decision that the code cannot explain, add it to
+`ARCHITECTURE.md` with the reason and the rejected alternatives.
 
 ## Linting
 
