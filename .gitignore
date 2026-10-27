@@ -23,3 +23,9 @@ coverage/
 
 # Recipe images in development
 data/
+
+# Local Claude settings
+CLAUDE.local.md
+
+# Local airlock settings
+airlock.local.toml
