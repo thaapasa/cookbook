@@ -26,10 +26,19 @@ jobs:
       DATABASE_URL: postgres://cookbook:cookbook@localhost:5432/cookbook
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: jdx/mise-action@v5
+      - uses: actions/cache@v6
         with:
-          node-version: 24
-          cache: npm
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Check that the Dockerfile uses the Node.js version from mise.toml
+        run: |
+          MISE_NODE=$(mise current node)
+          DOCKER_NODE=$(sed -n 's/^ARG NODE_VERSION=//p' Dockerfile)
+          if [ "$MISE_NODE" != "$DOCKER_NODE" ]; then
+            echo "::error::Dockerfile has Node.js $DOCKER_NODE, mise.toml has $MISE_NODE"
+            exit 1
+          fi
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint

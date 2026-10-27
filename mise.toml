@@ -1,0 +1,9 @@
+[tools]
+# The Node.js version for development, CI and the Docker image. When you
+# change it, change NODE_VERSION in the Dockerfile too. CI checks that the two
+# match.
+node = "24.22.1"
+# For psql and pg_dump, which scripts/copy-prod-db.sh uses. pg_dump refuses to
+# dump a server with a newer major version, so keep this at the major version
+# of the production database.
+postgres = "18"

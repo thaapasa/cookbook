@@ -69,9 +69,9 @@ types and the JSON Schema that MCP tool definitions need.
 
 ## Stack
 
-- **Runtime**: Node.js 24 LTS. It runs `.ts` files directly through type
-  stripping, so the server has no build step. Type stripping does not support
-  `enum` or `namespace`.
+- **Runtime**: Node.js 24 LTS, in the exact version from `mise.toml`. It runs
+  `.ts` files directly through type stripping, so the server has no build step.
+  Type stripping does not support `enum` or `namespace`.
 - **HTTP server**: [Hono](https://hono.dev), with `@hono/node-server` and
   `@hono/zod-validator`.
 - **Database**: PostgreSQL. The app reads the connection from `DATABASE_URL`.
@@ -148,6 +148,9 @@ The dev ports follow the shared local port scheme, where cookbook is app `03`:
 - 10310: the Vite dev server
 - 10332: PostgreSQL (`DB_PORT` in docker-compose)
 
+Install [mise](https://mise.jdx.dev) and run `mise install`. It installs the
+Node.js version and the PostgreSQL client tools from `mise.toml`.
+
 Start the local database with `docker compose up -d`. Copy `.env.example` to
 `.env` for the matching `DATABASE_URL` and `PUBLIC_URL`.
 
@@ -186,6 +189,7 @@ Then install dependencies with `npm install` and run:
   `ckb_int_local_dev_token`, so that services in local dev can call the
   integration API at `http://localhost:10300/api/v1` with a fixed token. The
   token goes to the oldest user with an integration token, or to the oldest
-  user if no one has one. Needs Tailscale.
+  user if no one has one. Needs Tailscale, and `psql` and `pg_dump` for
+  PostgreSQL 18, which mise installs.
 - `scripts/copy-prod-images.sh`: copies the recipe images from production to
   `data/images`. Needs Tailscale.

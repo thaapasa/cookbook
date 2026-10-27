@@ -1,6 +1,9 @@
 # Builds the production image. See "Deployment" in README.md.
 
-FROM node:24-slim AS client
+# Keep NODE_VERSION equal to the node version in mise.toml.
+ARG NODE_VERSION=24.22.1
+
+FROM node:${NODE_VERSION}-slim AS client
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -8,12 +11,12 @@ COPY vite.config.ts tsconfig.json ./
 COPY src ./src
 RUN npm run build
 
-FROM node:24-slim AS deps
+FROM node:${NODE_VERSION}-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-FROM node:24-slim
+FROM node:${NODE_VERSION}-slim
 ENV NODE_ENV=production \
     PORT=3000 \
     IMAGES_DIR=/data/images
