@@ -28,7 +28,7 @@ function useDebounced<T>(value: T, ms: number): T {
 export function useRecipeSuggestions(input: string): RecipeSummary[] {
   const query = useDebounced(input.trim(), 200);
   const search = useQuery({
-    ...recipeListQuery({ q: query }),
+    ...recipeListQuery({ q: query, page: 1 }),
     enabled: query !== '',
     placeholderData: keepPreviousData,
   });

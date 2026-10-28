@@ -201,8 +201,8 @@ describe('recipes', () => {
     expect(await getJson('/api/app/recipes?q=lohi')).toMatchObject({
       recipes: [{ title: 'Lohikeitto', tags: ['keitto'] }],
       total: 1,
-      page: 1,
     });
+    expect(await getJson('/api/app/recipes?q=lohi&page=1')).toMatchObject({ page: 1 });
     expect(await getJson('/api/app/recipes?tag=leivonnainen')).toMatchObject({
       recipes: [{ title: 'Pulla' }],
     });

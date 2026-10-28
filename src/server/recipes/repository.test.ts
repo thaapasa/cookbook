@@ -284,6 +284,17 @@ describe('listRecipes', () => {
     expect(first.recipes).toHaveLength(recipePageSize);
     expect(second.recipes.map((r) => r.title)).toEqual(['Testi 09', 'Testi 10', 'Testi 11']);
   });
+
+  it('lists all results without a page', async () => {
+    for (let i = 0; i < recipePageSize; i++) {
+      await addRecipe(author, { title: `Testi ${String(i).padStart(2, '0')}` });
+    }
+    const list = await listRecipes({ tags: [] });
+
+    expect(list.total).toBe(recipePageSize + 3);
+    expect(list.recipes).toHaveLength(recipePageSize + 3);
+    expect(list.page).toBeUndefined();
+  });
 });
 
 describe('listTags', () => {

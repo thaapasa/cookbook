@@ -149,22 +149,22 @@ export type RecipeSummary = z.infer<typeof RecipeSummary>;
 
 export const recipePageSize = 12;
 
-/** Query parameters of the recipe list. `tag` repeats once per tag. */
+/** Query parameters of the recipe list. `tag` repeats once per tag. Without `page`, lists all matching recipes. */
 export const RecipeListQuery = z.object({
   q: z.string().trim().optional(),
   tag: z
     .union([z.string(), z.array(z.string())])
     .optional()
     .transform((t) => (t === undefined ? [] : [t].flat())),
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).optional(),
 });
 export type RecipeListQuery = z.input<typeof RecipeListQuery>;
 
 export const RecipeList = z.object({
   recipes: z.array(RecipeSummary),
   total: z.int().describe('Number of matching recipes on all pages.'),
-  page: z.int(),
-  pageSize: z.int(),
+  page: z.int().optional().describe('Missing when the list has all matching recipes.'),
+  pageSize: z.int().optional(),
 });
 export type RecipeList = z.infer<typeof RecipeList>;
 

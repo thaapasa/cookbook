@@ -51,6 +51,24 @@ Full-text search (`tsvector` with the `finnish` configuration) and `pg_trgm`
 for fuzzy matching are enough for a few hundred recipes. No separate search
 service is needed.
 
+### The recipe list loads all recipes at once
+
+The front page fetches every matching recipe in one request, and the photos
+load as they scroll into view. With a few hundred recipes, the list is a few
+tens of kilobytes compressed. Because the whole list comes from one cached
+query, the browser's back button shows the page as it was, including the scroll
+position. The route waits for the list before it renders, so the router can
+restore the scroll position after a reload too.
+
+Rejected alternatives:
+
+- Pages of 12 recipes, which made browsing clumsy.
+- Infinite scroll. After a reload, or once the cached pages expire, only the
+  first page loads, so the scroll position is lost.
+
+The MCP tool and the recipe search of the week plan still fetch one page at a
+time.
+
 ### One set of Zod schemas validates everything
 
 The editor form, the REST API and the MCP tools all use the same schemas. Zod

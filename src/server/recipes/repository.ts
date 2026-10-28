@@ -26,10 +26,11 @@ function likePattern(q: string): string {
   return `%${q.replace(/[\\%_]/g, '\\$&')}%`;
 }
 
+/** Lists the matching recipes, one page of them or all without `page`. */
 export async function listRecipes(opts: {
   q?: string;
   tags: string[];
-  page: number;
+  page?: number;
 }): Promise<RecipeList> {
   const q = opts.q?.trim() ?? '';
   const words = searchWords(q);
@@ -81,7 +82,7 @@ export async function listRecipes(opts: {
     FROM recipes r
     WHERE true ${match} ${tagFilter}
     ORDER BY ${order} r.title COLLATE "fi-FI-x-icu", r.id
-    LIMIT ${recipePageSize} OFFSET ${(opts.page - 1) * recipePageSize}
+    ${opts.page ? sql`LIMIT ${recipePageSize} OFFSET ${(opts.page - 1) * recipePageSize}` : sql``}
   `;
 
   return {
@@ -94,8 +95,7 @@ export async function listRecipes(opts: {
       tags: r.tags,
     })),
     total: Number(rows[0]?.total ?? 0),
-    page: opts.page,
-    pageSize: recipePageSize,
+    ...(opts.page && { page: opts.page, pageSize: recipePageSize }),
   };
 }
 

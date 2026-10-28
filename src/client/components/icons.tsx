@@ -35,6 +35,12 @@ export const ClockIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const ChevronUpIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="m6 15 6-6 6 6" />
+  </Stroke>
+);
+
 export const ChevronLeftIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="m15 6-6 6 6 6" />

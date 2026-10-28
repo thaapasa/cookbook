@@ -1,18 +1,13 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
 import { Button, Input, SearchField, ToggleButton } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
 import { recipeListQuery, tagsQuery } from '../api.ts';
 import { useBackState } from '../back.tsx';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ClockIcon,
-  CloseIcon,
-  SearchIcon,
-} from '../components/icons.tsx';
+import { ChevronUpIcon, ClockIcon, CloseIcon, SearchIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatMinutes } from '../format.ts';
 
@@ -20,17 +15,17 @@ const route = getRouteApi('/_main/');
 
 export function RecipeListPage() {
   const { t } = useTranslation();
-  const { q = '', tags = [], page = 1 } = route.useSearch();
+  const { q = '', tags = [] } = route.useSearch();
   const navigate = route.useNavigate();
   const list = useQuery({
-    ...recipeListQuery({ q, tags, page }),
+    ...recipeListQuery({ q, tags }),
     placeholderData: keepPreviousData,
   });
   const allTags = useQuery(tagsQuery).data ?? [];
 
   const setSearch = (next: { q?: string; tags?: string[] }) =>
     void navigate({
-      search: (prev) => ({ ...prev, ...next, page: undefined }),
+      search: (prev) => ({ ...prev, ...next }),
       replace: true,
     });
   const toggleTag = (tag: string) => {
@@ -105,9 +100,9 @@ export function RecipeListPage() {
               <p className="text-muted">{t('list.noResultsHint')}</p>
             </div>
           )}
-          <Pagination page={page} pageCount={Math.ceil(list.data.total / list.data.pageSize)} />
         </>
       )}
+      <BackToTop />
     </main>
   );
 }
@@ -137,6 +132,7 @@ function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
         recipeId={recipe.id}
         photo={recipe.photo}
         sizes={photoSizes}
+        loading="lazy"
         className="rounded-xl"
       />
       <div className="flex flex-col gap-1.5 px-1.5">
@@ -157,77 +153,32 @@ function RecipeCard({ recipe }: { recipe: RecipeSummary }) {
   );
 }
 
-/** The page numbers to show: the first, the last and the ones next to the current page. */
-function visiblePages(page: number, pageCount: number): (number | null)[] {
-  const pages: (number | null)[] = [];
-  for (let p = 1; p <= pageCount; p++) {
-    if (p === 1 || p === pageCount || Math.abs(p - page) <= 1) pages.push(p);
-    else if (pages.at(-1) !== null) pages.push(null);
-  }
-  return pages;
-}
+/** The button shows after scrolling down this many viewport heights. */
+const backToTopThreshold = 0.5;
 
-const pageButton =
-  'grid size-11 place-items-center rounded-full border border-line bg-card text-[15px] font-semibold text-ink no-underline';
-
-function Pagination({ page, pageCount }: { page: number; pageCount: number }) {
+/** A floating button that scrolls back to the search field, shown once the page is scrolled down. */
+function BackToTop() {
   const { t } = useTranslation();
-  if (pageCount <= 1) return null;
-  const pageSearch = (p: number) => (prev: Record<string, unknown>) => ({
-    ...prev,
-    page: p > 1 ? p : undefined,
-  });
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const update = () => setVisible(window.scrollY > window.innerHeight * backToTopThreshold);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+  if (!visible) return null;
 
+  const scrollToTop = () => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  };
   return (
-    <nav aria-label={t('list.pagination')} className="flex flex-wrap justify-center gap-2 pt-2">
-      {page > 1 ? (
-        <Link
-          to="/"
-          search={pageSearch(page - 1)}
-          aria-label={t('list.previousPage')}
-          className={pageButton}
-        >
-          <ChevronLeftIcon />
-        </Link>
-      ) : (
-        <span aria-hidden="true" className={`${pageButton} bg-transparent text-disabled`}>
-          <ChevronLeftIcon />
-        </span>
-      )}
-      {visiblePages(page, pageCount).map((p, i) =>
-        p === null ? (
-          <span key={`gap-${i}`} className="grid size-11 place-items-center text-muted">
-            …
-          </span>
-        ) : (
-          <Link
-            key={p}
-            to="/"
-            search={pageSearch(p)}
-            // The default partial search match makes the page 1 link (no page param) active on every page
-            activeOptions={{ exact: true }}
-            aria-label={t('list.page', { page: p })}
-            aria-current={p === page ? 'page' : undefined}
-            className={`${pageButton} aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-on-ink`}
-          >
-            {p}
-          </Link>
-        ),
-      )}
-      {page < pageCount ? (
-        <Link
-          to="/"
-          search={pageSearch(page + 1)}
-          aria-label={t('list.nextPage')}
-          className={pageButton}
-        >
-          <ChevronRightIcon />
-        </Link>
-      ) : (
-        <span aria-hidden="true" className={`${pageButton} bg-transparent text-disabled`}>
-          <ChevronRightIcon />
-        </span>
-      )}
-    </nav>
+    <Button
+      onPress={scrollToTop}
+      aria-label={t('list.backToTop')}
+      className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] grid size-12 cursor-pointer place-items-center rounded-full border border-line bg-card text-ink shadow-[0_6px_20px_var(--color-shadow)] outline-accent sm:right-6 sm:bottom-6"
+    >
+      <ChevronUpIcon size={22} />
+    </Button>
   );
 }

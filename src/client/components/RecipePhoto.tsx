@@ -30,11 +30,12 @@ export function RecipePhoto(props: {
   recipeId: string;
   photo: Photo | null;
   sizes?: string;
+  loading?: 'lazy' | 'eager';
   className?: string;
   iconSize?: number;
   label?: string;
 }) {
-  const { recipeId, photo, sizes, className = '', iconSize, label } = props;
+  const { recipeId, photo, sizes, loading, className = '', iconSize, label } = props;
   if (photo) {
     // The short side is the width for a portrait photo and less than it otherwise,
     // so the browser never picks a size that is too small for the crop.
@@ -48,6 +49,7 @@ export function RecipePhoto(props: {
         src={photo.url}
         srcSet={srcSet}
         sizes={sizes}
+        loading={loading}
         alt=""
         className={`aspect-4/3 w-full object-cover ${className}`}
       />

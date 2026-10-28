@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import { z } from 'zod';
 
+import { recipeListQuery } from './api.ts';
 import { type BackTarget, ExternalSearch } from './back.tsx';
 import { AppHeader } from './components/AppHeader.tsx';
 import { CookingPage } from './pages/CookingPage.tsx';
@@ -17,6 +18,7 @@ import { RecipeListPage } from './pages/RecipeListPage.tsx';
 import { RecipePage } from './pages/RecipePage.tsx';
 import { WeekEditPage } from './pages/WeekEditPage.tsx';
 import { WeekPage } from './pages/WeekPage.tsx';
+import { queryClient } from './query-client.ts';
 import { currentWeekStart, normalizeWeekStart } from './week/dates.ts';
 
 const rootRoute = createRootRoute({
@@ -42,13 +44,19 @@ const mainRoute = createRoute({
 const RecipeListSearch = z.object({
   q: z.string().optional().catch(undefined),
   tags: z.array(z.string()).optional().catch(undefined),
-  page: z.int().min(1).optional().catch(undefined),
 });
 
 const recipeListRoute = createRoute({
   getParentRoute: () => mainRoute,
   path: '/',
   validateSearch: RecipeListSearch,
+  loaderDeps: ({ search }) => ({ q: search.q, tags: search.tags }),
+  // Opening the page waits for the list, so that the router can restore the scroll
+  // position, also after a reload. Typing in the search field does not wait; the
+  // page shows the previous results until the new ones arrive.
+  loader: async ({ deps, cause }) => {
+    if (cause === 'enter') await queryClient.ensureQueryData(recipeListQuery(deps));
+  },
   component: RecipeListPage,
 });
 

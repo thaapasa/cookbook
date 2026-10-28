@@ -39,16 +39,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (res.status === 204 ? undefined : await res.json()) as T;
 }
 
+/** Without `page`, the list has all matching recipes. */
 export type RecipeListParams = { q?: string; tags?: string[]; page?: number };
 
-export const recipeListQuery = ({ q, tags = [], page = 1 }: RecipeListParams) =>
+export const recipeListQuery = ({ q, tags = [], page }: RecipeListParams) =>
   queryOptions({
     queryKey: ['recipes', { q, tags, page }],
     queryFn: () => {
       const params = new URLSearchParams();
       if (q) params.set('q', q);
       for (const tag of tags) params.append('tag', tag);
-      params.set('page', String(page));
+      if (page) params.set('page', String(page));
       return request<RecipeList>(`/api/app/recipes?${params}`);
     },
   });

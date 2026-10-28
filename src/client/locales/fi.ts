@@ -84,10 +84,7 @@ export const fi = {
     count_other: '{{count}} reseptiä',
     noResults: 'Ei osumia',
     noResultsHint: 'Kokeile toista hakusanaa tai poista suodattimia.',
-    pagination: 'Sivutus',
-    previousPage: 'Edellinen sivu',
-    nextPage: 'Seuraava sivu',
-    page: 'Sivu {{page}}',
+    backToTop: 'Takaisin ylös',
   },
   recipe: {
     allRecipes: 'Kaikki reseptit',
