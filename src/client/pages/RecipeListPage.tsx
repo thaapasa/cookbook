@@ -35,29 +35,36 @@ export function RecipeListPage() {
 
   return (
     <main className="mx-auto flex max-w-290 flex-col gap-7 px-4 pt-8 pb-16 sm:px-6 sm:pt-10">
-      <div className="flex flex-col gap-5">
-        <h1 className="font-display text-[clamp(34px,5vw,52px)] leading-[1.05] font-bold tracking-[-0.03em]">
-          {t('list.heading')}
-        </h1>
-        <SearchField
-          value={q}
-          onChange={(value) => setSearch({ q: value || undefined })}
-          aria-label={t('list.search')}
-          className="group relative max-w-160"
+      {/* The tags wrap below the title and search field unless they get at least 23rem beside it. */}
+      <div className="flex flex-wrap items-start gap-5">
+        <div className="flex min-w-0 flex-[0_1_40rem] flex-col gap-5">
+          <h1 className="font-display text-[clamp(34px,5vw,52px)] leading-[1.05] font-bold tracking-[-0.03em]">
+            {t('list.heading')}
+          </h1>
+          <SearchField
+            value={q}
+            onChange={(value) => setSearch({ q: value || undefined })}
+            aria-label={t('list.search')}
+            className="group relative"
+          >
+            <SearchIcon
+              size={22}
+              className="pointer-events-none absolute top-1/2 left-4.5 -translate-y-1/2 text-muted"
+            />
+            <Input
+              placeholder={t('list.searchPlaceholder')}
+              className="h-14 w-full rounded-2xl border border-field bg-card pr-14 pl-13 text-[17px] outline-accent [&::-webkit-search-cancel-button]:hidden"
+            />
+            <Button className="absolute top-1/2 right-2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted group-data-empty:hidden hover:bg-chip">
+              <CloseIcon />
+            </Button>
+          </SearchField>
+        </div>
+        <div
+          role="group"
+          aria-label={t('list.filterByTag')}
+          className="flex flex-[1_1_23rem] flex-wrap gap-2"
         >
-          <SearchIcon
-            size={22}
-            className="pointer-events-none absolute top-1/2 left-4.5 -translate-y-1/2 text-muted"
-          />
-          <Input
-            placeholder={t('list.searchPlaceholder')}
-            className="h-14 w-full rounded-2xl border border-field bg-card pr-14 pl-13 text-[17px] outline-accent [&::-webkit-search-cancel-button]:hidden"
-          />
-          <Button className="absolute top-1/2 right-2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted group-data-empty:hidden hover:bg-chip">
-            <CloseIcon />
-          </Button>
-        </SearchField>
-        <div role="group" aria-label={t('list.filterByTag')} className="flex flex-wrap gap-2">
           {allTags.map((tag) => (
             <ToggleButton
               key={tag.name}
