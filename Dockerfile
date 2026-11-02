@@ -1,7 +1,7 @@
 # Builds the production image. See "Running" in README.md.
 
 # Keep NODE_VERSION equal to the node version in mise.toml.
-ARG NODE_VERSION=24.22.1
+ARG NODE_VERSION=24.22.2
 
 FROM node:${NODE_VERSION}-slim AS client
 WORKDIR /app
