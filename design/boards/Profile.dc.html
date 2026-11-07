@@ -143,8 +143,8 @@ class Component extends DCLogic {
     var d = this.state.dialog;
     var reveal = {
       password: { title: 'Uusi salasana', text: 'Salasana näytetään vain nyt. Tallenna se salasanojen hallintaan.', secret: 'Xa7mPq2LwR9tVb4KjN8e' },
-      mcp: { title: 'Uusi MCP-avain', text: 'Avain näytetään vain nyt. Lisää se Clauden MCP-yhteyden asetuksiin. Vanha avain lakkaa toimimasta.', secret: 'kk_mcp_[UUSI AVAIN]' },
-      integration: { title: 'Uusi integraatioavain', text: 'Avain näytetään vain nyt. Tallenna se turvalliseen paikkaan. Vanha avain lakkaa toimimasta.', secret: 'kk_int_[UUSI AVAIN]' }
+      mcp: { title: 'Uusi MCP-avain', text: 'Avain näytetään vain nyt. Lisää se Clauden MCP-yhteyden asetuksiin. Vanha avain lakkaa toimimasta.', secret: 'ckb_mcp_[UUSI AVAIN]' },
+      integration: { title: 'Uusi integraatioavain', text: 'Avain näytetään vain nyt. Tallenna se turvalliseen paikkaan. Vanha avain lakkaa toimimasta.', secret: 'ckb_int_[UUSI AVAIN]' }
     }[d] || { title: '', text: '', secret: '' };
     function open(x) { return function () { self.setState({ dialog: x, copied: false }); }; }
     return {

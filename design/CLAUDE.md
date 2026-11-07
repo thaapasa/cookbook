@@ -34,8 +34,8 @@ for colors, spacing, type and structure, and open the canvas to see them.
 
 ## Last sync
 
-- Canvas version: `1792755336-2add`
-- Date: 2026-10-23
+- Canvas version: `1794045146-761b`
+- Date: 2026-11-07
 
 ## Sync
 
