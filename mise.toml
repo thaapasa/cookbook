@@ -7,8 +7,15 @@ node = "24.22.2"
 # dump a server with a newer major version, so keep this at the major version
 # of the production database.
 postgres = "18"
+# The process manager for local development. See dekit.yaml.
+dekit = "0.10.3"
 
 [hooks]
 # Install the npm dependencies after the tools. CI installs the exact versions
 # from package-lock.json.
 postinstall = 'if [ -n "$CI" ]; then npm ci; else npm install; fi'
+
+[tasks.start]
+description = "Start the dev server and the client in dekit"
+run = "dekit"
+raw = true

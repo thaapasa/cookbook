@@ -35,10 +35,25 @@ Install [mise](https://mise.jdx.dev) and run `mise install`. It installs the
 Node.js version and the PostgreSQL client tools from `mise.toml`, and then runs
 `npm install`.
 
-Start the local database with `docker compose up -d`. Copy `.env.example` to
-`.env` for the matching `DATABASE_URL` and `PUBLIC_URL`.
+Copy `.env.example` to `.env` for the matching `DATABASE_URL` and
+`PUBLIC_URL`.
 
-Then run:
+Run `mise start` to start the local development tasks in
+[dekit](https://dekit.run), a process manager with a terminal UI. mise installs
+dekit, and `dekit.yaml` lists its tasks. dekit first starts the local database
+with `docker compose up --detach --wait`, and then the server and the Vite dev
+server. The database container is not tied to dekit, so it keeps running after
+you quit; stop it with `docker compose stop`. The other tasks start only when
+you ask for them: the checks (lint with `--fix`, format, typecheck, tests),
+migrate, seed, build, and the scripts that copy the production database and
+images.
+
+In the UI, select a task and press `s` to start it, `r` to restart it or `x` to
+stop it. Press `q` to quit, and then `d` to leave the tasks running in the
+background. A running dekit keeps its own copy of the tasks, so after you edit
+`dekit.yaml`, run `dekit reload --yes` to take the changes.
+
+The same commands also run on their own:
 
 - `npm run dev`: the server, restarted on changes. It applies pending
   migrations at startup.

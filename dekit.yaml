@@ -1,0 +1,56 @@
+# Local development tasks for dekit. `mise start` runs it, see README.md.
+tasks:
+  dev/:
+  dev/server:
+    cmd: npm run dev
+    deps: [db/postgres]
+    ready: { tcp: 10300 }
+    autostart: true
+  dev/client:
+    cmd: npm run dev:client
+    ready: { tcp: 10310 }
+    autostart: true
+
+  check/:
+  check/lint:
+    type: job
+    cmd: npm run lint -- --fix
+  check/format:
+    type: job
+    cmd: npm run format
+  check/typecheck:
+    type: job
+    cmd: npm run typecheck
+  check/test:
+    type: job
+    cmd: npm test
+    deps: [db/postgres]
+  check/test-watch:
+    cmd: npm run test:watch
+    deps: [db/postgres]
+
+  db/:
+  db/postgres:
+    type: job
+    cmd: docker compose up --detach --wait db
+  db/migrate:
+    type: job
+    cmd: npm run migrate
+    deps: [db/postgres]
+  db/seed:
+    type: job
+    cmd: npm run seed
+    deps: [db/postgres]
+
+  prod/:
+  prod/copy-db:
+    type: job
+    cmd: scripts/copy-prod-db.sh
+    deps: [db/postgres]
+  prod/copy-images:
+    type: job
+    cmd: scripts/copy-prod-images.sh
+
+  build:
+    type: job
+    cmd: npm run build
