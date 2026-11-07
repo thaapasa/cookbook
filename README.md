@@ -104,6 +104,11 @@ The container needs:
 The image also sets `PORT=3000` and `NODE_ENV=production`. The health check
 endpoint is `/health`.
 
+The server limits failed logins per client address, and takes the address from
+the last entry of `X-Forwarded-For`. The proxy must set that header, which
+Caddy's `reverse_proxy` does by default. Only the proxy may reach the login
+route: other containers that call it directly can set any address.
+
 ### Releases
 
 Run the **Release** workflow from the GitHub Actions tab. Choose the bump level

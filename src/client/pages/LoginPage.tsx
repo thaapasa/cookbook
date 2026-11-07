@@ -21,6 +21,13 @@ const loginButtonClass = primaryButtonClass
   .replace('text-[15px]', 'text-[17px]');
 const loginLabelClass = 'text-[15px] font-medium text-ink-soft';
 
+function loginErrorKey(error: Error) {
+  if (!(error instanceof ApiError)) return 'login.error';
+  if (error.status === 401) return 'login.invalid';
+  if (error.status === 429) return 'login.tooManyAttempts';
+  return 'login.error';
+}
+
 export function LoginPage() {
   const { t } = useTranslation();
   const { redirect = '/' } = route.useSearch();
@@ -74,9 +81,7 @@ export function LoginPage() {
         </TextField>
         {submit.isError && (
           <p role="alert" className={errorClass}>
-            {submit.error instanceof ApiError && submit.error.status === 401
-              ? t('login.invalid')
-              : t('login.error')}
+            {t(loginErrorKey(submit.error))}
           </p>
         )}
         <Button type="submit" isDisabled={submit.isPending} className={loginButtonClass}>

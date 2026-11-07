@@ -75,6 +75,31 @@ The editor form, the REST API and the MCP tools all use the same schemas. Zod
 also provides the TypeScript types and the JSON Schema that MCP tool
 definitions need.
 
+### Login attempts are counted in memory
+
+The server counts login attempts per username and per client address, and
+refuses a login before it checks the password. Each password check takes about
+40 ms of Argon2 work in the libuv thread pool, which also serves the file
+reads, so a flood of logins would slow down the whole site. The attempt is
+counted before the check, so that parallel requests cannot all get through
+before the first one fails.
+
+The counts are in the memory of the one server process, and a restart clears
+them. That is enough for one instance and a family's users.
+
+The client address is the last entry of `X-Forwarded-For`, which Caddy adds.
+The earlier entries come from the client and are not used.
+
+Rejected alternatives:
+
+- A table in PostgreSQL. It would keep the counts over restarts, but one
+  instance does not need that.
+- Rate limiting in Caddy. The standard Caddy build has no rate limit module.
+- A limit per username only. Requests with a new username each time would get
+  around it.
+- Locking the account until an admin unlocks it. Anyone who knows a username
+  could then lock a family member out.
+
 ## Stack
 
 - **Runtime**: Node.js 24 LTS, in the exact version from `mise.toml`. It runs

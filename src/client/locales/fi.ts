@@ -23,6 +23,7 @@ export const fi = {
     password: 'Salasana',
     submit: 'Kirjaudu',
     invalid: 'Väärä käyttäjätunnus tai salasana.',
+    tooManyAttempts: 'Liian monta kirjautumisyritystä. Yritä uudelleen 15 minuutin kuluttua.',
     error: 'Kirjautuminen epäonnistui. Yritä uudelleen.',
   },
   profile: {

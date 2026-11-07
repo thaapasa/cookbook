@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto';
+
 import sharp from 'sharp';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -282,5 +284,17 @@ describe('recipes', () => {
     const removed = await request(`/api/app/recipes/${id}/photo`, { method: 'DELETE', cookie });
     expect(removed.status).toBe(204);
     for (const url of urls) expect((await app.request(url)).status).toBe(404);
+  });
+
+  it('accepts a photo larger than the 1 MB limit of other requests', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    // Random pixels do not compress, so the PNG is about 2 MB.
+    const size = 800;
+    const pixels = randomBytes(size * size * 3);
+    const png = await sharp(pixels, { raw: { width: size, height: size, channels: 3 } })
+      .png()
+      .toBuffer();
+    expect(png.length).toBeGreaterThan(1024 * 1024);
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(png)]))).status).toBe(204);
   });
 });

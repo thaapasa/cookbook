@@ -6,6 +6,7 @@ import { createMiddleware } from 'hono/factory';
 
 import { LoginRequest, type User } from '../../shared/auth.ts';
 import { sql } from '../db.ts';
+import { giveBackLoginAttempt, loginRetryAfterSeconds, takeLoginAttempt } from './login-limit.ts';
 import { hashPassword, verifyPassword } from './password.ts';
 import { createSession, deleteSession, getSessionUser } from './sessions.ts';
 
@@ -48,6 +49,10 @@ function setSessionCookie(c: Context, token: string) {
 export const authRoutes = new Hono<AuthEnv>()
   .post('/login', zValidator('json', LoginRequest), async (c) => {
     const { username, password } = c.req.valid('json');
+    if (!takeLoginAttempt(c, username)) {
+      c.header('retry-after', String(loginRetryAfterSeconds));
+      return c.json({ error: 'Too many login attempts' }, 429);
+    }
     const [row] = await sql<(User & { passwordHash: string })[]>`
       SELECT id, username, display_name, password_hash FROM users WHERE username = ${username}
     `;
@@ -55,6 +60,7 @@ export const authRoutes = new Hono<AuthEnv>()
     if (!row || !valid) {
       return c.json({ error: 'Invalid username or password' }, 401);
     }
+    giveBackLoginAttempt(c, username);
     setSessionCookie(c, await createSession(row.id));
     return c.json({ id: row.id, username: row.username, displayName: row.displayName });
   })
