@@ -100,6 +100,29 @@ Rejected alternatives:
 - Locking the account until an admin unlocks it. Anyone who knows a username
   could then lock a family member out.
 
+### The cooking view keeps its state in localStorage
+
+If the user leaves the cooking view to check something and comes back, the
+ticked ingredients and the highlighted step are still there. The browser
+keeps them in `localStorage`, one entry per recipe. Each entry expires 12
+hours after the last change, so the next time the user cooks the recipe, the
+view starts empty. Only a change saves the entry, so opening the view does not
+extend its lifetime.
+
+The ticks are stored by the position of the ingredient. If someone edits the
+recipe during cooking, a tick can move to another ingredient. This is rare,
+and the user can clear the ticks.
+
+Rejected alternatives:
+
+- `sessionStorage`. It is lost when Safari closes a background tab on an iPad
+  or when the user opens the app in a new tab, and it does not expire on its
+  own.
+- Storing the state on the server. It would follow the user to another
+  device, but the state is only needed on the device the user cooks with.
+- Dropping the ticks of ingredients whose text has changed. It handles the
+  rare edit at the cost of more code.
+
 ## Stack
 
 - **Runtime**: Node.js 24 LTS, in the exact version from `mise.toml`. It runs

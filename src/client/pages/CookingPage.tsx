@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { Checkbox, ToggleButton } from 'react-aria-components';
+import { Button, Checkbox, ToggleButton } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { Recipe } from '../../shared/recipe.ts';
 import { ApiError, recipeQuery } from '../api.ts';
 import { BackLink } from '../back.tsx';
-import { CloseIcon, SunIcon } from '../components/icons.tsx';
+import { CloseIcon, ResetIcon, SunIcon } from '../components/icons.tsx';
+import { emptyCookingState, isEmpty, useCookingState } from '../cooking/state.ts';
 import { useFormatMinutes } from '../format.ts';
 
 const route = getRouteApi('/recipes/$recipeId/cook');
@@ -31,7 +32,7 @@ export function CookingPage() {
             : t('common.loadError')}
         </p>
       ) : (
-        <CookingContent recipe={recipe.data} />
+        <CookingContent key={recipe.data.id} recipe={recipe.data} />
       )}
     </div>
   );
@@ -41,8 +42,9 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
   const { t } = useTranslation();
   const formatMinutes = useFormatMinutes();
   const awake = useWakeLock();
-  const [done, setDone] = useState<ReadonlySet<string>>(new Set());
-  const [activeStep, setActiveStep] = useState<number | null>(null);
+  const [state, setState] = useCookingState(recipe.id);
+  const done = new Set(state.done);
+  const { activeStep } = state;
 
   const meta = [
     recipe.servings,
@@ -51,12 +53,11 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
   const ingredientCount = recipe.ingredientGroups.reduce((n, g) => n + g.ingredients.length, 0);
 
   const toggleIngredient = (key: string, checked: boolean) =>
-    setDone((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(key);
-      else next.delete(key);
-      return next;
+    setState({
+      ...state,
+      done: checked ? [...state.done, key] : state.done.filter((k) => k !== key),
     });
+  const setActiveStep = (step: number | null) => setState({ ...state, activeStep: step });
 
   // Steps are numbered across groups.
   const stepOffsets = recipe.stepGroups.map((_, g) =>
@@ -77,12 +78,23 @@ function CookingContent({ recipe }: { recipe: Recipe }) {
           {recipe.title}
         </h1>
         {meta.length > 0 && <span className="text-lg text-cook-muted">{meta.join(' · ')}</span>}
-        {awake && (
-          <span className="ml-auto inline-flex items-center gap-2 rounded-full bg-cook-raised px-3.5 py-2 text-[15px] text-cook-ink-soft">
-            <SunIcon />
-            {t('cooking.awake')}
-          </span>
-        )}
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          {!isEmpty(state) && (
+            <Button
+              onPress={() => setState(emptyCookingState)}
+              className="inline-flex min-h-13 cursor-pointer items-center gap-2 rounded-full border border-cook-line px-4.5 text-[17px] max-sm:px-3.5 text-cook-ink outline-none hover:text-accent-strong data-focus-visible:outline-3 data-focus-visible:outline-offset-2 data-focus-visible:outline-cook-ink"
+            >
+              <ResetIcon size={20} />
+              <span className="max-sm:sr-only">{t('cooking.clear')}</span>
+            </Button>
+          )}
+          {awake && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-cook-raised px-3.5 py-2 text-[15px] text-cook-ink-soft">
+              <SunIcon />
+              <span className="max-sm:sr-only">{t('cooking.awake')}</span>
+            </span>
+          )}
+        </div>
       </header>
 
       <div className="flex flex-1 flex-col lg:flex-row">

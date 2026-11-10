@@ -53,6 +53,13 @@ export const ChevronRightIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const ResetIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </Stroke>
+);
+
 export const CloseIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M6 6l12 12M18 6 6 18" />

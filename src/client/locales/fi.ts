@@ -122,6 +122,7 @@ export const fi = {
     awake: 'Näyttö pysyy päällä',
     done: '{{done}} / {{total}} valmiina',
     highlightHint: 'Napauta vaihetta korostaaksesi sen',
+    clear: 'Tyhjennä merkinnät',
   },
   editor: {
     newTitle: 'Uusi resepti',
