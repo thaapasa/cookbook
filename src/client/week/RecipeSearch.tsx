@@ -1,13 +1,13 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { ListBoxItem } from 'react-aria-components';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { ComboBoxStateContext, ListBoxItem } from 'react-aria-components';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
 import { recipeListQuery } from '../api.ts';
 import { RecipeThumb } from '../components/RecipePhoto.tsx';
 import { useFormatMinutes } from '../format.ts';
 
-const maxSuggestions = 5;
+export const maxSuggestions = 5;
 
 export const optionClass =
   'grid min-h-12 cursor-pointer grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 rounded-[10px] px-2.5 py-1.5 outline-none data-focused:bg-panel';
@@ -33,6 +33,43 @@ export function useRecipeSuggestions(input: string): RecipeSummary[] {
     placeholderData: keepPreviousData,
   });
   return input.trim() && query ? (search.data?.recipes ?? []).slice(0, maxSuggestions) : [];
+}
+
+/**
+ * Keeps the suggestions of a combo box open while the user types. Call it in
+ * a child of the `ComboBox`, and pass the number of suggestions.
+ */
+export function useMenuFollowsInput(itemCount: number) {
+  const state = useContext(ComboBoxStateContext);
+  const input = state?.inputValue ?? '';
+  const latest = useRef(state);
+  useEffect(() => {
+    latest.current = state;
+  });
+  // The combo box opens the menu only if it had items before the input changed.
+  // The items depend on the input and arrive later, so this opens the menu one
+  // frame after the input or the items change, when the combo box has the items.
+  useEffect(() => {
+    if (!input.trim()) return;
+    const frame = requestAnimationFrame(() => {
+      const current = latest.current;
+      if (current?.isFocused && !current.isOpen) current.open(null, 'input');
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [input, itemCount]);
+  // React Aria closes the menu when the page scrolls, which happens easily on
+  // touch screens and when the on-screen keyboard opens. The menu moves with
+  // the page, so this opens it again in the same event, and React renders it as
+  // if it never closed.
+  useEffect(() => {
+    const onScroll = () => {
+      const current = latest.current;
+      if (current?.isFocused && current.isOpen) current.open(null, 'input');
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return state;
 }
 
 /** A suggested recipe in a list box, with its photo, title and time. */

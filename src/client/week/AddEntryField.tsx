@@ -1,13 +1,5 @@
-import { type KeyboardEvent, useContext, useEffect, useRef, useState } from 'react';
-import {
-  ComboBox,
-  ComboBoxStateContext,
-  Input,
-  ListBox,
-  ListBoxItem,
-  Popover,
-  Separator,
-} from 'react-aria-components';
+import { type KeyboardEvent, useState } from 'react';
+import { ComboBox, Input, ListBox, ListBoxItem, Popover, Separator } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
@@ -16,6 +8,7 @@ import {
   optionClass,
   RecipeOption,
   suggestionsPopoverClass,
+  useMenuFollowsInput,
   useRecipeSuggestions,
 } from './RecipeSearch.tsx';
 
@@ -60,7 +53,7 @@ export function AddEntryField(props: {
       menuTrigger="input"
       className="relative"
     >
-      <EntryInput onEnter={addText} />
+      <EntryInput matchCount={matches.length} onEnter={addText} />
       <Popover placement="bottom start" className={suggestionsPopoverClass}>
         <ListBox
           aria-label={t('weekEdit.suggestions')}
@@ -91,37 +84,9 @@ export function AddEntryField(props: {
 }
 
 /** The input of the field. Enter adds the typed text unless the user moved to a suggestion. */
-function EntryInput({ onEnter }: { onEnter: () => void }) {
+function EntryInput({ matchCount, onEnter }: { matchCount: number; onEnter: () => void }) {
   const { t } = useTranslation();
-  const state = useContext(ComboBoxStateContext);
-  const input = state?.inputValue ?? '';
-  const latest = useRef(state);
-  useEffect(() => {
-    latest.current = state;
-  });
-  // The combo box opens the menu only if it had items before the input changed.
-  // The items here depend on the input, so this opens the menu one frame later,
-  // when the combo box has the new items.
-  useEffect(() => {
-    if (!input.trim()) return;
-    const frame = requestAnimationFrame(() => {
-      const current = latest.current;
-      if (current?.isFocused && !current.isOpen) current.open(null, 'input');
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [input]);
-  // React Aria closes the menu when the page scrolls, which happens easily on
-  // touch screens. The menu moves with the page, so this opens it again in the
-  // same event, and React renders it as if it never closed.
-  useEffect(() => {
-    const onScroll = () => {
-      const current = latest.current;
-      if (current?.isFocused && current.isOpen) current.open(null, 'input');
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
+  const state = useMenuFollowsInput(matchCount);
   const onKeyDownCapture = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && state?.selectionManager.focusedKey == null) {
       e.preventDefault();

@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
-import { Button, Input, SearchField, ToggleButton } from 'react-aria-components';
+import { type KeyboardEvent, useEffect, useState } from 'react';
+import { Button, ComboBox, Input, ListBox, Popover, ToggleButton } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { RecipeSummary } from '../../shared/recipe.ts';
@@ -10,6 +10,12 @@ import { useBackState } from '../back.tsx';
 import { ChevronUpIcon, ClockIcon, CloseIcon, SearchIcon } from '../components/icons.tsx';
 import { RecipePhoto } from '../components/RecipePhoto.tsx';
 import { useFormatMinutes } from '../format.ts';
+import {
+  maxSuggestions,
+  RecipeOption,
+  suggestionsPopoverClass,
+  useMenuFollowsInput,
+} from '../week/RecipeSearch.tsx';
 
 const route = getRouteApi('/_main/');
 
@@ -38,27 +44,15 @@ export function RecipeListPage() {
       {/* The tags wrap below the title and search field unless they get at least 23rem beside it. */}
       <div className="flex flex-wrap items-start gap-5">
         <div className="flex min-w-0 flex-[0_1_40rem] flex-col gap-5">
-          <h1 className="font-display text-[clamp(34px,5vw,52px)] leading-[1.05] font-bold tracking-[-0.03em]">
+          {/* On tablets and phones, the title takes room from the results above the on-screen keyboard. */}
+          <h1 className="sr-only font-display text-[clamp(34px,5vw,52px)] leading-[1.05] font-bold tracking-[-0.03em] xl:not-sr-only">
             {t('list.heading')}
           </h1>
-          <SearchField
+          <RecipeSearchField
             value={q}
+            matches={list.data?.recipes ?? []}
             onChange={(value) => setSearch({ q: value || undefined })}
-            aria-label={t('list.search')}
-            className="group relative"
-          >
-            <SearchIcon
-              size={22}
-              className="pointer-events-none absolute top-1/2 left-4.5 -translate-y-1/2 text-muted"
-            />
-            <Input
-              placeholder={t('list.searchPlaceholder')}
-              className="h-14 w-full rounded-2xl border border-field bg-card pr-14 pl-13 text-[17px] outline-accent [&::-webkit-search-cancel-button]:hidden"
-            />
-            <Button className="absolute top-1/2 right-2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted group-data-empty:hidden hover:bg-chip">
-              <CloseIcon />
-            </Button>
-          </SearchField>
+          />
         </div>
         <div
           role="group"
@@ -111,6 +105,93 @@ export function RecipeListPage() {
       )}
       <BackToTop />
     </main>
+  );
+}
+
+/**
+ * The search field. While the user types, it suggests the best matching
+ * recipes, and selecting one opens the recipe. On a tablet, the on-screen
+ * keyboard can hide the recipe grid, but the suggestions show above it.
+ */
+function RecipeSearchField(props: {
+  value: string;
+  matches: RecipeSummary[];
+  onChange: (value: string) => void;
+}) {
+  const { value, matches, onChange } = props;
+  const { t } = useTranslation();
+  const navigate = route.useNavigate();
+  const backState = useBackState('recipe.allRecipes');
+  const suggestions = value.trim() ? matches.slice(0, maxSuggestions) : [];
+
+  return (
+    <ComboBox
+      aria-label={t('list.search')}
+      inputValue={value}
+      onInputChange={onChange}
+      selectedKey={null}
+      onSelectionChange={(key) => {
+        if (key === null) return;
+        void navigate({
+          to: '/recipes/$recipeId',
+          params: { recipeId: String(key) },
+          state: backState,
+        });
+      }}
+      allowsCustomValue
+      allowsEmptyCollection={false}
+      menuTrigger="input"
+      className="relative"
+    >
+      <SearchInput matchCount={suggestions.length} onClear={() => onChange('')} />
+      {/* Above the field, the start of the list can go out of view. */}
+      <Popover placement="bottom start" shouldFlip={false} className={suggestionsPopoverClass}>
+        <ListBox aria-label={t('list.suggestions')} className="flex flex-col gap-0.5 outline-none">
+          {suggestions.map((recipe) => (
+            <RecipeOption key={recipe.id} recipe={recipe} />
+          ))}
+        </ListBox>
+      </Popover>
+    </ComboBox>
+  );
+}
+
+/** The input of the search field. Enter closes the on-screen keyboard to show the recipe grid. */
+function SearchInput({ matchCount, onClear }: { matchCount: number; onClear: () => void }) {
+  const { t } = useTranslation();
+  const state = useMenuFollowsInput(matchCount);
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && state?.selectionManager.focusedKey == null) {
+      state?.close();
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <div className="relative">
+      <SearchIcon
+        size={22}
+        className="pointer-events-none absolute top-1/2 left-4.5 -translate-y-1/2 text-muted"
+      />
+      <Input
+        type="search"
+        enterKeyHint="search"
+        onKeyDown={onKeyDown}
+        placeholder={t('list.searchPlaceholder')}
+        className="h-14 w-full rounded-2xl border border-field bg-card pr-14 pl-13 text-[17px] outline-accent [&::-webkit-search-cancel-button]:hidden"
+      />
+      {state?.inputValue && (
+        // A button in a combo box opens the menu unless its slot is null.
+        <Button
+          slot={null}
+          aria-label={t('list.clearSearch')}
+          onPress={onClear}
+          className="absolute top-1/2 right-2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted hover:bg-chip"
+        >
+          <CloseIcon />
+        </Button>
+      )}
+    </div>
   );
 }
 

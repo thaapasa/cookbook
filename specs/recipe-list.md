@@ -10,3 +10,7 @@ The front page. Shows the recipes that match the current search and filters.
       top.
 - [x] Search matches the title, tags, description, ingredients and steps.
 - [x] Search matches parts of compound words, such as "keitto" in "kanakeitto".
+- [x] While the user types a search, a dropdown below the search field shows
+      the best matching recipes. Selecting one opens the recipe. On a tablet,
+      the on-screen keyboard can hide the recipe grid, but the dropdown stays
+      visible above it.

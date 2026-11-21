@@ -79,6 +79,8 @@ export const fi = {
     heading: 'Mitä tänään syötäisiin?',
     search: 'Hae reseptejä',
     searchPlaceholder: 'Hae nimellä tai raaka-aineella, esim. lohi',
+    clearSearch: 'Tyhjennä haku',
+    suggestions: 'Ehdotukset',
     filterByTag: 'Suodata tunnisteilla',
     clear: 'Tyhjennä',
     count_one: '{{count}} resepti',
