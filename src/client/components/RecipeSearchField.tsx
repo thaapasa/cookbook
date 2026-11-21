@@ -14,22 +14,30 @@ import {
 import { CloseIcon, SearchIcon } from './icons.tsx';
 
 /**
- * The search field of the recipe list. While the user types, it suggests the
- * best matching recipes, and selecting one opens the recipe. On a tablet, the
- * on-screen keyboard can hide the recipe grid, but the suggestions show above
- * it. The compact field fits in the app header.
+ * The recipe search field. While the user types, it suggests the best matching
+ * recipes, and selecting one opens the recipe. On a tablet, the on-screen
+ * keyboard can hide the recipe grid, but the suggestions show above it. The
+ * compact field fits in the app header.
+ *
+ * By default, selecting a recipe opens it with a back link to the recipe list.
+ * `onSelect` replaces that. `onEnter` runs when the user presses Enter without
+ * a highlighted suggestion.
  */
 export function RecipeSearchField(props: {
   value: string;
   matches: RecipeSummary[];
   onChange: (value: string) => void;
+  onSelect?: (recipeId: string) => void;
+  onEnter?: () => void;
   compact?: boolean;
 }) {
-  const { value, matches, onChange, compact = false } = props;
+  const { value, matches, onChange, onSelect, onEnter, compact = false } = props;
   const { t } = useTranslation();
   const navigate = useNavigate();
   const backState = useBackState('recipe.allRecipes');
   const suggestions = value.trim() ? matches.slice(0, maxSuggestions) : [];
+  const openRecipe = (recipeId: string) =>
+    void navigate({ to: '/recipes/$recipeId', params: { recipeId }, state: backState });
 
   return (
     <ComboBox
@@ -39,18 +47,19 @@ export function RecipeSearchField(props: {
       selectedKey={null}
       onSelectionChange={(key) => {
         if (key === null) return;
-        void navigate({
-          to: '/recipes/$recipeId',
-          params: { recipeId: String(key) },
-          state: backState,
-        });
+        (onSelect ?? openRecipe)(String(key));
       }}
       allowsCustomValue
       allowsEmptyCollection={false}
       menuTrigger="input"
       className="relative"
     >
-      <SearchInput matchCount={suggestions.length} onClear={() => onChange('')} compact={compact} />
+      <SearchInput
+        matchCount={suggestions.length}
+        onClear={() => onChange('')}
+        onEnter={onEnter}
+        compact={compact}
+      />
       {/* Above the field, the start of the list can go out of view. */}
       <Popover placement="bottom start" shouldFlip={false} className={suggestionsPopoverClass}>
         <ListBox aria-label={t('list.suggestions')} className="flex flex-col gap-0.5 outline-none">
@@ -71,8 +80,13 @@ const inputClass = {
 const clearClass = { normal: 'right-2 size-11', compact: 'right-1 size-9' };
 
 /** The input of the search field. Enter closes the on-screen keyboard to show the recipe grid. */
-function SearchInput(props: { matchCount: number; onClear: () => void; compact: boolean }) {
-  const { matchCount, onClear, compact } = props;
+function SearchInput(props: {
+  matchCount: number;
+  onClear: () => void;
+  onEnter?: () => void;
+  compact: boolean;
+}) {
+  const { matchCount, onClear, onEnter, compact } = props;
   const { t } = useTranslation();
   const state = useMenuFollowsInput(matchCount);
   const variant = compact ? 'compact' : 'normal';
@@ -80,6 +94,7 @@ function SearchInput(props: { matchCount: number; onClear: () => void; compact: 
     if (e.key === 'Enter' && state?.selectionManager.focusedKey == null) {
       state?.close();
       e.currentTarget.blur();
+      onEnter?.();
     }
   };
 

@@ -132,12 +132,25 @@ only one search field exists at a time. The header field changes the search
 params of the recipe list, so the list page and the header share the search
 without any other shared state.
 
+On other pages, the header search keeps its text in the `q` search param of
+the current page, and the matches show only in the dropdown. The user can
+look up a recipe without leaving the page. The `q` param belongs to the layout
+route of the pages with the header, so every such page accepts it. Typing
+replaces the history entry and keeps the scroll position and the history
+state, so the back link of the page still works. Before the app opens a
+recipe from the dropdown, it removes `q` from the current entry, so going back
+shows the page without the search.
+
 Rejected alternatives:
 
 - Rendering the field in both places and hiding one with CSS. Two inputs with
   the same label confuse screen readers and the focus order.
 - Moving the search to the header on phones too. The header already wraps on
   phones and has no room for it.
+- Opening the recipe list when the user types on another page. The user loses
+  the page they were on.
+- Keeping the text of the header search in component state. The header stays
+  mounted across pages, so the text would follow the user to the next page.
 
 ## Stack
 

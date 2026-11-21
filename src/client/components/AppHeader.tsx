@@ -1,6 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useMatch, useNavigate, useRouterState } from '@tanstack/react-router';
-import { useState } from 'react';
+import {
+  Link,
+  type NavigateOptions,
+  useMatch,
+  useNavigate,
+  useRouter,
+  useRouterState,
+  useSearch,
+} from '@tanstack/react-router';
 import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +16,7 @@ import { logout, meQuery, recipeListQuery } from '../api.ts';
 import { useBackState } from '../back.tsx';
 import { headerSearchMedia, useMediaQuery } from '../media.ts';
 import { setThemeMode, type ThemeMode, themeModes, useThemeMode } from '../theme.ts';
+import { useRecipeSuggestions } from '../week/RecipeSearch.tsx';
 import { ContrastIcon, LogoIcon, MoonIcon, PlusIcon, SunIcon } from './icons.tsx';
 import { RecipeSearchField } from './RecipeSearchField.tsx';
 
@@ -76,36 +84,66 @@ export function AppHeader() {
 
 /**
  * The recipe search in the header. On the recipe list, it shows and changes the
- * search of the list. On other pages, typing opens the recipe list with the text.
+ * search of the list. On other pages, it keeps the text in the `q` search param
+ * of the page and shows the matches only in the suggestions.
  */
 function HeaderSearch() {
-  const navigate = useNavigate();
   // The rendered match: while the recipe list loads, the previous page is still the match.
   const listMatch = useMatch({ from: '/_main/', shouldThrow: false });
-  // The text typed on another page, until the recipe list shows.
-  const [draft, setDraft] = useState('');
-  if (listMatch && draft) setDraft('');
+  return listMatch ? (
+    <ListSearch q={listMatch.search.q ?? ''} tags={listMatch.search.tags} />
+  ) : (
+    <PageSearch />
+  );
+}
 
-  const q = listMatch ? (listMatch.search.q ?? '') : draft;
-  const tags = listMatch?.search.tags;
-  const list = useQuery({
-    ...recipeListQuery({ q, tags }),
-    // On other pages, the list is not needed until the user types.
-    enabled: Boolean(listMatch) || q !== '',
-    placeholderData: keepPreviousData,
-  });
-
-  const onChange = (value: string) => {
-    if (!listMatch) setDraft(value);
-    void navigate({
-      to: '/',
-      search: { q: value || undefined, tags },
-      replace: Boolean(listMatch),
-    });
-  };
+function ListSearch({ q, tags }: { q: string; tags?: string[] }) {
+  const navigate = useNavigate();
+  const list = useQuery({ ...recipeListQuery({ q, tags }), placeholderData: keepPreviousData });
+  const onChange = (value: string) =>
+    void navigate({ to: '/', search: { q: value || undefined, tags }, replace: true });
 
   return (
     <RecipeSearchField value={q} matches={list.data?.recipes ?? []} onChange={onChange} compact />
+  );
+}
+
+/** The header search on a page other than the recipe list. */
+function PageSearch() {
+  const router = useRouter();
+  const navigate = useNavigate();
+  const q = useSearch({ from: '/_main', select: (search) => search.q ?? '' });
+  const matches = useRecipeSuggestions(q);
+
+  // Typing keeps the scroll position and the history state of the page, such
+  // as its back link.
+  const setQuery = (value: string | undefined) =>
+    navigate({
+      to: '.',
+      search: (prev) => ({ ...prev, q: value }),
+      replace: true,
+      resetScroll: false,
+      state: true,
+    });
+
+  // Going back to the page shows it without the search.
+  const leave = async (to: NavigateOptions) => {
+    await setQuery(undefined);
+    const back = { href: router.state.location.href, label: 'common.back' as const };
+    await navigate({ ...to, state: { back } });
+  };
+
+  return (
+    <RecipeSearchField
+      value={q}
+      matches={matches}
+      onChange={(value) => void setQuery(value || undefined)}
+      onSelect={(recipeId) => void leave({ to: '/recipes/$recipeId', params: { recipeId } })}
+      onEnter={() => {
+        if (q.trim()) void leave({ to: '/', search: { q } });
+      }}
+      compact
+    />
   );
 }
 

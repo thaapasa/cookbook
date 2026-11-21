@@ -29,10 +29,16 @@ const rootRoute = createRootRoute({
   ),
 });
 
+/** The text of the recipe search in the app header, on every page that has the header. */
+const MainSearch = z.object({
+  q: z.string().optional().catch(undefined),
+});
+
 /** Pages with the app header. The editor has its own header. */
 const mainRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: '_main',
+  validateSearch: MainSearch,
   component: () => (
     <>
       <AppHeader />
@@ -42,7 +48,6 @@ const mainRoute = createRoute({
 });
 
 const RecipeListSearch = z.object({
-  q: z.string().optional().catch(undefined),
   tags: z.array(z.string()).optional().catch(undefined),
 });
 
