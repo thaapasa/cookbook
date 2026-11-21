@@ -133,6 +133,16 @@ describe('input validation', () => {
     expect(res.status).toBe(400);
   });
 
+  it('requires the version in an update', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    const res = await request(`/api/app/recipes/${id}`, {
+      method: 'PUT',
+      cookie,
+      json: { recipe: { title: 'X' } },
+    });
+    expect(res.status).toBe(400);
+  });
+
   it('rejects an invalid id', async () => {
     expect((await request('/api/app/recipes/123')).status).toBe(400);
   });
@@ -194,6 +204,7 @@ describe('recipes', () => {
       ],
       stepGroups: [{ name: null, steps: ['Leivo.'] }],
       notes: [],
+      version: 1,
     });
   });
 
@@ -202,10 +213,29 @@ describe('recipes', () => {
     const res = await request(`/api/app/recipes/${id}`, {
       method: 'PUT',
       cookie,
-      json: { recipe: { title: 'Korvapuusti' }, revisionNote: 'Uusi nimi' },
+      json: { recipe: { title: 'Korvapuusti' }, revisionNote: 'Uusi nimi', version: 1 },
     });
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ version: 2 });
     expect(await getJson(`/api/app/recipes/${id}`)).toMatchObject({ title: 'Korvapuusti' });
+  });
+
+  it('refuses an update to a recipe that has changed since the given version', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    const note = await request(`/api/app/recipes/${id}/notes`, {
+      method: 'POST',
+      cookie,
+      json: { text: 'Hyvää!' },
+    });
+    expect(await note.json()).toMatchObject({ version: 2 });
+
+    const res = await request(`/api/app/recipes/${id}`, {
+      method: 'PUT',
+      cookie,
+      json: { recipe: { title: 'Korvapuusti' }, version: 1 },
+    });
+    expect(res.status).toBe(409);
+    expect(await getJson(`/api/app/recipes/${id}`)).toMatchObject({ title: 'Pulla', version: 2 });
   });
 
   it('lists and searches recipes and tags', async () => {
@@ -231,14 +261,14 @@ describe('recipes', () => {
     const res = await request(`/api/app/recipes/${missingId}`, {
       method: 'PUT',
       cookie,
-      json: { recipe: { title: 'X' } },
+      json: { recipe: { title: 'X' }, version: 1 },
     });
     expect(res.status).toBe(404);
   });
 
   it('deletes a recipe and its photo', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(200);
     const urls = photoUrlsOf(await getJson(`/api/app/recipes/${id}`));
 
     expect((await request(`/api/app/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(
@@ -264,14 +294,14 @@ describe('recipes', () => {
       });
 
     expect((await patch(true)).status).toBe(404);
-    expect((await uploadPhoto(id, photo, origin, 'true')).status).toBe(204);
+    expect((await uploadPhoto(id, photo, origin, 'true')).status).toBe(200);
     expect(await illustration()).toBe(true);
-    expect((await patch(false)).status).toBe(204);
+    expect((await patch(false)).status).toBe(200);
     expect(await illustration()).toBe(false);
-    expect((await patch(true)).status).toBe(204);
+    expect((await patch(true)).status).toBe(200);
 
     // A new photo without the flag is a photo of the recipe.
-    expect((await uploadPhoto(id, photo)).status).toBe(204);
+    expect((await uploadPhoto(id, photo)).status).toBe(200);
     expect(await illustration()).toBe(false);
     expect(
       (
@@ -292,7 +322,7 @@ describe('recipes', () => {
       json: { text: 'Hyvää!' },
     });
     expect(added.status).toBe(201);
-    const note = (await added.json()) as { id: string; authorName: string };
+    const { note } = (await added.json()) as { note: { id: string; authorName: string } };
     expect(note.authorName).toBe('cook display');
 
     const notePath = `/api/app/recipes/${id}/notes/${note.id}`;
@@ -301,18 +331,18 @@ describe('recipes', () => {
       cookie,
       json: { text: 'Tosi hyvää!' },
     });
-    expect(edited.status).toBe(204);
+    expect(edited.status).toBe(200);
     expect(await getJson(`/api/app/recipes/${id}`)).toMatchObject({
       notes: [{ text: 'Tosi hyvää!' }],
     });
 
-    expect((await request(notePath, { method: 'DELETE', cookie })).status).toBe(204);
+    expect((await request(notePath, { method: 'DELETE', cookie })).status).toBe(200);
     expect((await request(notePath, { method: 'DELETE', cookie })).status).toBe(404);
   });
 
   it('stores an uploaded photo and serves it', async () => {
     const id = await createRecipe({ title: 'Pulla' });
-    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(204);
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(await jpeg())]))).status).toBe(200);
     const urls = photoUrlsOf(await getJson(`/api/app/recipes/${id}`));
     expect(urls).toEqual([
       expect.stringMatching(/^\/images\/[\w-]+\.webp$/),
@@ -327,7 +357,7 @@ describe('recipes', () => {
     }
 
     const removed = await request(`/api/app/recipes/${id}/photo`, { method: 'DELETE', cookie });
-    expect(removed.status).toBe(204);
+    expect(removed.status).toBe(200);
     for (const url of urls) expect((await app.request(url)).status).toBe(404);
   });
 
@@ -340,6 +370,6 @@ describe('recipes', () => {
       .png()
       .toBuffer();
     expect(png.length).toBeGreaterThan(1024 * 1024);
-    expect((await uploadPhoto(id, new Blob([new Uint8Array(png)]))).status).toBe(204);
+    expect((await uploadPhoto(id, new Blob([new Uint8Array(png)]))).status).toBe(200);
   });
 });

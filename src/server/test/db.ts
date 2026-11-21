@@ -33,6 +33,6 @@ export function setMcpToken(userId: string): Promise<string> {
 }
 
 /** Adds a recipe with the given content and returns its id. */
-export function addRecipe(author: Author, input: RecipeInput): Promise<string> {
-  return createRecipe(RecipeInput.parse(input), author);
+export async function addRecipe(author: Author, input: RecipeInput): Promise<string> {
+  return (await createRecipe(RecipeInput.parse(input), author)).id;
 }

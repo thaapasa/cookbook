@@ -14,7 +14,8 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
   is free text, such as "4–6 annosta" or "1 pelti (24 palaa)". The times are in
   minutes. The source is a URL or free text. A recipe has at most one photo and
   can have many tags. The photo can be marked as an illustration, which
-  means it shows a similar dish and not the recipe as made.
+  means it shows a similar dish and not the recipe as made. The version is a
+  number that goes up on every change to the recipe, its photo or its notes.
 - **Ingredient**: amount, name and note as free text, in a fixed order within
   the recipe. Only the name is required. The amount includes the unit and can
   be a range, such as "100–120 ml". The note holds extra details, such as a
@@ -168,6 +169,41 @@ Rejected alternatives:
 - A field of the recipe content, saved with `update_recipe`. Claude would
   have to send the flag back on every edit, and a revision restore could pair
   the flag with the wrong photo.
+
+### The editor saves only over the version it loaded
+
+Two users, or a user and Claude, can change a recipe at the same time. The
+editor loads the recipe with its version, and the save sends that version
+back. If the recipe has another version, the server refuses the save with
+409 and changes nothing. The editor keeps the form and offers to load the
+recipe again.
+
+The version is an integer column of `recipes`. Every change to the recipe
+content, the photo, the illustration flag and the notes increases it, so a
+note that someone adds on the recipe page while the editor is open counts as
+a change.
+
+A save is a series of requests: the recipe, then the photo, then each note.
+Only the recipe request checks the version, but each request returns the new
+version. The editor keeps the latest one, so its own steps do not count as
+changes by someone else when the user retries after a failed step. The
+editor also compares the notes in the form with the notes that it loaded, not
+with the latest data from the server, so it never deletes a note that it did
+not show.
+
+In MCP, `update_recipe` takes the version as an optional field. Agents that
+leave it out keep working and replace the recipe as before. The editor still
+notices their change, because it increases the version.
+
+Rejected alternatives:
+
+- Comparing the notes and the content field by field. It covers only the
+  fields that are compared, and every new field needs its own check.
+- Last write wins. A save from an editor that was opened earlier deletes the
+  notes and overwrites the changes that others made meanwhile.
+- `updated_at` as the version. Notes and the photo do not change it, and two
+  changes in the same moment could look the same.
+- A required version in MCP. Agents that do not send it would stop working.
 
 ## Stack
 

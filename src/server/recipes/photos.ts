@@ -3,35 +3,38 @@ import { deleteRecipe, setPhotoPath } from './repository.ts';
 
 /**
  * Stores a new photo for a recipe and deletes the old one. `illustration` marks the
- * photo as one of a similar dish. Returns `'not-found'` if the recipe does not exist
- * and `'not-an-image'` if the data is not an image.
+ * photo as one of a similar dish. Returns the new version of the recipe, `'not-found'`
+ * if the recipe does not exist and `'not-an-image'` if the data is not an image.
  */
 export async function replacePhoto(
   recipeId: string,
   data: Buffer,
   illustration = false,
-): Promise<'saved' | 'not-found' | 'not-an-image'> {
+): Promise<number | 'not-found' | 'not-an-image'> {
   let name: string;
   try {
     name = await savePhoto(data);
   } catch {
     return 'not-an-image';
   }
-  const previous = await setPhotoPath(recipeId, name, illustration);
-  if (previous === undefined) {
+  const result = await setPhotoPath(recipeId, name, illustration);
+  if (!result) {
     await deletePhoto(name);
     return 'not-found';
   }
-  if (previous) await deletePhoto(previous);
-  return 'saved';
+  if (result.previous) await deletePhoto(result.previous);
+  return result.version;
 }
 
-/** Removes the photo of a recipe. Returns `false` if the recipe does not exist. */
-export async function removePhoto(recipeId: string): Promise<boolean> {
-  const previous = await setPhotoPath(recipeId, null);
-  if (previous === undefined) return false;
-  if (previous) await deletePhoto(previous);
-  return true;
+/**
+ * Removes the photo of a recipe. Returns the new version of the recipe, or `null` if
+ * the recipe does not exist.
+ */
+export async function removePhoto(recipeId: string): Promise<number | null> {
+  const result = await setPhotoPath(recipeId, null);
+  if (!result) return null;
+  if (result.previous) await deletePhoto(result.previous);
+  return result.version;
 }
 
 /** Deletes a recipe and its photo. Returns `false` if the recipe does not exist. */

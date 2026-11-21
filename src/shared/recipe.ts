@@ -81,6 +81,16 @@ export const SaveRecipeRequest = z.object({
 });
 export type SaveRecipeRequest = z.input<typeof SaveRecipeRequest>;
 
+export const RecipeVersion = z
+  .int()
+  .describe('Goes up on every change to the recipe, its photo or its notes.');
+
+/** The body of a request that updates a recipe in the app. */
+export const UpdateRecipeRequest = SaveRecipeRequest.extend({
+  version: RecipeVersion.describe('The version that the editor loaded.'),
+});
+export type UpdateRecipeRequest = z.input<typeof UpdateRecipeRequest>;
+
 export const Note = z.object({
   id: z.uuid(),
   authorName: z.string().describe('Display name of the user who wrote the note.'),
@@ -141,6 +151,7 @@ export const Recipe = z.object({
   stepGroups: z.array(StepGroup),
   photo: Photo.nullable().describe('Null if there is no photo.'),
   notes: z.array(Note).describe('Newest first.'),
+  version: RecipeVersion,
 });
 export type Recipe = z.infer<typeof Recipe>;
 

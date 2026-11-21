@@ -15,6 +15,7 @@ import {
   Recipe,
   RecipeIngredients,
   RecipeList,
+  RecipeVersion,
   SaveRecipeRequest,
   TagCount,
 } from '../../shared/recipe.ts';
@@ -162,7 +163,7 @@ export function createMcpServer(user: User): McpServer {
       annotations: { destructiveHint: false },
     },
     async ({ recipe, revisionNote }) =>
-      result({ id: await createRecipe(recipe, author, revisionNote) }),
+      result({ id: (await createRecipe(recipe, author, revisionNote)).id }),
   );
 
   register(
@@ -171,14 +172,26 @@ export function createMcpServer(user: User): McpServer {
       title: 'Update recipe',
       description:
         'Replaces the full content of an existing recipe by id and records a revision. Fields that are left out or null are cleared, so read the recipe with get_recipe first and send back all of its content with the changes. Does not change the photo or the notes: use set_recipe_photo and add_note for those.',
-      inputSchema: z.object({ id: z.uuid(), ...SaveRecipeRequest.shape }),
+      inputSchema: z.object({
+        id: z.uuid(),
+        ...SaveRecipeRequest.shape,
+        version: RecipeVersion.optional().describe(
+          'The version from get_recipe. If someone has changed the recipe since, the update fails and changes nothing. Leave it out to update without the check.',
+        ),
+      }),
       outputSchema: IdResult,
       annotations: { idempotentHint: true },
     },
-    async ({ id, recipe, revisionNote }) =>
-      (await updateRecipe(id, recipe, author, revisionNote))
-        ? result({ id })
-        : error(`No recipe ${id}`),
+    async ({ id, recipe, revisionNote, version }) => {
+      const updated = await updateRecipe(id, recipe, author, revisionNote, version);
+      if (updated === 'not-found') return error(`No recipe ${id}`);
+      if (updated === 'conflict') {
+        return error(
+          `Recipe ${id} has changed since version ${version}. Read it again with get_recipe and make the changes to the new content.`,
+        );
+      }
+      return result({ id });
+    },
   );
 
   register(
@@ -263,7 +276,7 @@ export function createMcpServer(user: User): McpServer {
       annotations: { idempotentHint: true },
     },
     async ({ id, illustration }) =>
-      (await setPhotoIllustration(id, illustration))
+      (await setPhotoIllustration(id, illustration)) !== null
         ? result({ id })
         : error(`No recipe ${id}, or it has no photo`),
   );
@@ -279,8 +292,8 @@ export function createMcpServer(user: User): McpServer {
       annotations: { destructiveHint: false },
     },
     async ({ id, text }) => {
-      const note = await addNote(id, user.id, text);
-      return note ? result(note) : error(`No recipe ${id}`);
+      const added = await addNote(id, user.id, text);
+      return added ? result(added.note) : error(`No recipe ${id}`);
     },
   );
 

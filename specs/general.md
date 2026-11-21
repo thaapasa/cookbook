@@ -30,6 +30,10 @@ Requirements that apply to the whole app.
       links that the integration API returns mark the page as opened this way.
       When the browser has no page to go back to, such as in a new tab, the
       links go to the default page.
+- [x] When the app comes back to the foreground, such as when the user returns
+      to the tab or to the iPad home screen app, it checks whether a new
+      version is deployed. If there is one, the page reloads to it, also in the
+      editor.
 
 ## Photos
 
@@ -54,3 +58,18 @@ Requirements that apply to the whole app.
 - [x] The recipe list, the recipe page and the editor show an illustration
       in grayscale, toned with the accent color, with the label "Mallikuva" in
       the bottom-left corner. The small thumbnails show it as it is.
+
+## Users and risk
+
+The users who matter are the family and the agents that the family uses, so
+the app sees little traffic. The family may show the recipes to friends.
+
+Downtime does not matter. A failed deploy or a server crash in production is
+fine, because the owner fixes it. The server must resist security issues that
+are easy to exploit, but it does not defend against targeted attacks from an
+attacker with large resources. For example, a denial of service from a
+million IPv6 addresses is out of scope. Don't add code to the server to
+mitigate such attacks.
+
+Losing unsaved edits on a deploy is fine, because the owner controls both the
+deploys and the editing. The apps must update to the new version.

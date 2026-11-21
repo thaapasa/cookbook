@@ -50,7 +50,7 @@ await sql`
 `;
 
 for (const [index, { notes = [], ...recipe }] of seedRecipes.entries()) {
-  const id = await createRecipe(RecipeInput.parse(recipe), {
+  const { id } = await createRecipe(RecipeInput.parse(recipe), {
     userId: demo.id,
     source: index % 2 ? 'app' : 'mcp',
   });

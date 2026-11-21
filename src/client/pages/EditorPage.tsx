@@ -60,6 +60,11 @@ export function EditorPage() {
 function EditRecipe({ recipeId, user }: { recipeId: string; user: User }) {
   const { t } = useTranslation();
   const recipe = useQuery(recipeQuery(recipeId));
+  // A new key opens the editor again with the latest recipe.
+  const [loads, setLoads] = useState(0);
+  const reload = async () => {
+    if ((await recipe.refetch()).isSuccess) setLoads((n) => n + 1);
+  };
   if (recipe.isPending) return <Message>{t('common.loading')}</Message>;
   if (recipe.isError) {
     return (
@@ -70,15 +75,33 @@ function EditRecipe({ recipeId, user }: { recipeId: string; user: User }) {
       </Message>
     );
   }
-  return <RecipeEditor key={recipeId} recipe={recipe.data} user={user} />;
+  return (
+    <RecipeEditor
+      key={`${recipeId}:${loads}`}
+      recipe={recipe.data}
+      user={user}
+      onReload={() => void reload()}
+    />
+  );
 }
 
 function Message({ children }: { children: string }) {
   return <p className="mx-auto max-w-230 px-4 py-8 text-muted sm:px-6">{children}</p>;
 }
 
-function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
+function RecipeEditor({
+  recipe: loadedRecipe,
+  user,
+  onReload,
+}: {
+  recipe?: Recipe;
+  user: User;
+  onReload?: () => void;
+}) {
   const { t } = useTranslation();
+  // The recipe as the editor opened it. The query refetches in the background, and
+  // the save compares the form with what it started from, not with the latest data.
+  const [recipe] = useState(loadedRecipe);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const goBack = useGoBack();
@@ -89,9 +112,11 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
   const [photo, setPhoto] = useState<{ file: File; url: string } | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
   const [illustration, setIllustration] = useState(recipe?.photo?.illustration ?? false);
-  // Set when a new recipe is created, so that a retry after a failed photo or
-  // note save updates the recipe instead of creating another one.
-  const createdId = useRef<string | null>(null);
+  // The id and the version after the last successful step of the save. The server
+  // refuses to update the recipe if the version has changed, and each step of the save
+  // changes it too. A retry after a failed step then checks against the editor's own
+  // last change, and a new recipe is updated instead of created again.
+  const saved = useRef(recipe ? { id: recipe.id, version: recipe.version } : null);
 
   useEffect(
     () => () => {
@@ -103,34 +128,37 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
   const save = useMutation({
     mutationFn: async (values: EditorOutput) => {
       const request = toSaveRequest(values);
-      let id = recipe?.id ?? createdId.current;
-      if (id) {
-        await updateRecipe(id, request);
+      if (saved.current) {
+        const { id, version } = saved.current;
+        saved.current = { id, version: (await updateRecipe(id, { ...request, version })).version };
       } else {
-        id = await createRecipe(request);
-        createdId.current = id;
+        saved.current = await createRecipe(request);
       }
+      const { id } = saved.current;
+      const step = async (change: Promise<{ version: number }>) => {
+        saved.current = { id, version: (await change).version };
+      };
 
-      if (photo) await uploadPhoto(id, photo.file, illustration);
-      else if (photoRemoved && recipe?.photo) await deletePhoto(id);
+      if (photo) await step(uploadPhoto(id, photo.file, illustration));
+      else if (photoRemoved && recipe?.photo) await step(deletePhoto(id));
       else if (recipe?.photo && illustration !== recipe.photo.illustration) {
-        await setPhotoFlags(id, { illustration });
+        await step(setPhotoFlags(id, { illustration }));
       }
 
       // Notes have no revisions, so they are saved one by one.
-      const saved = new Map((recipe?.notes ?? []).map((n) => [n.id, n.text]));
+      const initialNotes = new Map((recipe?.notes ?? []).map((n) => [n.id, n.text]));
       const kept = new Set(values.notes.map((n) => n.id));
-      for (const noteId of saved.keys()) {
-        if (!kept.has(noteId)) await deleteNote(id, noteId);
+      for (const noteId of initialNotes.keys()) {
+        if (!kept.has(noteId)) await step(deleteNote(id, noteId));
       }
       for (const note of values.notes) {
         const text = note.text.trim();
         if (!note.id) {
-          if (text) await addNote(id, { text });
+          if (text) await step(addNote(id, { text }));
         } else if (!text) {
-          await deleteNote(id, note.id);
-        } else if (text !== saved.get(note.id)) {
-          await updateNote(id, note.id, { text });
+          await step(deleteNote(id, note.id));
+        } else if (text !== initialNotes.get(note.id)) {
+          await step(updateNote(id, note.id, { text }));
         }
       }
       return id;
@@ -156,6 +184,7 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
     ? ({ to: '/recipes/$recipeId', params: { recipeId: recipe.id } } as const)
     : ({ to: '/' } as const);
   const hasErrors = Object.keys(form.formState.errors).length > 0;
+  const conflict = save.error instanceof ApiError && save.error.status === 409;
 
   return (
     <FormProvider {...form}>
@@ -265,8 +294,17 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
             )}
             {(hasErrors || save.isError) && (
               <p role="alert" className={errorClass}>
-                {hasErrors ? t('editor.invalid') : t('editor.saveError')}
+                {hasErrors
+                  ? t('editor.invalid')
+                  : conflict
+                    ? t('editor.conflict')
+                    : t('editor.saveError')}
               </p>
+            )}
+            {conflict && onReload && (
+              <Button onPress={onReload} className={`${secondaryButtonClass} self-start`}>
+                {t('editor.reload')}
+              </Button>
             )}
             <div className="flex flex-wrap justify-end gap-2.5">
               <BackLink

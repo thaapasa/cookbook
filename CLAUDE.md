@@ -34,6 +34,7 @@ Run `npm test`. The goal is confidence that the app works, not full coverage.
 
 The UI design is in `design/boards/`, synced from the Claude Design canvas. See
 `design/CLAUDE.md` for the boards and the sync steps.
+Claude Design creates the contents of `design/`, so code reviews skip it.
 
 ## Specs
 

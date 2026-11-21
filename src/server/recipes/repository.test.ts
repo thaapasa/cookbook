@@ -13,6 +13,7 @@ import {
   listIngredientNames,
   listRecipes,
   listTags,
+  setPhotoIllustration,
   setPhotoPath,
   updateNote,
   updateRecipe,
@@ -81,6 +82,7 @@ describe('createRecipe and getRecipe', () => {
       ],
       stepGroups: [{ name: null, steps: ['Sekoita pohja.', 'Lisää täyte.', 'Paista.'] }],
       notes: [],
+      version: 1,
     });
   });
 
@@ -132,7 +134,7 @@ describe('updateRecipe', () => {
       'Kanelia lisää',
     );
 
-    expect(updated).toBe(true);
+    expect(updated).toBe(2);
     expect(await getRecipe(id)).toMatchObject({
       title: 'Korvapuusti',
       tags: ['pulla'],
@@ -145,8 +147,62 @@ describe('updateRecipe', () => {
     ]);
   });
 
-  it('returns false for a missing recipe', async () => {
-    expect(await updateRecipe(missingId, RecipeInput.parse({ title: 'X' }), author)).toBe(false);
+  it('returns not-found for a missing recipe', async () => {
+    expect(await updateRecipe(missingId, RecipeInput.parse({ title: 'X' }), author)).toBe(
+      'not-found',
+    );
+  });
+
+  it('accepts the current version', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const { version } = (await getRecipe(id))!;
+
+    const updated = await updateRecipe(
+      id,
+      RecipeInput.parse({ title: 'B' }),
+      author,
+      null,
+      version,
+    );
+
+    expect(updated).toBe(version + 1);
+    expect(await getRecipe(id)).toMatchObject({ title: 'B', version: version + 1 });
+  });
+
+  it('refuses an old version and changes nothing', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const { version } = (await getRecipe(id))!;
+    await addNote(id, author.userId, 'Hyvää');
+
+    const updated = await updateRecipe(
+      id,
+      RecipeInput.parse({ title: 'B' }),
+      author,
+      null,
+      version,
+    );
+
+    expect(updated).toBe('conflict');
+    expect(await getRecipe(id)).toMatchObject({ title: 'Pulla', version: version + 1 });
+    expect(await revisions(id)).toHaveLength(1);
+  });
+});
+
+describe('recipe version', () => {
+  it('goes up on every change to the recipe, its photo and its notes', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const added = (await addNote(id, author.userId, 'Hyvää'))!;
+    const versions = [
+      added.version,
+      await updateNote(id, added.note.id, 'Tosi hyvää'),
+      await deleteNote(id, added.note.id),
+      (await setPhotoPath(id, 'a.webp'))?.version,
+      await setPhotoIllustration(id, true),
+      await updateRecipe(id, RecipeInput.parse({ title: 'B' }), author),
+    ];
+
+    expect(versions).toEqual([2, 3, 4, 5, 6, 7]);
+    expect((await getRecipe(id))?.version).toBe(7);
   });
 });
 
@@ -268,6 +324,10 @@ describe('listRecipes', () => {
     expect(await titles({ tags: ['leivonnainen', 'jälkiruoka'] })).toEqual(['Mustikkapiirakka']);
   });
 
+  it('filters by a tag that repeats', async () => {
+    expect(await titles({ tags: ['jälkiruoka', 'jälkiruoka'] })).toEqual(['Mustikkapiirakka']);
+  });
+
   it('returns the tags of each recipe', async () => {
     const list = await listRecipes({ q: 'mustikka', tags: [], page: 1 });
     expect(list.recipes[0].tags).toEqual(['jälkiruoka', 'leivonnainen']);
@@ -383,8 +443,11 @@ describe('notes', () => {
     const first = await addNote(recipeId, author.userId, 'Liian makeaa.');
     const second = await addNote(recipeId, author.userId, 'Parempi vähemmällä sokerilla.');
 
-    expect(first).toMatchObject({ authorName: 'cook display', text: 'Liian makeaa.' });
-    expect((await getRecipe(recipeId))?.notes.map((n) => n.id)).toEqual([second?.id, first?.id]);
+    expect(first?.note).toMatchObject({ authorName: 'cook display', text: 'Liian makeaa.' });
+    expect((await getRecipe(recipeId))?.notes.map((n) => n.id)).toEqual([
+      second?.note.id,
+      first?.note.id,
+    ]);
   });
 
   it('does not add a note to a missing recipe', async () => {
@@ -392,29 +455,29 @@ describe('notes', () => {
   });
 
   it('updates and deletes a note', async () => {
-    const note = await addNote(recipeId, author.userId, 'Vanha');
+    const { note } = (await addNote(recipeId, author.userId, 'Vanha'))!;
 
-    expect(await updateNote(recipeId, note!.id, 'Uusi')).toBe(true);
+    expect(await updateNote(recipeId, note.id, 'Uusi')).toEqual(expect.any(Number));
     expect((await getRecipe(recipeId))?.notes).toMatchObject([{ text: 'Uusi' }]);
 
-    expect(await deleteNote(recipeId, note!.id)).toBe(true);
+    expect(await deleteNote(recipeId, note.id)).toEqual(expect.any(Number));
     expect((await getRecipe(recipeId))?.notes).toEqual([]);
   });
 
   it('does not change a note through another recipe', async () => {
-    const note = await addNote(recipeId, author.userId, 'Vanha');
+    const { note } = (await addNote(recipeId, author.userId, 'Vanha'))!;
     const otherId = await addRecipe(author, { title: 'Toinen' });
 
-    expect(await updateNote(otherId, note!.id, 'Uusi')).toBe(false);
-    expect(await deleteNote(otherId, note!.id)).toBe(false);
+    expect(await updateNote(otherId, note.id, 'Uusi')).toBeNull();
+    expect(await deleteNote(otherId, note.id)).toBeNull();
     expect((await getRecipe(recipeId))?.notes).toMatchObject([{ text: 'Vanha' }]);
   });
 
   it('does not add revisions', async () => {
     const before = await revisions(recipeId);
-    const note = await addNote(recipeId, author.userId, 'Vanha');
-    await updateNote(recipeId, note!.id, 'Uusi');
-    await deleteNote(recipeId, note!.id);
+    const { note } = (await addNote(recipeId, author.userId, 'Vanha'))!;
+    await updateNote(recipeId, note.id, 'Uusi');
+    await deleteNote(recipeId, note.id);
 
     expect(await revisions(recipeId)).toEqual(before);
   });
@@ -424,8 +487,8 @@ describe('setPhotoPath', () => {
   it('returns the previous path and sets the photo URL', async () => {
     const id = await addRecipe(author, { title: 'Pulla' });
 
-    expect(await setPhotoPath(id, 'a.webp')).toBeNull();
-    expect(await setPhotoPath(id, 'b.webp')).toBe('a.webp');
+    expect(await setPhotoPath(id, 'a.webp')).toMatchObject({ previous: null });
+    expect(await setPhotoPath(id, 'b.webp')).toMatchObject({ previous: 'a.webp' });
     expect((await getRecipe(id))?.photo).toEqual({
       url: '/images/b.webp',
       sizes: [

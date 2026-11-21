@@ -45,12 +45,13 @@ export async function listRecipes(opts: {
         OR ${q} <% r.title
       )`
     : sql``;
-  const tagFilter = opts.tags.length
+  const tags = [...new Set(opts.tags)];
+  const tagFilter = tags.length
     ? sql`
       AND (
         SELECT count(*) FROM recipe_tags rt JOIN tags t ON t.id = rt.tag_id
-        WHERE rt.recipe_id = r.id AND t.name = ANY(${opts.tags}::text[])
-      ) = ${opts.tags.length}`
+        WHERE rt.recipe_id = r.id AND t.name = ANY(${tags}::text[])
+      ) = ${tags.length}`
     : sql``;
   // Title matches first, so a word in the title beats the same word in the steps
   const order = q
@@ -159,10 +160,11 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
       source: string | null;
       photoPath: string | null;
       photoIllustration: boolean;
+      version: number;
     }[]
   >`
     SELECT id, title, description, servings, active_minutes, total_minutes, source, photo_path,
-      photo_illustration
+      photo_illustration, version
     FROM recipes WHERE id = ${id}
   `;
   if (!recipe) return null;
@@ -212,81 +214,121 @@ async function listNotes(recipeId: string): Promise<Note[]> {
   return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
 }
 
-/** Adds a note, or returns `null` if the recipe does not exist. */
+/** Increases the version of a recipe and returns the new version. */
+async function bumpVersion(tx: Tx, recipeId: string): Promise<number> {
+  const [{ version }] = await tx<{ version: number }[]>`
+    UPDATE recipes SET version = version + 1 WHERE id = ${recipeId} RETURNING version
+  `;
+  return version;
+}
+
+/**
+ * Adds a note. Returns the note and the new version of the recipe, or `null` if the
+ * recipe does not exist.
+ */
 export async function addNote(
   recipeId: string,
   userId: string,
   text: string,
-): Promise<Note | null> {
-  const [row] = await sql<{ id: string }[]>`
-    INSERT INTO notes (recipe_id, user_id, text)
-    SELECT id, ${userId}, ${text} FROM recipes WHERE id = ${recipeId}
-    RETURNING id
-  `;
-  if (!row) return null;
-  return (await listNotes(recipeId)).find((n) => n.id === row.id) ?? null;
+): Promise<{ note: Note; version: number } | null> {
+  const added = await sql.begin(async (tx) => {
+    const [row] = await tx<{ id: string }[]>`
+      INSERT INTO notes (recipe_id, user_id, text)
+      SELECT id, ${userId}, ${text} FROM recipes WHERE id = ${recipeId}
+      RETURNING id
+    `;
+    return row ? { id: row.id, version: await bumpVersion(tx, recipeId) } : null;
+  });
+  if (!added) return null;
+  const note = (await listNotes(recipeId)).find((n) => n.id === added.id);
+  return note ? { note, version: added.version } : null;
 }
 
-/** Changes the text of a note. Returns `false` if the note does not exist. */
-export async function updateNote(recipeId: string, noteId: string, text: string): Promise<boolean> {
-  const result = await sql`
-    UPDATE notes SET text = ${text}, updated_at = now()
-    WHERE id = ${noteId} AND recipe_id = ${recipeId}
-  `;
-  return result.count > 0;
+/**
+ * Changes the text of a note. Returns the new version of the recipe, or `null` if the
+ * note does not exist.
+ */
+export async function updateNote(
+  recipeId: string,
+  noteId: string,
+  text: string,
+): Promise<number | null> {
+  return sql.begin(async (tx) => {
+    const result = await tx`
+      UPDATE notes SET text = ${text}, updated_at = now()
+      WHERE id = ${noteId} AND recipe_id = ${recipeId}
+    `;
+    return result.count ? bumpVersion(tx, recipeId) : null;
+  });
 }
 
-/** Deletes a note. Returns `false` if the note does not exist. */
-export async function deleteNote(recipeId: string, noteId: string): Promise<boolean> {
-  const result = await sql`DELETE FROM notes WHERE id = ${noteId} AND recipe_id = ${recipeId}`;
-  return result.count > 0;
+/**
+ * Deletes a note. Returns the new version of the recipe, or `null` if the note does not
+ * exist.
+ */
+export async function deleteNote(recipeId: string, noteId: string): Promise<number | null> {
+  return sql.begin(async (tx) => {
+    const result = await tx`DELETE FROM notes WHERE id = ${noteId} AND recipe_id = ${recipeId}`;
+    return result.count ? bumpVersion(tx, recipeId) : null;
+  });
 }
 
-/** Creates a recipe and its first revision. Returns the recipe id. */
+/** Creates a recipe and its first revision. Returns the id and the version of the recipe. */
 export async function createRecipe(
   content: RecipeContent,
   author: Author,
   revisionNote: string | null = null,
-): Promise<string> {
+): Promise<{ id: string; version: number }> {
   return sql.begin(async (tx) => {
-    const [{ id }] = await tx<{ id: string }[]>`
+    const [created] = await tx<{ id: string; version: number }[]>`
       INSERT INTO recipes (title, description, servings, active_minutes, total_minutes, source)
       VALUES (
         ${content.title}, ${content.description}, ${content.servings},
         ${content.activeMinutes}, ${content.totalMinutes}, ${content.source}
       )
-      RETURNING id
+      RETURNING id, version
     `;
-    await insertContent(tx, id, content);
-    await refreshSearch(tx, id);
-    await insertRevision(tx, id, content, author, revisionNote);
-    return id;
+    await insertContent(tx, created.id, content);
+    await refreshSearch(tx, created.id);
+    await insertRevision(tx, created.id, content, author, revisionNote);
+    return created;
   });
 }
 
-/** Replaces the content of a recipe and adds a revision. Returns `false` if the recipe does not exist. */
+/**
+ * Replaces the content of a recipe and adds a revision. Returns the new version.
+ * With `expectedVersion`, returns `'conflict'` and changes nothing if the recipe has
+ * another version.
+ */
 export async function updateRecipe(
   id: string,
   content: RecipeContent,
   author: Author,
   revisionNote: string | null = null,
-): Promise<boolean> {
+  expectedVersion?: number,
+): Promise<number | 'not-found' | 'conflict'> {
   return sql.begin(async (tx) => {
-    const updated = await tx`
+    const [current] = await tx<{ version: number }[]>`
+      SELECT version FROM recipes WHERE id = ${id} FOR UPDATE
+    `;
+    if (!current) return 'not-found';
+    if (expectedVersion !== undefined && current.version !== expectedVersion) return 'conflict';
+    const [{ version }] = await tx<{ version: number }[]>`
       UPDATE recipes SET
         title = ${content.title}, description = ${content.description},
         servings = ${content.servings}, active_minutes = ${content.activeMinutes},
-        total_minutes = ${content.totalMinutes}, source = ${content.source}, updated_at = now()
+        total_minutes = ${content.totalMinutes}, source = ${content.source}, updated_at = now(),
+        version = version + 1
       WHERE id = ${id}
+      RETURNING version
     `;
-    if (!updated.count) return false;
     await tx`DELETE FROM recipe_tags WHERE recipe_id = ${id}`;
     await tx`DELETE FROM ingredient_groups WHERE recipe_id = ${id}`;
     await tx`DELETE FROM step_groups WHERE recipe_id = ${id}`;
     await insertContent(tx, id, content);
     await refreshSearch(tx, id);
     await insertRevision(tx, id, content, author, revisionNote);
-    return true;
+    return version;
   });
 }
 
@@ -303,31 +345,37 @@ export async function deleteRecipe(id: string): Promise<string | null | undefine
 
 /**
  * Sets the photo path and the illustration flag of a recipe, or clears the photo with
- * `null`. Returns the previous path, or `undefined` if the recipe does not exist.
+ * `null`. Returns the previous path and the new version, or `undefined` if the recipe
+ * does not exist.
  */
 export async function setPhotoPath(
   id: string,
   photoPath: string | null,
   illustration = false,
-): Promise<string | null | undefined> {
-  const [row] = await sql<{ previous: string | null }[]>`
-    UPDATE recipes r SET photo_path = ${photoPath}, photo_illustration = ${illustration}
+): Promise<{ previous: string | null; version: number } | undefined> {
+  const [row] = await sql<{ previous: string | null; version: number }[]>`
+    UPDATE recipes r SET
+      photo_path = ${photoPath}, photo_illustration = ${illustration}, version = r.version + 1
     FROM recipes old WHERE old.id = r.id AND r.id = ${id}
-    RETURNING old.photo_path AS previous
+    RETURNING old.photo_path AS previous, r.version
   `;
-  return row ? row.previous : undefined;
+  return row;
 }
 
 /**
- * Sets the illustration flag of the photo of a recipe. Returns `false` if the recipe
- * does not exist or has no photo.
+ * Sets the illustration flag of the photo of a recipe. Returns the new version, or
+ * `null` if the recipe does not exist or has no photo.
  */
-export async function setPhotoIllustration(id: string, illustration: boolean): Promise<boolean> {
-  const rows = await sql`
-    UPDATE recipes SET photo_illustration = ${illustration}
+export async function setPhotoIllustration(
+  id: string,
+  illustration: boolean,
+): Promise<number | null> {
+  const [row] = await sql<{ version: number }[]>`
+    UPDATE recipes SET photo_illustration = ${illustration}, version = version + 1
     WHERE id = ${id} AND photo_path IS NOT NULL
+    RETURNING version
   `;
-  return rows.count > 0;
+  return row?.version ?? null;
 }
 
 async function insertRevision(

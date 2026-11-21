@@ -12,6 +12,9 @@ shopping lists from the ingredients of planned dishes.
 - [x] Claude can read a recipe.
 - [x] Claude can create a recipe.
 - [x] Claude can edit a recipe, with a note on what changed.
+- [x] Claude can pass the recipe version from reading the recipe when it edits
+      it. The edit then fails if someone changed the recipe since. Without the
+      version, the edit replaces the recipe as it is.
 - [x] Changes made through MCP are recorded as made by the token's user, and
       marked as made through MCP.
 - [x] Claude can upload a photo for a recipe.

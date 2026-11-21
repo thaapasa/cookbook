@@ -203,6 +203,17 @@ describe('update_recipe', () => {
     const res = await callTool('update_recipe', { id: missingId, recipe: { title: 'X' } });
     expect(res.isError).toBe(true);
   });
+
+  it('checks the version when one is given', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const stale = await callTool('update_recipe', { id, recipe: { title: 'X' }, version: 2 });
+    expect(stale.isError).toBe(true);
+    expect(await getRecipe(id)).toMatchObject({ title: 'Pulla' });
+
+    const current = await callTool('update_recipe', { id, recipe: { title: 'X' }, version: 1 });
+    expect(current.isError).toBeFalsy();
+    expect(await getRecipe(id)).toMatchObject({ title: 'X', version: 2 });
+  });
 });
 
 describe('delete_recipe', () => {

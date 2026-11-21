@@ -134,6 +134,9 @@ export const fi = {
     saveChanges: 'Tallenna muutokset',
     saving: 'Tallennetaan…',
     saveError: 'Tallennus epäonnistui. Yritä uudelleen.',
+    conflict:
+      'Reseptiä on muutettu sillä aikaa, kun muokkasit sitä, joten muutoksiasi ei tallennettu. Kopioi tarvittaessa muutoksesi talteen ja lataa resepti uudelleen. Lataaminen hylkää muutoksesi.',
+    reload: 'Lataa resepti uudelleen',
     invalid: 'Korjaa merkityt kentät.',
     required: 'Pakollinen tieto',
     wholeMinutes: 'Anna minuutit kokonaislukuna',

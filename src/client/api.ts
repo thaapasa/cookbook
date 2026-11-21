@@ -10,6 +10,7 @@ import type {
   RecipeList,
   SaveRecipeRequest,
   TagCount,
+  UpdateRecipeRequest,
 } from '../shared/recipe.ts';
 import {
   addDays,
@@ -71,21 +72,24 @@ export const meQuery = queryOptions({
   queryFn: () => request<{ user: User | null }>('/api/app/auth/me'),
 });
 
-export function addNote(recipeId: string, input: NoteInput): Promise<Note> {
-  return request<Note>(`/api/app/recipes/${recipeId}/notes`, {
+/** The response of a change to a recipe: the new version of the recipe. */
+type Versioned = { version: number };
+
+export function addNote(recipeId: string, input: NoteInput): Promise<{ note: Note } & Versioned> {
+  return request(`/api/app/recipes/${recipeId}/notes`, {
     method: 'POST',
     body: JSON.stringify(input),
   });
 }
 
-export function updateNote(recipeId: string, noteId: string, input: NoteInput): Promise<void> {
+export function updateNote(recipeId: string, noteId: string, input: NoteInput): Promise<Versioned> {
   return request(`/api/app/recipes/${recipeId}/notes/${noteId}`, {
     method: 'PUT',
     body: JSON.stringify(input),
   });
 }
 
-export function deleteNote(recipeId: string, noteId: string): Promise<void> {
+export function deleteNote(recipeId: string, noteId: string): Promise<Versioned> {
   return request(`/api/app/recipes/${recipeId}/notes/${noteId}`, { method: 'DELETE' });
 }
 
@@ -124,16 +128,12 @@ export async function generateToken(kind: TokenKind, currentPassword: string): P
   return token;
 }
 
-/** Creates a recipe and returns its id. */
-export async function createRecipe(input: SaveRecipeRequest): Promise<string> {
-  const { id } = await request<{ id: string }>('/api/app/recipes', {
-    method: 'POST',
-    body: JSON.stringify(input),
-  });
-  return id;
+export function createRecipe(input: SaveRecipeRequest): Promise<{ id: string } & Versioned> {
+  return request('/api/app/recipes', { method: 'POST', body: JSON.stringify(input) });
 }
 
-export function updateRecipe(recipeId: string, input: SaveRecipeRequest): Promise<void> {
+/** Fails with status 409 if the recipe no longer has the version in `input`. */
+export function updateRecipe(recipeId: string, input: UpdateRecipeRequest): Promise<Versioned> {
   return request(`/api/app/recipes/${recipeId}`, { method: 'PUT', body: JSON.stringify(input) });
 }
 
@@ -141,21 +141,25 @@ export function deleteRecipe(recipeId: string): Promise<void> {
   return request(`/api/app/recipes/${recipeId}`, { method: 'DELETE' });
 }
 
-export function uploadPhoto(recipeId: string, photo: File, illustration: boolean): Promise<void> {
+export function uploadPhoto(
+  recipeId: string,
+  photo: File,
+  illustration: boolean,
+): Promise<Versioned> {
   const body = new FormData();
   body.set('photo', photo);
   body.set('illustration', String(illustration));
   return request(`/api/app/recipes/${recipeId}/photo`, { method: 'PUT', body });
 }
 
-export function setPhotoFlags(recipeId: string, flags: PhotoFlags): Promise<void> {
+export function setPhotoFlags(recipeId: string, flags: PhotoFlags): Promise<Versioned> {
   return request(`/api/app/recipes/${recipeId}/photo`, {
     method: 'PATCH',
     body: JSON.stringify(flags),
   });
 }
 
-export function deletePhoto(recipeId: string): Promise<void> {
+export function deletePhoto(recipeId: string): Promise<Versioned> {
   return request(`/api/app/recipes/${recipeId}/photo`, { method: 'DELETE' });
 }
 
