@@ -29,3 +29,11 @@ CLAUDE.local.md
 
 # Local airlock settings
 airlock.local.toml
+
+# Design canvas images (no rights to publish)
+design/**/*.png
+design/**/*.jpg
+design/**/*.jpeg
+design/**/*.webp
+design/**/*.gif
+design/**/*.avif
