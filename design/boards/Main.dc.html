@@ -26,15 +26,19 @@ input::placeholder{color:#6B746E}
         <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#C4472B"></circle><path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#F5F6F2"></path><path d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4" stroke="#F5F6F2" stroke-width="1.6" stroke-linecap="round"></path></svg>
         <span style="font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em">Keittokirja</span>
       </a>
+      <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
       <nav aria-label="Osiot" style="display: flex; gap: 4px">
         <a href="Main.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #E6E9E0; text-decoration: none; font-weight: 600; font-size: 15px; color: #18201B">Reseptit</a>
         <a href="WeekView.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Viikko</a>
       </nav>
+      </sc-if>
       <nav aria-label="Päävalikko" style="display: flex; gap: 12px; margin-left: auto; align-items: center; flex-wrap: wrap">
+        <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
         <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #18201B; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
           Uusi resepti
         </a>
+        </sc-if>
         <button type="button" onClick="{{cycleTheme}}" aria-label="{{themeLabel}}" title="{{themeTitle}}" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; display: grid; place-items: center; color: #18201B; cursor: pointer">
           <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
@@ -46,20 +50,27 @@ input::placeholder{color:#6B746E}
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5a8.5 8.5 0 0 0 0 17Z" fill="currentColor"></path></svg>
           </sc-if>
         </button>
-        <button type="button" aria-label="Käyttäjä: Tuukka" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; font: 600 15px Figtree, sans-serif; color: #18201B; cursor: pointer">T</button>
+        <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
+          <a href="Profile.dc.html" aria-label="Profiili: Tuukka" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; display: grid; place-items: center; text-decoration: none; font-weight: 600; font-size: 15px; color: #18201B">T</a>
+        </sc-if>
+        <sc-if value="{{signedOut}}" hint-placeholder-val="{{ false }}">
+          <a href="Login.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Kirjaudu sisään</a>
+        </sc-if>
       </nav>
     </div>
   </header>
 
   <main style="max-width: 1160px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 28px">
-    <div style="display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: flex-start">
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
       <h1 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: clamp(34px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.03em">Mitä tänään syötäisiin?</h1>
-      <label style="position: relative; display: block; max-width: 640px">
+      <label style="position: relative; display: block">
         <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Hae reseptejä</span>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5A635D" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%)"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
         <input type="search" value="{{q}}" onChange="{{onSearch}}" placeholder="Hae nimellä tai raaka-aineella, esim. lohi" style="width: 100%; box-sizing: border-box; height: 56px; padding: 0 20px 0 52px; border-radius: 16px; border: 1px solid #CDD2C8; background: #FFFFFF; font: 400 17px Figtree, sans-serif; color: #18201B; outline-color: #C4472B">
       </label>
-      <div role="group" aria-label="Suodata tunnisteilla" style="display: flex; flex-wrap: wrap; gap: 8px">
+      </div>
+      <div role="group" aria-label="Suodata tunnisteilla" style="flex: 1 1 360px; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start">
         <sc-for list="{{tags}}" as="tag" hint-placeholder-count="8">
           <button type="button" aria-pressed="{{tag.pressed}}" onClick="{{tag.toggle}}" style="{{tag.style}}">{{tag.label}}</button>
         </sc-for>
@@ -76,7 +87,12 @@ input::placeholder{color:#6B746E}
         <sc-for list="{{shown}}" as="r" hint-placeholder-count="12">
           <a href="Recipe.dc.html" class="card" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #18201B; background: #FFFFFF; border-radius: 18px; padding: 10px 10px 16px; border: 1px solid #E4E7DF">
             <div style="{{r.photo}}">
-              <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="rgba(24,32,27,.35)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
+              <sc-if value="{{r.hasImg}}" hint-placeholder-val="{{ false }}">
+                <img src="{{r.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+              </sc-if>
+              <sc-if value="{{r.noImg}}" hint-placeholder-val="{{ true }}">
+                <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="rgba(24,32,27,.35)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
+              </sc-if>
             </div>
             <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 6px">
               <h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em">{{r.title}}</h2>
@@ -113,30 +129,30 @@ input::placeholder{color:#6B746E}
   </main>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1640}}'>
+<script type="text/x-dc" data-dc-script data-props='{"signedOut":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":1640}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { q: '', picked: [], theme: 'light' };
+    this.state = { q: '', picked: [], theme: props.signedOut ? 'system' : 'light' };
   }
   renderVals() {
     var self = this;
     var tones = ['#E3E6DA', '#EFE2D6', '#DDE6E4', '#ECE6D3', '#E6DDE3', '#DCE4D5'];
     var recipes = [
-      { title: 'Lohikeitto', time: '45 min', tags: ['keitto', 'kala', 'arki'] },
-      { title: 'Karjalanpiirakat', time: '1 h 30 min', tags: ['leivonta', 'perinne'] },
-      { title: 'Mustikkapiirakka', time: '1 h', tags: ['jälkiruoka', 'leivonta'] },
-      { title: 'Pinaattiohukaiset', time: '30 min', tags: ['kasvis', 'arki'] },
-      { title: 'Kaalikääryleet', time: '2 h 30 min', tags: ['perinne'] },
-      { title: 'Korvapuustit', time: '2 h', tags: ['leivonta'] },
-      { title: 'Hernekeitto', time: '3 h', tags: ['keitto', 'perinne'] },
-      { title: 'Makaronilaatikko', time: '1 h', tags: ['arki'] },
-      { title: 'Kantarellikastike', time: '25 min', tags: ['kasvis', 'arki'] },
-      { title: 'Joulutortut', time: '1 h', tags: ['joulu', 'leivonta', 'jälkiruoka'] },
-      { title: 'Rosolli', time: '40 min', tags: ['joulu', 'kasvis'] },
-      { title: 'Uunilohi', time: '35 min', tags: ['kala', 'arki'] }
+      { title: 'Lohikeitto', time: '45 min', tags: ['arki', 'kala', 'keitto', 'ruoka'], img: '/_blob/ce9c690cc5bb7c170623f08c721060fa' },
+      { title: 'Karjalanpiirakat', time: '1 h 30 min', tags: ['leivonta', 'piirakka'] },
+      { title: 'Mustikkapiirakka', time: '1 h', tags: ['jälkiruoka', 'leivonta', 'piirakka'] },
+      { title: 'Pinaattiohukaiset', time: '30 min', tags: ['arki', 'ruoka'] },
+      { title: 'Kaalikääryleet', time: '2 h 30 min', tags: ['ruoka', 'sunnuntai'] },
+      { title: 'Korvapuustit', time: '2 h', tags: ['leivonta'], img: '/_blob/0c770bcc17e89bad131941250a0d3221' },
+      { title: 'Hernekeitto', time: '3 h', tags: ['arki', 'keitto', 'ruoka'], img: '/_blob/7311c89d28281be7d030642d2c6d7534' },
+      { title: 'Makaronilaatikko', time: '1 h', tags: ['arki', 'ruoka', 'vuoka'], img: '/_blob/e045b7d78405effdab203b3ad622dbe4' },
+      { title: 'Kantarellikastike', time: '25 min', tags: ['kastike', 'ruoka'] },
+      { title: 'Joulutortut', time: '1 h', tags: ['joulu', 'leivonta'] },
+      { title: 'Rosolli', time: '40 min', tags: ['joulu', 'salaatti'] },
+      { title: 'Lohi kasvispedillä', time: '35 min', tags: ['kala', 'ruoka'], img: '/_blob/aa03fbc458bf742e196daf648fc67704' }
     ];
-    var allTags = ['arki', 'kasvis', 'keitto', 'kala', 'leivonta', 'jälkiruoka', 'perinne', 'joulu'];
+    var allTags = ['ruoka', 'leivonta', 'arki', 'lauantai', 'kakku', 'sunnuntai', 'jälkiruoka', 'kala', 'keitto', 'pasta', 'vuoka', 'joulu', 'piirakka', 'salaatti', 'eines', 'kastike'];
     var picked = this.state.picked;
     var q = (this.state.q || '').trim().toLowerCase();
     var shown = recipes.filter(function (r) {
@@ -146,11 +162,14 @@ class Component extends DCLogic {
     }).map(function (r, i) {
       return {
         title: r.title, time: r.time, tagLine: r.tags.join(' · '),
-        photo: 'aspect-ratio: 4 / 3; border-radius: 12px; display: grid; place-items: center; background: ' + tones[recipes.indexOf(r) % tones.length]
+        img: r.img || '', hasImg: !!r.img, noImg: !r.img,
+        photo: 'aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; display: grid; place-items: center; background: ' + tones[recipes.indexOf(r) % tones.length]
       };
     });
     var base = 'min-height: 40px; padding: 0 16px; border-radius: 999px; font: 500 15px Figtree, sans-serif; cursor: pointer; ';
     return {
+      signedIn: !this.props.signedOut,
+      signedOut: !!this.props.signedOut,
       q: this.state.q,
       onSearch: function (e) { self.setState({ q: e.target.value }); },
       tags: allTags.map(function (t) {

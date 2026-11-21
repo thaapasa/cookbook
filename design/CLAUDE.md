@@ -16,9 +16,10 @@ the next sync overwrites them. To change the design, change the canvas and sync.
 
 The board titles are in Finnish:
 
-- `Main`: the recipe list. `MainDark` is the dark theme.
+- `Main`: the recipe list. `MainDark` is the dark theme, `MainSignedOut` the
+  signed-out view.
 - `Recipe`: the recipe page. `RecipeDark` is the dark theme, `RecipeMobile` the
-  phone layout.
+  phone layout, `RecipeSignedOut` the signed-out view.
 - `Cooking`: the cooking view. `CookingLight` is the light theme.
 - `Editor`: the recipe editor.
 - `Revisions`: the version history.
@@ -26,6 +27,13 @@ The board titles are in Finnish:
 - `Login`: the login page.
 - `Profile`: the profile page. `ProfileChange` and `ProfileNewPassword` show
   its password dialogs.
+- `Illus`, `IllusDuo`, `IllusFrame`, `IllusCaption`, `IllusSoft`: alternative
+  ways to mark a recipe photo as an illustration (badge, tint, dashed frame,
+  caption, blur).
+- `Placeholders`: placeholder images for recipes with no photo.
+- `InspoStrip`, `InspoMap`, `InspoMatrix`, `InspoPlan`: alternative views of
+  the week plan history (week stream, food map, meal rhythm, planning from
+  suggestions).
 
 Each board is an HTML page with inline styles and a `DCLogic` component
 script that fills in the sample data. The boards load `support.js` from the
@@ -34,8 +42,8 @@ for colors, spacing, type and structure, and open the canvas to see them.
 
 ## Last sync
 
-- Canvas version: `1794045146-761b`
-- Date: 2026-11-07
+- Canvas version: `1795271434-98f6`
+- Date: 2026-11-21
 
 ## Sync
 

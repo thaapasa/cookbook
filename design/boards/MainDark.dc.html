@@ -52,14 +52,16 @@ input::placeholder{color:#7F8982}
   </header>
 
   <main style="max-width: 1160px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 28px">
-    <div style="display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: flex-start">
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
       <h1 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: clamp(34px, 5vw, 52px); line-height: 1.05; letter-spacing: -0.03em">Mitä tänään syötäisiin?</h1>
-      <label style="position: relative; display: block; max-width: 640px">
+      <label style="position: relative; display: block">
         <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Hae reseptejä</span>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A3ACA5" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%)"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
         <input type="search" value="{{q}}" onChange="{{onSearch}}" placeholder="Hae nimellä tai raaka-aineella, esim. lohi" style="width: 100%; box-sizing: border-box; height: 56px; padding: 0 20px 0 52px; border-radius: 16px; border: 1px solid #3A433D; background: #1B211D; font: 400 17px Figtree, sans-serif; color: #ECEEE8; outline-color: #E0593B">
       </label>
-      <div role="group" aria-label="Suodata tunnisteilla" style="display: flex; flex-wrap: wrap; gap: 8px">
+      </div>
+      <div role="group" aria-label="Suodata tunnisteilla" style="flex: 1 1 360px; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start">
         <sc-for list="{{tags}}" as="tag" hint-placeholder-count="8">
           <button type="button" aria-pressed="{{tag.pressed}}" onClick="{{tag.toggle}}" style="{{tag.style}}">{{tag.label}}</button>
         </sc-for>
@@ -76,7 +78,12 @@ input::placeholder{color:#7F8982}
         <sc-for list="{{shown}}" as="r" hint-placeholder-count="12">
           <a href="RecipeDark.dc.html" class="card" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #ECEEE8; background: #1B211D; border-radius: 18px; padding: 10px 10px 16px; border: 1px solid #262D28">
             <div style="{{r.photo}}">
-              <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="rgba(236,238,232,.3)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
+              <sc-if value="{{r.hasImg}}" hint-placeholder-val="{{ false }}">
+                <img src="{{r.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+              </sc-if>
+              <sc-if value="{{r.noImg}}" hint-placeholder-val="{{ true }}">
+                <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="rgba(236,238,232,.3)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
+              </sc-if>
             </div>
             <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 6px">
               <h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em">{{r.title}}</h2>
@@ -123,20 +130,20 @@ class Component extends DCLogic {
     var self = this;
     var tones = ['#262C24', '#30271F', '#212B2A', '#2E2B1E', '#2B232A', '#232B20'];
     var recipes = [
-      { title: 'Lohikeitto', time: '45 min', tags: ['keitto', 'kala', 'arki'] },
-      { title: 'Karjalanpiirakat', time: '1 h 30 min', tags: ['leivonta', 'perinne'] },
-      { title: 'Mustikkapiirakka', time: '1 h', tags: ['jälkiruoka', 'leivonta'] },
-      { title: 'Pinaattiohukaiset', time: '30 min', tags: ['kasvis', 'arki'] },
-      { title: 'Kaalikääryleet', time: '2 h 30 min', tags: ['perinne'] },
-      { title: 'Korvapuustit', time: '2 h', tags: ['leivonta'] },
-      { title: 'Hernekeitto', time: '3 h', tags: ['keitto', 'perinne'] },
-      { title: 'Makaronilaatikko', time: '1 h', tags: ['arki'] },
-      { title: 'Kantarellikastike', time: '25 min', tags: ['kasvis', 'arki'] },
-      { title: 'Joulutortut', time: '1 h', tags: ['joulu', 'leivonta', 'jälkiruoka'] },
-      { title: 'Rosolli', time: '40 min', tags: ['joulu', 'kasvis'] },
-      { title: 'Uunilohi', time: '35 min', tags: ['kala', 'arki'] }
+      { title: 'Lohikeitto', time: '45 min', tags: ['arki', 'kala', 'keitto', 'ruoka'], img: '/_blob/ce9c690cc5bb7c170623f08c721060fa' },
+      { title: 'Karjalanpiirakat', time: '1 h 30 min', tags: ['leivonta', 'piirakka'] },
+      { title: 'Mustikkapiirakka', time: '1 h', tags: ['jälkiruoka', 'leivonta', 'piirakka'] },
+      { title: 'Pinaattiohukaiset', time: '30 min', tags: ['arki', 'ruoka'] },
+      { title: 'Kaalikääryleet', time: '2 h 30 min', tags: ['ruoka', 'sunnuntai'] },
+      { title: 'Korvapuustit', time: '2 h', tags: ['leivonta'], img: '/_blob/0c770bcc17e89bad131941250a0d3221' },
+      { title: 'Hernekeitto', time: '3 h', tags: ['arki', 'keitto', 'ruoka'], img: '/_blob/7311c89d28281be7d030642d2c6d7534' },
+      { title: 'Makaronilaatikko', time: '1 h', tags: ['arki', 'ruoka', 'vuoka'], img: '/_blob/e045b7d78405effdab203b3ad622dbe4' },
+      { title: 'Kantarellikastike', time: '25 min', tags: ['kastike', 'ruoka'] },
+      { title: 'Joulutortut', time: '1 h', tags: ['joulu', 'leivonta'] },
+      { title: 'Rosolli', time: '40 min', tags: ['joulu', 'salaatti'] },
+      { title: 'Lohi kasvispedillä', time: '35 min', tags: ['kala', 'ruoka'], img: '/_blob/aa03fbc458bf742e196daf648fc67704' }
     ];
-    var allTags = ['arki', 'kasvis', 'keitto', 'kala', 'leivonta', 'jälkiruoka', 'perinne', 'joulu'];
+    var allTags = ['ruoka', 'leivonta', 'arki', 'lauantai', 'kakku', 'sunnuntai', 'jälkiruoka', 'kala', 'keitto', 'pasta', 'vuoka', 'joulu', 'piirakka', 'salaatti', 'eines', 'kastike'];
     var picked = this.state.picked;
     var q = (this.state.q || '').trim().toLowerCase();
     var shown = recipes.filter(function (r) {
@@ -146,7 +153,8 @@ class Component extends DCLogic {
     }).map(function (r) {
       return {
         title: r.title, time: r.time, tagLine: r.tags.join(' · '),
-        photo: 'aspect-ratio: 4 / 3; border-radius: 12px; display: grid; place-items: center; background: ' + tones[recipes.indexOf(r) % tones.length]
+        img: r.img || '', hasImg: !!r.img, noImg: !r.img,
+        photo: 'aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; display: grid; place-items: center; background: ' + tones[recipes.indexOf(r) % tones.length]
       };
     });
     var base = 'min-height: 40px; padding: 0 16px; border-radius: 999px; font: 500 15px Figtree, sans-serif; cursor: pointer; ';

@@ -24,12 +24,27 @@ textarea:focus{outline:2px solid #C4472B;outline-offset:1px;border-color:#C4472B
         <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#C4472B"></circle><path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#F5F6F2"></path><path d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4" stroke="#F5F6F2" stroke-width="1.6" stroke-linecap="round"></path></svg>
         <span style="font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em">Keittokirja</span>
       </a>
+      <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
       <nav aria-label="Osiot" style="display: flex; gap: 4px">
         <a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Reseptit</a>
         <a href="WeekView.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Viikko</a>
       </nav>
-      <div style="display: flex; gap: 4px; margin-left: auto; align-items: center">
-        <button type="button" aria-label="Käyttäjä: Tuukka" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; font: 600 15px Figtree, sans-serif; color: #18201B">T</button>
+      </sc-if>
+      <div style="display: flex; gap: 12px; margin-left: auto; align-items: center">
+        <button type="button" aria-label="{{themeLabel}}" title="{{themeTitle}}" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; display: grid; place-items: center; color: #18201B; cursor: pointer">
+          <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+          </sc-if>
+          <sc-if value="{{isSystem}}" hint-placeholder-val="{{ false }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5a8.5 8.5 0 0 0 0 17Z" fill="currentColor"></path></svg>
+          </sc-if>
+        </button>
+        <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
+          <a href="Profile.dc.html" aria-label="Profiili: Tuukka" style="width: 44px; height: 44px; box-sizing: border-box; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; display: grid; place-items: center; text-decoration: none; font-weight: 600; font-size: 15px; color: #18201B">T</a>
+        </sc-if>
+        <sc-if value="{{signedOut}}" hint-placeholder-val="{{ false }}">
+          <a href="Login.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Kirjaudu sisään</a>
+        </sc-if>
       </div>
     </div>
   </header>
@@ -69,25 +84,24 @@ textarea:focus{outline:2px solid #C4472B;outline-offset:1px;border-color:#C4472B
           </div>
         </dl>
         <div style="display: flex; flex-wrap: wrap; gap: 10px; padding-top: 6px">
-          <a href="Cooking.dc.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 999px; background: #C4472B; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 17px">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18v2a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7v-2Z"></path><path d="M9 7c0-1.5 1.5-1.5 1.5-3M14 7c0-1.5 1.5-1.5 1.5-3"></path></svg>
-            Kokkaa tästä
+          <a href="CookingLight.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #18201B; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18v2a7 7 0 0 1-7 7h-4a7 7 0 0 1-7-7v-2Z"></path><path d="M9 7c0-1.5 1.5-1.5 1.5-3M14 7c0-1.5 1.5-1.5 1.5-3"></path></svg>
+            Kokkaa
           </a>
-          <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #CDD2C8; background: #FFFFFF; color: #18201B; text-decoration: none; font-weight: 600; font-size: 16px">
+          <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
+          <a href="Editor.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #CDD2C8; background: #FFFFFF; color: #18201B; text-decoration: none; font-weight: 600; font-size: 15px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"></path></svg>
             Muokkaa
           </a>
-          <a href="Revisions.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid #CDD2C8; background: #FFFFFF; color: #18201B; text-decoration: none; font-weight: 600; font-size: 16px">
+          <a href="Revisions.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #CDD2C8; background: #FFFFFF; color: #18201B; text-decoration: none; font-weight: 600; font-size: 15px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path></svg>
             Historia
           </a>
+          </sc-if>
         </div>
       </div>
-      <div style="flex: 0.32 1 420px; min-width: 0; aspect-ratio: 4 / 3; border-radius: 24px; background: #E3E6DA; display: grid; place-items: center">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; color: #5A635D; font-size: 14px">
-          <svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="rgba(24,32,27,.35)" stroke-width="2" aria-hidden="true"><circle cx="24" cy="24" r="15"></circle><circle cx="24" cy="24" r="9"></circle><path d="M5 10v10a3 3 0 0 0 3 3v15M43 10v28M43 10c-4 2-4 10 0 13"></path></svg>
-          Reseptin kuva
-        </div>
+      <div style="flex: 0.32 1 420px; min-width: 0; aspect-ratio: 4 / 3; border-radius: 24px; overflow: hidden; background: #E3E6DA">
+        <img src="/_blob/ce9c690cc5bb7c170623f08c721060fa" alt="Lohikeitto" style="width: 100%; height: 100%; object-fit: cover; display: block">
       </div>
       </div>
     </section>
@@ -152,6 +166,10 @@ textarea:focus{outline:2px solid #C4472B;outline-offset:1px;border-color:#C4472B
           </li>
         </sc-for>
       </ul>
+      <sc-if value="{{signedOut}}" hint-placeholder-val="{{ false }}">
+        <p style="margin: 0; font-size: 15px; color: #5A635D"><a href="Login.dc.html" style="color: #B23F25; font-weight: 600; text-underline-offset: 3px">Kirjaudu sisään</a> lisätäksesi muistiinpanon.</p>
+      </sc-if>
+      <sc-if value="{{signedIn}}" hint-placeholder-val="{{ true }}">
       <div style="display: flex; flex-direction: column; gap: 10px">
         <label style="display: flex; flex-direction: column; gap: 6px">
           <span style="font-size: 14px; font-weight: 600; color: #3D4640">Lisää muistiinpano</span>
@@ -159,11 +177,12 @@ textarea:focus{outline:2px solid #C4472B;outline-offset:1px;border-color:#C4472B
         </label>
         <button type="button" onClick="{{addNote}}" style="align-self: flex-end; min-height: 44px; padding: 0 22px; border-radius: 999px; border: 0; background: #18201B; color: #FFFFFF; font: 600 15px Figtree, sans-serif; cursor: pointer">Tallenna muistiinpano</button>
       </div>
+      </sc-if>
     </section>
   </main>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2260}}'>
+<script type="text/x-dc" data-dc-script data-props='{"signedOut":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":2260}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -180,7 +199,12 @@ class Component extends DCLogic {
     var n = 0;
     function steps(list) { return list.map(function (t) { n++; return { n: n, text: t }; }); }
     var notes = this.state.notes;
+    var out = !!this.props.signedOut;
     return {
+      signedIn: !out, signedOut: out,
+      isLight: !out, isSystem: out,
+      themeTitle: out ? 'Järjestelmän mukaan' : 'Vaalea tila',
+      themeLabel: 'Teema: ' + (out ? 'järjestelmän mukaan' : 'vaalea') + '. Vaihda teemaa.',
       ingGroups: [
         { name: 'Keittoon', items: [
           { amount: '600 g', name: 'lohifilettä', note: 'nahaton ja ruodoton säästää aikaa' },

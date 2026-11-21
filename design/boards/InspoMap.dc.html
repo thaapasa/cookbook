@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Ruokakartta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F2}
+a{color:#18201B}a:hover{color:#B23F25}
+.bub{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border-radius:16px;padding:6px}
+.bub:hover{background:#F0F2EC}
+.bub:focus-visible{outline:3px solid #C4472B;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1280px; min-height: 1500px; box-sizing: border-box; background: #F5F6F2; color: #18201B; font-family: Figtree, 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.45">
+
+  <header style="border-bottom: 1px solid #DDE0D8">
+    <div style="padding: 16px 48px; display: flex; align-items: center; gap: 28px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #18201B">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#C4472B"></circle><path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#F5F6F2"></path><path d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4" stroke="#F5F6F2" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <span style="font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em">Keittokirja</span>
+      </a>
+      <nav aria-label="Osiot" style="display: flex; gap: 4px">
+        <a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Reseptit</a>
+        <a href="WeekView.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #E6E9E0; text-decoration: none; font-weight: 600; font-size: 15px; color: #18201B">Viikko</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding: 32px 48px 56px; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div role="tablist" aria-label="Viikkonäkymä" style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: #E6E9E0; align-self: flex-start">
+          <a href="WeekView.dc.html" role="tab" aria-selected="false" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 14px; color: #3D4640">Suunnitelma</a>
+          <span role="tab" aria-selected="true" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; font-weight: 600; font-size: 14px; box-shadow: 0 1px 2px rgba(24,32,27,.12)">Historia</span>
+        </div>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.05; letter-spacing: -0.03em">Ruokakartta</h1>
+        <p style="margin: 0; color: #5A635D">Viimeiset 20 viikkoa. Isommat pallot on syöty useammin.</p>
+      </div>
+      <ul aria-label="Selite" style="margin: 0; padding: 0; list-style: none; display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; color: #3D4640">
+        <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 999px; background: #CDD2C8; opacity: 0.5"></span>Haalea = syöty juuri</li>
+        <li style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 22px; height: 22px; box-sizing: border-box; border-radius: 999px; border: 2.5px dashed #C4472B"></span>Katkoviiva = pitkästä aikaa</li>
+      </ul>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+      <sc-for list="{{top}}" as="p" hint-placeholder-count="2">
+        <section aria-label="{{p.label}}" style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 22px; background: #FFFFFF; border: 1px solid #E4E7DF">
+          <h2 style="margin: 0; display: flex; align-items: center; gap: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px"><span aria-hidden="true" style="{{p.dot}}"></span>{{p.label}}</h2>
+          <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; min-height: 280px">
+            <sc-for list="{{p.items}}" as="b" hint-placeholder-count="5">
+              <button type="button" class="bub" aria-label="{{b.aria}}">
+                <span style="position: relative; display: block">
+                  <img src="{{b.img}}" alt="" style="{{b.imgStyle}}">
+                  <sc-if value="{{b.forgot}}" hint-placeholder-val="{{ false }}">
+                    <span style="position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); white-space: nowrap; padding: 1px 8px; border-radius: 999px; background: #C4472B; color: #FFFFFF; font-size: 11px; font-weight: 600">Pitkästä aikaa</span>
+                  </sc-if>
+                </span>
+                <span style="font-weight: 600; font-size: 14px; line-height: 1.2; max-width: 150px">{{b.name}}</span>
+                <span style="font-size: 12px; color: #5A635D">{{b.stats}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+
+    <section aria-label="{{arki.label}}" style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 22px; background: #FFFFFF; border: 1px solid #E4E7DF">
+      <h2 style="margin: 0; display: flex; align-items: center; gap: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px"><span aria-hidden="true" style="{{arki.dot}}"></span>{{arki.label}}</h2>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 14px">
+        <sc-for list="{{arki.items}}" as="b" hint-placeholder-count="12">
+          <button type="button" class="bub" aria-label="{{b.aria}}">
+            <span style="position: relative; display: block">
+              <img src="{{b.img}}" alt="" style="{{b.imgStyle}}">
+              <sc-if value="{{b.forgot}}" hint-placeholder-val="{{ false }}">
+                <span style="position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); white-space: nowrap; padding: 1px 8px; border-radius: 999px; background: #C4472B; color: #FFFFFF; font-size: 11px; font-weight: 600">Pitkästä aikaa</span>
+              </sc-if>
+            </span>
+            <span style="font-weight: 600; font-size: 14px; line-height: 1.2; max-width: 150px">{{b.name}}</span>
+            <span style="font-size: 12px; color: #5A635D">{{b.stats}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.data = this.buildData();
+  }
+  buildData() {
+    var R = [
+      ['Hampurilaiset', 'la', 'd27b8d2c567195f5ea9f63cf74d06d07'], ['Aasialaiset tacot', 'la', '1dbc264081f01ff47eb58ef4d7e5259d'],
+      ['Hodarit', 'la', '8bb209344eef6c2c5f8ce191ba9ca929'], ['Blinit', 'la', '4f021ec311bb371862b2ee8203acf85c'],
+      ['Lämpimät voileivät', 'la', '74f15b1e07d99711d511bff72619ef27'], ['Lasagne', 'su', 'a4f72fa58df319a0f90e0ab9a02ee1e7'],
+      ['Broilerin fileet', 'su', '1e9f7e7374a84bc83b9da2e2c12c4406'], ['Hunajatofukana', 'su', 'c05cf42094405c3031931e71d984e024'],
+      ['Makkarapelti', 'su', '9465ff29ba5658e290905ab1b7d8d00d'], ['Maalaissalaatti', 'su', 'bdb896833dc008a616e7e239ac34388d'],
+      ['Lohi kasvispedillä', 'su', '0ab002d7ab1ae94f2b784558ffd869da'], ['Lohikeitto', 'ar', 'c00344126316e06742af9f73a3781ac4'],
+      ['Broileripasta', 'ar', '36f2339cb64149b33c121b4f89b0274d'], ['Kanakastike ja riisi', 'ar', 'cff2743a8d5c4b6fa6f0c70eae5b5f62'],
+      ['Lihapullat', 'ar', 'beb5a18676f57ebaa849cf30e9fcd2c6'], ['Makaronilaatikko', 'ar', '3cc23f4948238d8ae584fb0b78835e2b'],
+      ['Halloumi-pinaattipasta', 'ar', 'aa6ba162e85414157df691895649c606'], ['Kana-tofunuudeliwokki', 'ar', 'dd011c3d4c8fa50cac67126f549c1083'],
+      ['Hernekeitto', 'ar', 'e8c4e7c08d6d04430dd3c5e501c32b12'], ['Kasvissosekeitto', 'ar', 'a08333522f84b412489312b4b8e18899'],
+      ['Kalapuikot ja muusi', 'ar', 'eab77a12bb2a9d7d219919797efeb545'], ['Lohikiusaus', 'ar', '69eac05d0709003ceaca909912d74e03'],
+      ['Kermainen sienirisotto', 'ar', 'b905e01ab073ee4085de31db28871611'], ['Gnocchipannu', 'ar', '6000803b161e6a30c9a3615b6d95a943'],
+      ['Broilerikiusaus', 'ar', 'db66ae33f1983e539514e7acb84abcbf'], ['Lohipasta', 'ar', '9eceaea2a2fb5f11bf0dfc4b7582df88']
+    ];
+    var SAT = [0, 1, 2, 0, 4, 1, 0, 2, 1, 3, 0, 3, 1, 2, 3, 0, 4, 1, 3, 0];
+    var SUN = [6, 5, 8, 6, 10, 5, 6, 8, 5, 9, 7, 9, 6, 7, 5, 9, 7, 6, 9, 5];
+    var WK = [[11, 12, 13, 14, 20], [16, 15, 12, 23, 14], [13, 25, 17, 12, 20], [11, 14, 16, 15, 12], [13, 18, 23, 20, 12],
+      [11, 17, 14, 16, 19], [12, 15, 13, 25, 20], [14, 18, 12, 23, 11], [13, 16, 19, 20, 15], [21, 12, 22, 14, 13],
+      [24, 11, 17, 20, 25], [22, 12, 21, 13, 18], [14, 24, 15, 16, 20], [21, 22, 12, 19, 13], [24, 14, 11, 23, 17],
+      [22, 12, 21, 13, 15], [14, 24, 20, 16, 25], [21, 12, 22, 18, 13], [24, 14, 11, 15, 20], [22, 12, 21, 13, 23]];
+    var recipes = R.map(function (r) { return { name: r[0], slot: r[1], img: '/_blob/' + r[2], count: 0, last: 99, weeks: {} }; });
+    for (var i = 0; i < 20; i++) {
+      [SAT[i], SUN[i]].concat(WK[i]).forEach(function (k) { var r = recipes[k]; r.count++; r.weeks[i] = true; if (i + 1 < r.last) r.last = i + 1; });
+    }
+    return { recipes: recipes,
+      slots: { la: { label: 'Lauantai', color: '#C4472B' }, su: { label: 'Sunnuntai', color: '#2F5E8C' }, ar: { label: 'Arki', color: '#5F7F4F' } } };
+  }
+  renderVals() {
+    var D = this.data;
+    function panel(slot) {
+      var info = D.slots[slot];
+      var items = D.recipes.filter(function (r) { return r.slot === slot; }).sort(function (a, b) { return b.count - a.count; }).map(function (r) {
+        var size = Math.round(58 + r.count * 9);
+        var recent = r.last <= 2, forgot = r.last >= 8;
+        return {
+          name: r.name, img: r.img, forgot: forgot,
+          stats: r.count + '× · ' + (r.last === 1 ? 'viime viikolla' : r.last + ' vk sitten'),
+          aria: r.name + ', syöty ' + r.count + ' kertaa, viimeksi ' + (r.last === 1 ? 'viime viikolla' : r.last + ' viikkoa sitten'),
+          imgStyle: 'display: block; width: ' + size + 'px; height: ' + size + 'px; border-radius: 999px; object-fit: cover; box-sizing: border-box; ' +
+            (forgot ? 'border: 3px dashed #C4472B; padding: 3px;' : 'border: 3px solid ' + info.color + ';') +
+            (recent ? 'opacity: 0.45; filter: saturate(0.6);' : '')
+        };
+      });
+      return { label: info.label, items: items, dot: 'width: 12px; height: 12px; border-radius: 999px; background: ' + info.color };
+    }
+    return { top: [panel('la'), panel('su')], arki: panel('ar') };
+  }
+}
+</script>
+</body>
+</html>

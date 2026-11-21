@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Viikkovirta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F2}
+a{color:#18201B}a:hover{color:#B23F25}
+.meal{all:unset;box-sizing:border-box;cursor:pointer;display:flex;border-radius:12px}
+.meal:focus-visible{outline:3px solid #C4472B;outline-offset:2px}
+.strip{scrollbar-width:thin}
+</style>
+</helmet>
+<div style="width: 1280px; min-height: 980px; box-sizing: border-box; background: #F5F6F2; color: #18201B; font-family: Figtree, 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.45">
+
+  <header style="border-bottom: 1px solid #DDE0D8">
+    <div style="padding: 16px 48px; display: flex; align-items: center; gap: 28px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #18201B">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#C4472B"></circle><path d="M9 17h14a7 7 0 0 1-14 0Z" fill="#F5F6F2"></path><path d="M13 13c0-2 2-2 2-4M17 13c0-2 2-2 2-4" stroke="#F5F6F2" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <span style="font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em">Keittokirja</span>
+      </a>
+      <nav aria-label="Osiot" style="display: flex; gap: 4px">
+        <a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 15px; color: #3D4640">Reseptit</a>
+        <a href="WeekView.dc.html" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #E6E9E0; text-decoration: none; font-weight: 600; font-size: 15px; color: #18201B">Viikko</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding: 32px 0 48px; display: flex; flex-direction: column; gap: 22px">
+    <div style="padding: 0 48px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div role="tablist" aria-label="Viikkonäkymä" style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: #E6E9E0; align-self: flex-start">
+          <a href="WeekView.dc.html" role="tab" aria-selected="false" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 14px; color: #3D4640">Suunnitelma</a>
+          <span role="tab" aria-selected="true" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; font-weight: 600; font-size: 14px; box-shadow: 0 1px 2px rgba(24,32,27,.12)">Historia</span>
+        </div>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.05; letter-spacing: -0.03em">Mitä on syöty?</h1>
+      </div>
+      <div role="group" aria-label="Näytä" style="display: flex; gap: 8px">
+        <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+          <button type="button" aria-pressed="{{f.pressed}}" onClick="{{f.pick}}" style="{{f.style}}">
+            <span aria-hidden="true" style="{{f.dot}}"></span>{{f.label}}
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+      <div style="margin: 0 48px; display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E4E7DF">
+        <img src="{{sel.img}}" alt="" style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover">
+        <div style="display: flex; flex-direction: column; min-width: 0">
+          <strong style="font-size: 17px">{{sel.name}}</strong>
+          <span style="font-size: 14px; color: #5A635D">{{sel.stats}}</span>
+        </div>
+        <button type="button" style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #18201B; color: #FFFFFF; font: 600 15px Figtree, sans-serif; cursor: pointer">+ Lisää ensi viikolle</button>
+        <button type="button" onClick="{{clearSel}}" aria-label="Poista valinta" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #DDE0D8; background: #FFFFFF; display: grid; place-items: center; cursor: pointer; color: #18201B">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+    </sc-if>
+
+    <div class="strip" style="overflow-x: auto; padding: 4px 48px 16px; display: flex; gap: 14px; scroll-snap-type: x proximity">
+      <sc-for list="{{weeks}}" as="w" hint-placeholder-count="6">
+        <section aria-label="{{w.label}}" style="flex: none; width: 232px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 10px; padding: 14px 12px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E4E7DF">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 4px">
+            <strong style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-variant-numeric: tabular-nums">{{w.label}}</strong>
+            <span style="font-size: 13px; color: #5A635D">{{w.ago}}</span>
+          </div>
+          <sc-for list="{{w.big}}" as="m" hint-placeholder-count="2">
+            <button type="button" class="meal" onClick="{{m.pick}}" aria-label="{{m.aria}}" style="{{m.style}}">
+              <span style="position: relative; display: block; width: 100%">
+                <img src="{{m.img}}" alt="" style="display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px">
+                <span style="{{m.badge}}">{{m.short}}</span>
+                <span style="display: block; padding: 6px 4px 2px; font-weight: 600; font-size: 15px; line-height: 1.25">{{m.name}}</span>
+              </span>
+            </button>
+          </sc-for>
+          <sc-if value="{{w.showWk}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 2px; padding-top: 4px; border-top: 1px solid #EEF0EA">
+              <sc-for list="{{w.small}}" as="m" hint-placeholder-count="5">
+                <button type="button" class="meal" onClick="{{m.pick}}" aria-label="{{m.aria}}" style="{{m.style}}">
+                  <span style="display: flex; align-items: center; gap: 10px; padding: 4px; width: 100%">
+                    <img src="{{m.img}}" alt="" style="width: 36px; height: 36px; flex: none; border-radius: 8px; object-fit: cover">
+                    <span style="font-size: 14px; line-height: 1.25">{{m.name}}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+      <div style="flex: none; width: 180px; display: grid; place-items: center; text-align: center; color: #5A635D; font-size: 14px; border: 1px dashed #CDD2C8; border-radius: 20px">Vanhemmat viikot latautuvat, kun vierität</div>
+    </div>
+    <p style="margin: 0; padding: 0 48px; font-size: 14px; color: #5A635D">Uusin viikko vasemmalla – vieritä sivulle vanhempiin viikkoihin. Napauta ateriaa nähdäksesi, milloin sitä on syöty.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.data = this.buildData();
+    this.state = { filter: 'all', sel: 'Lohikeitto' };
+  }
+  buildData() {
+    var R = [
+      ['Hampurilaiset', 'la', 'd27b8d2c567195f5ea9f63cf74d06d07', 5], ['Aasialaiset tacot', 'la', '1dbc264081f01ff47eb58ef4d7e5259d', 4],
+      ['Hodarit', 'la', '8bb209344eef6c2c5f8ce191ba9ca929', 3], ['Blinit', 'la', '4f021ec311bb371862b2ee8203acf85c', 3, 1],
+      ['Lämpimät voileivät', 'la', '74f15b1e07d99711d511bff72619ef27', 2], ['Lasagne', 'su', 'a4f72fa58df319a0f90e0ab9a02ee1e7', 4],
+      ['Broilerin fileet', 'su', '1e9f7e7374a84bc83b9da2e2c12c4406', 4], ['Hunajatofukana', 'su', 'c05cf42094405c3031931e71d984e024', 2],
+      ['Makkarapelti', 'su', '9465ff29ba5658e290905ab1b7d8d00d', 3], ['Maalaissalaatti', 'su', 'bdb896833dc008a616e7e239ac34388d', 3, 1],
+      ['Lohi kasvispedillä', 'su', '0ab002d7ab1ae94f2b784558ffd869da', 2], ['Lohikeitto', 'ar', 'c00344126316e06742af9f73a3781ac4', 4],
+      ['Broileripasta', 'ar', '36f2339cb64149b33c121b4f89b0274d', 5], ['Kanakastike ja riisi', 'ar', 'cff2743a8d5c4b6fa6f0c70eae5b5f62', 4],
+      ['Lihapullat', 'ar', 'beb5a18676f57ebaa849cf30e9fcd2c6', 4], ['Makaronilaatikko', 'ar', '3cc23f4948238d8ae584fb0b78835e2b', 3],
+      ['Halloumi-pinaattipasta', 'ar', 'aa6ba162e85414157df691895649c606', 3], ['Kana-tofunuudeliwokki', 'ar', 'dd011c3d4c8fa50cac67126f549c1083', 2],
+      ['Hernekeitto', 'ar', 'e8c4e7c08d6d04430dd3c5e501c32b12', 2], ['Kasvissosekeitto', 'ar', 'a08333522f84b412489312b4b8e18899', 2],
+      ['Kalapuikot ja muusi', 'ar', 'eab77a12bb2a9d7d219919797efeb545', 3], ['Lohikiusaus', 'ar', '69eac05d0709003ceaca909912d74e03', 3, 1],
+      ['Kermainen sienirisotto', 'ar', 'b905e01ab073ee4085de31db28871611', 3, 1], ['Gnocchipannu', 'ar', '6000803b161e6a30c9a3615b6d95a943', 2],
+      ['Broilerikiusaus', 'ar', 'db66ae33f1983e539514e7acb84abcbf', 3, 1], ['Lohipasta', 'ar', '9eceaea2a2fb5f11bf0dfc4b7582df88', 2]
+    ];
+    var recipes = R.map(function (r) { return { name: r[0], slot: r[1], img: '/_blob/' + r[2], w: r[3], old: !!r[4], count: 0, last: 99, weeks: {} }; });
+    var byName = {}; recipes.forEach(function (r) { byName[r.name] = r; });
+    var SAT = [0, 1, 2, 0, 4, 1, 0, 2, 1, 3, 0, 3, 1, 2, 3, 0, 4, 1, 3, 0];
+    var SUN = [6, 5, 8, 6, 10, 5, 6, 8, 5, 9, 7, 9, 6, 7, 5, 9, 7, 6, 9, 5];
+    var WK = [[11, 12, 13, 14, 20], [16, 15, 12, 23, 14], [13, 25, 17, 12, 20], [11, 14, 16, 15, 12], [13, 18, 23, 20, 12],
+      [11, 17, 14, 16, 19], [12, 15, 13, 25, 20], [14, 18, 12, 23, 11], [13, 16, 19, 20, 15], [21, 12, 22, 14, 13],
+      [24, 11, 17, 20, 25], [22, 12, 21, 13, 18], [14, 24, 15, 16, 20], [21, 22, 12, 19, 13], [24, 14, 11, 23, 17],
+      [22, 12, 21, 13, 15], [14, 24, 20, 16, 25], [21, 12, 22, 18, 13], [24, 14, 11, 15, 20], [22, 12, 21, 13, 23]];
+    function pick(slot, n, i) {
+      if (slot === 'la') return [recipes[SAT[i]]];
+      if (slot === 'su') return [recipes[SUN[i]]];
+      return WK[i].map(function (k) { return recipes[k]; });
+    }
+    var weeks = [];
+    for (var i = 0; i < 20; i++) {
+      var s = new Date(2026, 10, 14 - 7 * i), e = new Date(2026, 10, 20 - 7 * i);
+      var label = s.getMonth() === e.getMonth() ? s.getDate() + '.–' + e.getDate() + '.' + (e.getMonth() + 1) + '.' : s.getDate() + '.' + (s.getMonth() + 1) + '.–' + e.getDate() + '.' + (e.getMonth() + 1) + '.';
+      var meals = pick('la', 1, i).concat(pick('su', 1, i), pick('ar', 5, i));
+      meals.forEach(function (r) { r.count++; r.weeks[i] = true; if (i + 1 < r.last) r.last = i + 1; });
+      weeks.push({ i: i, label: label, start: s, meals: meals });
+    }
+    return { recipes: recipes, byName: byName, weeks: weeks,
+      slots: { la: { label: 'Lauantai', short: 'La', color: '#C4472B' }, su: { label: 'Sunnuntai', short: 'Su', color: '#2F5E8C' }, ar: { label: 'Arki', short: 'Arki', color: '#5F7F4F' } } };
+  }
+  renderVals() {
+    var self = this, D = this.data, f = this.state.filter, sel = this.state.sel;
+    function item(r, big) {
+      var on = sel === r.name, dim = sel && !on;
+      return {
+        name: r.name, img: r.img, short: D.slots[r.slot].short,
+        aria: r.name + ', ' + D.slots[r.slot].label,
+        badge: 'position: absolute; left: 8px; top: 8px; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #FFFFFF; background: ' + D.slots[r.slot].color,
+        style: (big ? 'flex-direction: column; padding: 2px;' : '') + (on ? 'box-shadow: 0 0 0 3px #C4472B; background: #FBE8DF;' : '') + (dim ? 'opacity: 0.45;' : ''),
+        pick: function () { self.setState({ sel: on ? '' : r.name }); }
+      };
+    }
+    var filters = [['all', 'Kaikki', ''], ['la', 'Lauantai', '#C4472B'], ['su', 'Sunnuntai', '#2F5E8C'], ['ar', 'Arki', '#5F7F4F']].map(function (x) {
+      var on = f === x[0];
+      return {
+        label: x[1], pressed: on ? 'true' : 'false',
+        dot: x[2] ? 'width: 10px; height: 10px; border-radius: 999px; background: ' + x[2] : 'display: none',
+        style: 'display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; font: 500 15px Figtree, sans-serif; cursor: pointer; ' +
+          (on ? 'border: 1px solid #18201B; background: #18201B; color: #FFFFFF' : 'border: 1px solid #CDD2C8; background: #FFFFFF; color: #18201B'),
+        pick: function () { self.setState({ filter: x[0] }); }
+      };
+    });
+    var weeks = D.weeks.map(function (w) {
+      var big = [];
+      if (f === 'all' || f === 'la') big.push(item(w.meals[0], true));
+      if (f === 'all' || f === 'su') big.push(item(w.meals[1], true));
+      return {
+        label: w.label, ago: w.i === 0 ? 'viime viikko' : (w.i + 1) + ' vk sitten',
+        big: big, showWk: f === 'all' || f === 'ar',
+        small: w.meals.slice(2).map(function (r) { return item(r, false); })
+      };
+    });
+    var s = sel ? D.byName[sel] : null;
+    return {
+      filters: filters, weeks: weeks,
+      hasSel: !!s,
+      sel: s ? { name: s.name, img: s.img, stats: D.slots[s.slot].label + ' · syöty ' + s.count + ' kertaa 20 viikossa · viimeksi ' + (s.last === 1 ? 'viime viikolla' : s.last + ' viikkoa sitten') } : { name: '', img: '', stats: '' },
+      clearSel: function () { self.setState({ sel: '' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

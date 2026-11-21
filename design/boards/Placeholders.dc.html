@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<title>Paikkakuvat</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F2}
+a{color:#18201B}
+</style>
+</helmet>
+<div style="width: 1280px; min-height: 1460px; box-sizing: border-box; padding: 48px; background: #F5F6F2; color: #18201B; font-family: Figtree, 'Segoe UI', system-ui, sans-serif; font-size: 16px; line-height: 1.5; display: flex; flex-direction: column; gap: 44px">
+  <sc-for list="{{rows}}" as="row" hint-placeholder-count="3">
+    <section style="display: flex; flex-direction: column; gap: 16px">
+      <h2 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.01em">{{row.label}}</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+        <sc-for list="{{row.cards}}" as="c" hint-placeholder-count="4">
+          <a href="#" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #18201B; background: #FFFFFF; border-radius: 18px; padding: 10px 10px 16px; border: 1px solid #E4E7DF">
+            <div style="{{c.tileStyle}}">
+              <sc-if value="{{c.photo}}" hint-placeholder-val="{{ false }}">
+                <img src="{{c.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block">
+              </sc-if>
+              <sc-if value="{{c.p2}}" hint-placeholder-val="{{ false }}">
+                <span aria-hidden="true" style="{{c.letterStyle}}">{{c.letter}}</span>
+              </sc-if>
+              <sc-if value="{{c.hasIcon}}" hint-placeholder-val="{{ false }}">
+                <span aria-hidden="true" style="{{c.iconWrap}}">
+                  <sc-if value="{{c.pot}}" hint-placeholder-val="{{ false }}">
+                    <svg width="{{c.iconSize}}" height="{{c.iconSize}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16v4.5a5.5 5.5 0 0 1-5.5 5.5h-5A5.5 5.5 0 0 1 4 14.5V10Z"></path><path d="M2 10h20M9.5 6.5c0-1.4 1-1.4 1-2.8M13.5 6.5c0-1.4 1-1.4 1-2.8"></path></svg>
+                  </sc-if>
+                  <sc-if value="{{c.fish}}" hint-placeholder-val="{{ false }}">
+                    <svg width="{{c.iconSize}}" height="{{c.iconSize}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12c3-5 9.5-6 13.5-2.5L21 6v12l-5-3.5C12 18 5.5 17 2.5 12Z"></path><circle cx="8" cy="11" r="0.9" fill="currentColor"></circle></svg>
+                  </sc-if>
+                  <sc-if value="{{c.whisk}}" hint-placeholder-val="{{ false }}">
+                    <svg width="{{c.iconSize}}" height="{{c.iconSize}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5V14"></path><path d="M12 14c-3.6 0-6-3.6-6-7a6 6 0 0 1 12 0c0 3.4-2.4 7-6 7Z"></path><path d="M12 14c-1.6 0-3-3.2-3-7.5M12 14c1.6 0 3-3.2 3-7.5M12 14V1"></path></svg>
+                  </sc-if>
+                  <sc-if value="{{c.plate}}" hint-placeholder-val="{{ false }}">
+                    <svg width="{{c.iconSize}}" height="{{c.iconSize}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6.5"></circle><circle cx="12" cy="12" r="3.8"></circle><path d="M2.5 4v5a1.8 1.8 0 0 0 1.8 1.8V20M21.5 4v16M21.5 4c-2.2 1.2-2.2 6 0 7.2"></path></svg>
+                  </sc-if>
+                </span>
+              </sc-if>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 6px">
+              <h3 style="margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', sans-serif; font-weight: 700; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em">{{c.title}}</h3>
+              <span style="font-size: 14px; color: #5A635D">{{c.meta}}</span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1460}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var colors = {
+      keitto: { deep: '#2F6E69', tint: '#DDEBE7' },
+      kala: { deep: '#C25A3C', tint: '#F6E0D6' },
+      leivonta: { deep: '#B9822A', tint: '#F5E8CC' },
+      ruoka: { deep: '#5E7F4C', tint: '#E3ECD9' }
+    };
+    var icons = { keitto: 'pot', kala: 'fish', leivonta: 'whisk', ruoka: 'plate' };
+    var items = [
+      { title: 'Lohikeitto', meta: '45 min · kala · keitto', img: '/_blob/ce9c690cc5bb7c170623f08c721060fa' },
+      { title: 'Karjalanpiirakat', meta: '1 h 30 min · leivonta', cat: 'leivonta' },
+      { title: 'Kaalikääryleet', meta: '2 h 30 min · ruoka', cat: 'ruoka' },
+      { title: 'Hernekeitto', meta: '3 h · arki · keitto', img: '/_blob/7311c89d28281be7d030642d2c6d7534' },
+      { title: 'Siskonmakkarakeitto', meta: '40 min · keitto', cat: 'keitto' },
+      { title: 'Paistetut muikut', meta: '30 min · kala', cat: 'kala' },
+      { title: 'Korvapuustit', meta: '2 h · leivonta', img: '/_blob/0c770bcc17e89bad131941250a0d3221' },
+      { title: 'Makaronilaatikko', meta: '1 h · arki · vuoka', img: '/_blob/e045b7d78405effdab203b3ad622dbe4' }
+    ];
+    var tileBase = 'position: relative; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; display: grid; place-items: center; ';
+    function card(it, style) {
+      var out = { title: it.title, meta: it.meta, img: it.img || '', photo: !!it.img, p2: false, hasIcon: false,
+        pot: false, fish: false, whisk: false, plate: false, iconSize: 64, letter: '', letterStyle: '', iconWrap: '' };
+      if (it.img) { out.tileStyle = tileBase + 'background: #E3E6DA'; return out; }
+      var c = colors[it.cat]; var ic = icons[it.cat];
+      out[ic] = true;
+      if (style === 'p1') {
+        out.hasIcon = true; out.iconSize = 72;
+        out.tileStyle = tileBase + 'background: ' + c.deep;
+        out.iconWrap = 'display: grid; place-items: center; color: #FBF5EA';
+      } else if (style === 'p2') {
+        out.p2 = true; out.letter = it.title.charAt(0);
+        out.tileStyle = tileBase + 'background: ' + c.tint;
+        out.letterStyle = 'position: absolute; right: -6px; bottom: -58px; font-family: \'Bricolage Grotesque\', sans-serif; font-weight: 700; font-size: 230px; line-height: 1; letter-spacing: -0.05em; color: ' + c.deep;
+        out.hasIcon = true; out.iconSize = 26;
+        out.iconWrap = 'position: absolute; left: 14px; top: 12px; color: ' + c.deep;
+      } else {
+        out.hasIcon = true; out.iconSize = 46;
+        out.tileStyle = tileBase + 'background-color: ' + c.tint + '; background-image: radial-gradient(' + c.deep + '33 1.6px, transparent 1.8px); background-size: 16px 16px';
+        out.iconWrap = 'width: 96px; height: 96px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 6px 18px rgba(24,32,27,.12); display: grid; place-items: center; color: ' + c.deep;
+      }
+      return out;
+    }
+    var rowItems = [
+      [items[0], items[1], items[2], items[3]],
+      [items[6], items[4], items[5], items[7]],
+      [items[0], items[5], items[1], items[3]]
+    ];
+    var labels = ['1 · Värilaatta ja kuvitus', '2 · Iso alkukirjain', '3 · Liinakuvio ja lautanen'];
+    var styles = ['p1', 'p2', 'p3'];
+    return {
+      rows: styles.map(function (s, i) {
+        return { label: labels[i], cards: rowItems[i].map(function (it) { return card(it, s); }) };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>
