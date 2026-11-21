@@ -53,7 +53,7 @@ export function AppHeader() {
               <Link
                 to="/recipes/new"
                 state={backState}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:text-on-ink md:max-xl:size-11 md:max-xl:px-0"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:bg-accent-strong hover:text-on-ink md:max-xl:size-11 md:max-xl:px-0"
               >
                 <PlusIcon />
                 <span className="md:max-xl:sr-only">{t('app.newRecipe')}</span>
