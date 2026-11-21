@@ -76,7 +76,6 @@ export const fi = {
     hoursMinutes: '{{hours}} h {{minutes}} min',
   },
   list: {
-    heading: 'Mitä tänään syötäisiin?',
     search: 'Hae reseptejä',
     searchPlaceholder: 'Hae nimellä tai raaka-aineella, esim. lohi',
     clearSearch: 'Tyhjennä haku',

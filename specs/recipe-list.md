@@ -14,3 +14,11 @@ The front page. Shows the recipes that match the current search and filters.
       the best matching recipes. Selecting one opens the recipe. On a tablet,
       the on-screen keyboard can hide the recipe grid, but the dropdown stays
       visible above it.
+- [x] On a phone, the search field is on the page above the tags. On wider
+      screens, it is in the app header, and the tags take the full width of
+      the page.
+- [x] On wider screens, the header search is on every page except the login
+      page. Typing in it on another page opens the recipe list with the
+      search.
+- [x] On a tablet, the header hides the text of the logo and of the new recipe
+      button to give the search more room.

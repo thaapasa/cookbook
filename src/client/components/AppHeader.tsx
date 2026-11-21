@@ -1,13 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useMatch, useNavigate, useRouterState } from '@tanstack/react-router';
+import { useState } from 'react';
 import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import type { User } from '../../shared/auth.ts';
-import { logout, meQuery } from '../api.ts';
+import { logout, meQuery, recipeListQuery } from '../api.ts';
 import { useBackState } from '../back.tsx';
+import { headerSearchMedia, useMediaQuery } from '../media.ts';
 import { setThemeMode, type ThemeMode, themeModes, useThemeMode } from '../theme.ts';
 import { ContrastIcon, LogoIcon, MoonIcon, PlusIcon, SunIcon } from './icons.tsx';
+import { RecipeSearchField } from './RecipeSearchField.tsx';
 
 export function AppHeader() {
   const { t } = useTranslation();
@@ -15,25 +18,37 @@ export function AppHeader() {
   const user = me.data?.user;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const backState = useBackState();
+  const wideScreen = useMediaQuery(headerSearchMedia);
+  const headerSearch = wideScreen && pathname !== '/login';
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-290 flex-wrap items-center gap-x-6 gap-y-4 px-4 py-3 sm:px-6 sm:py-4">
-        <Link to="/" className="flex items-center gap-2.5 text-ink no-underline">
+      {/* Below the md width, the header wraps and has no search. From md up, the search
+          takes the free space, and the texts of the logo and the new recipe button
+          hide on narrower screens to give it room. */}
+      <div className="mx-auto flex max-w-290 flex-wrap items-center gap-x-6 gap-y-4 px-4 py-3 sm:px-6 sm:py-4 md:flex-nowrap">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5 text-ink no-underline">
           <LogoIcon />
-          <span className="font-display text-[22px] font-bold tracking-tight">{t('app.name')}</span>
+          <span className="font-display text-[22px] font-bold tracking-tight md:max-lg:sr-only">
+            {t('app.name')}
+          </span>
         </Link>
         {user && <SectionTabs pathname={pathname} />}
-        <nav aria-label={t('app.mainMenu')} className="ml-auto flex items-center gap-3">
+        {headerSearch && (
+          <div className="min-w-0 flex-1">
+            <HeaderSearch />
+          </div>
+        )}
+        <nav aria-label={t('app.mainMenu')} className="ml-auto flex shrink-0 items-center gap-3">
           {user ? (
             <>
               <Link
                 to="/recipes/new"
                 state={backState}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:text-on-ink"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-4.5 text-[15px] font-semibold text-on-ink no-underline hover:text-on-ink md:max-xl:size-11 md:max-xl:px-0"
               >
                 <PlusIcon />
-                {t('app.newRecipe')}
+                <span className="md:max-xl:sr-only">{t('app.newRecipe')}</span>
               </Link>
               <ThemeButton />
               <UserMenu user={user} isProfile={pathname === '/profile'} />
@@ -56,6 +71,41 @@ export function AppHeader() {
         </nav>
       </div>
     </header>
+  );
+}
+
+/**
+ * The recipe search in the header. On the recipe list, it shows and changes the
+ * search of the list. On other pages, typing opens the recipe list with the text.
+ */
+function HeaderSearch() {
+  const navigate = useNavigate();
+  // The rendered match: while the recipe list loads, the previous page is still the match.
+  const listMatch = useMatch({ from: '/_main/', shouldThrow: false });
+  // The text typed on another page, until the recipe list shows.
+  const [draft, setDraft] = useState('');
+  if (listMatch && draft) setDraft('');
+
+  const q = listMatch ? (listMatch.search.q ?? '') : draft;
+  const tags = listMatch?.search.tags;
+  const list = useQuery({
+    ...recipeListQuery({ q, tags }),
+    // On other pages, the list is not needed until the user types.
+    enabled: Boolean(listMatch) || q !== '',
+    placeholderData: keepPreviousData,
+  });
+
+  const onChange = (value: string) => {
+    if (!listMatch) setDraft(value);
+    void navigate({
+      to: '/',
+      search: { q: value || undefined, tags },
+      replace: Boolean(listMatch),
+    });
+  };
+
+  return (
+    <RecipeSearchField value={q} matches={list.data?.recipes ?? []} onChange={onChange} compact />
   );
 }
 

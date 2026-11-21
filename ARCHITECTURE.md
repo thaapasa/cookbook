@@ -123,6 +123,22 @@ Rejected alternatives:
 - Dropping the ticks of ingredients whose text has changed. It handles the
   rare edit at the cost of more code.
 
+### The recipe search moves to the header on wider screens
+
+On phones, the search field is on the recipe list page. From the `md` width
+(768 px) up, it is in the app header, and the page has no title, so more
+recipes fit on the screen. A media query hook decides where the field goes, so
+only one search field exists at a time. The header field changes the search
+params of the recipe list, so the list page and the header share the search
+without any other shared state.
+
+Rejected alternatives:
+
+- Rendering the field in both places and hiding one with CSS. Two inputs with
+  the same label confuse screen readers and the focus order.
+- Moving the search to the header on phones too. The header already wraps on
+  phones and has no room for it.
+
 ## Stack
 
 - **Runtime**: Node.js 24 LTS, in the exact version from `mise.toml`. It runs
