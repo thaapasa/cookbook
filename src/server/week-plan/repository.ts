@@ -25,6 +25,7 @@ type EntryRow = {
   recipeActiveMinutes: number | null;
   recipeTotalMinutes: number | null;
   recipePhotoPath: string | null;
+  recipePhotoIllustration: boolean | null;
 };
 
 async function readEntries(db: Db, where: postgres.Fragment): Promise<WeekPlanEntry[]> {
@@ -32,7 +33,8 @@ async function readEntries(db: Db, where: postgres.Fragment): Promise<WeekPlanEn
     SELECT
       e.id, e.date::text AS date, e.position, e.text, e.note, e.recipe_id,
       r.title AS recipe_title, r.active_minutes AS recipe_active_minutes,
-      r.total_minutes AS recipe_total_minutes, r.photo_path AS recipe_photo_path
+      r.total_minutes AS recipe_total_minutes, r.photo_path AS recipe_photo_path,
+      r.photo_illustration AS recipe_photo_illustration
     FROM week_plan_entries e LEFT JOIN recipes r ON r.id = e.recipe_id
     WHERE ${where}
     ORDER BY e.date, e.position
@@ -50,7 +52,7 @@ async function readEntries(db: Db, where: postgres.Fragment): Promise<WeekPlanEn
             title: r.recipeTitle,
             activeMinutes: r.recipeActiveMinutes,
             totalMinutes: r.recipeTotalMinutes,
-            photo: photoUrls(r.recipePhotoPath),
+            photo: photoUrls(r.recipePhotoPath, r.recipePhotoIllustration ?? false),
           }
         : null,
   }));

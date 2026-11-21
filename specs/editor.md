@@ -5,6 +5,8 @@ Editing recipes in the browser.
 - [x] User can create a new recipe.
 - [x] User can edit all fields of a recipe.
 - [x] User can upload a photo for a recipe.
+- [x] User can mark the photo as an illustration, with a new photo or with
+      the saved one.
 - [x] User can add and remove tags.
 - [x] User can edit ingredients as rows with amount, name and note fields.
 - [x] User can add, remove, rename and reorder ingredient groups.

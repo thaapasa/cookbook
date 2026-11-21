@@ -31,12 +31,13 @@ function sizedFileName(name: string, size: number): string {
   return name.replace(/\.webp$/, `.s${size}.webp`);
 }
 
-/** The URLs of a stored photo and its smaller sizes. */
-export function photoUrls(name: string | null): Photo | null {
+/** The URLs of a stored photo and its smaller sizes, with its illustration flag. */
+export function photoUrls(name: string | null, illustration: boolean): Photo | null {
   if (!name) return null;
   return {
     url: `/images/${name}`,
     sizes: photoSizes.map((size) => ({ size, url: `/images/${sizedFileName(name, size)}` })),
+    illustration,
   };
 }
 

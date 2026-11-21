@@ -1,4 +1,4 @@
-import { Button, FileTrigger } from 'react-aria-components';
+import { Button, Checkbox, FileTrigger } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { labelClass, secondaryButtonClass } from '../components/fieldStyles.ts';
@@ -11,18 +11,21 @@ export function PhotoField(props: {
   recipeId: string;
   /** The photo to show: the selected file, the saved photo or `null`. */
   url: string | null;
+  /** Whether the photo shows a similar dish, not this recipe. */
+  illustration: boolean;
   onSelect: (file: File) => void;
   onRemove: () => void;
+  onIllustrationChange: (illustration: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const { recipeId, url, onSelect, onRemove } = props;
+  const { recipeId, url, illustration, onSelect, onRemove, onIllustrationChange } = props;
 
   return (
     <div className="flex flex-col gap-2">
       <span className={labelClass}>{t('editor.photo')}</span>
       <RecipePhoto
         recipeId={recipeId}
-        photo={url ? { url, sizes: [] } : null}
+        photo={url ? { url, sizes: [], illustration } : null}
         iconSize={48}
         className="rounded-2xl"
       />
@@ -48,6 +51,21 @@ export function PhotoField(props: {
           </Button>
         )}
       </div>
+      {url && (
+        <Checkbox
+          isSelected={illustration}
+          onChange={onIllustrationChange}
+          className="group flex cursor-pointer items-start gap-3 py-1"
+        >
+          <span className="mt-0.5 grid size-5.5 shrink-0 place-items-center rounded-md border-2 border-field bg-card group-data-focus-visible:outline-2 group-data-focus-visible:outline-offset-2 group-data-focus-visible:outline-accent group-data-selected:border-accent group-data-selected:bg-accent">
+            <span className="hidden h-2.75 w-1.5 -translate-y-px rotate-45 border-r-2 border-b-2 border-on-ink group-data-selected:block" />
+          </span>
+          <span className="flex flex-col">
+            <span className="text-[15px] font-semibold text-ink">{t('editor.illustration')}</span>
+            <span className="text-sm text-muted">{t('editor.illustrationHint')}</span>
+          </span>
+        </Checkbox>
+      )}
     </div>
   );
 }

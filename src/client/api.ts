@@ -5,6 +5,7 @@ import type { Profile, TokenKind, UpdateProfileRequest } from '../shared/profile
 import type {
   Note,
   NoteInput,
+  PhotoFlags,
   Recipe,
   RecipeList,
   SaveRecipeRequest,
@@ -140,10 +141,18 @@ export function deleteRecipe(recipeId: string): Promise<void> {
   return request(`/api/app/recipes/${recipeId}`, { method: 'DELETE' });
 }
 
-export function uploadPhoto(recipeId: string, photo: File): Promise<void> {
+export function uploadPhoto(recipeId: string, photo: File, illustration: boolean): Promise<void> {
   const body = new FormData();
   body.set('photo', photo);
+  body.set('illustration', String(illustration));
   return request(`/api/app/recipes/${recipeId}/photo`, { method: 'PUT', body });
+}
+
+export function setPhotoFlags(recipeId: string, flags: PhotoFlags): Promise<void> {
+  return request(`/api/app/recipes/${recipeId}/photo`, {
+    method: 'PATCH',
+    body: JSON.stringify(flags),
+  });
 }
 
 export function deletePhoto(recipeId: string): Promise<void> {

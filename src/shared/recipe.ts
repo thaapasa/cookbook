@@ -118,8 +118,15 @@ export const Photo = z.object({
       }),
     )
     .describe('Smaller sizes of the photo, smallest first.'),
+  illustration: z
+    .boolean()
+    .describe('True if the photo shows a similar dish, not this recipe as made.'),
 });
 export type Photo = z.infer<typeof Photo>;
+
+/** The flags of a saved photo that can change without a new upload. */
+export const PhotoFlags = Photo.pick({ illustration: true });
+export type PhotoFlags = z.infer<typeof PhotoFlags>;
 
 export const Recipe = z.object({
   id: z.uuid(),

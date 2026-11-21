@@ -17,6 +17,10 @@ shopping lists from the ingredients of planned dishes.
 - [x] Claude can upload a photo for a recipe.
 - [x] Claude can set a recipe photo from a public image URL. The server
       downloads the image and refuses addresses outside the public internet.
+- [x] When Claude sets a photo, by upload or from a URL, it can mark the photo
+      as an illustration.
+- [x] Claude can mark the existing photo of a recipe as an illustration or as
+      a photo of the recipe, without uploading it again.
 - [x] Claude can get the ingredients of several recipes in one call.
 - [x] Claude can list the existing ingredient names, to keep names consistent
       across recipes.

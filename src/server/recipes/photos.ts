@@ -2,12 +2,14 @@ import { deletePhoto, savePhoto } from '../images.ts';
 import { deleteRecipe, setPhotoPath } from './repository.ts';
 
 /**
- * Stores a new photo for a recipe and deletes the old one. Returns `'not-found'` if
- * the recipe does not exist and `'not-an-image'` if the data is not an image.
+ * Stores a new photo for a recipe and deletes the old one. `illustration` marks the
+ * photo as one of a similar dish. Returns `'not-found'` if the recipe does not exist
+ * and `'not-an-image'` if the data is not an image.
  */
 export async function replacePhoto(
   recipeId: string,
   data: Buffer,
+  illustration = false,
 ): Promise<'saved' | 'not-found' | 'not-an-image'> {
   let name: string;
   try {
@@ -15,7 +17,7 @@ export async function replacePhoto(
   } catch {
     return 'not-an-image';
   }
-  const previous = await setPhotoPath(recipeId, name);
+  const previous = await setPhotoPath(recipeId, name, illustration);
   if (previous === undefined) {
     await deletePhoto(name);
     return 'not-found';

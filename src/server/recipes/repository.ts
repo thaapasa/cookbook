@@ -67,12 +67,13 @@ export async function listRecipes(opts: {
       activeMinutes: number | null;
       totalMinutes: number | null;
       photoPath: string | null;
+      photoIllustration: boolean;
       tags: string[];
       total: string;
     }[]
   >`
     SELECT
-      r.id, r.title, r.active_minutes, r.total_minutes, r.photo_path,
+      r.id, r.title, r.active_minutes, r.total_minutes, r.photo_path, r.photo_illustration,
       coalesce(
         (SELECT array_agg(t.name ORDER BY t.name COLLATE "fi-FI-x-icu")
          FROM recipe_tags rt JOIN tags t ON t.id = rt.tag_id WHERE rt.recipe_id = r.id),
@@ -91,7 +92,7 @@ export async function listRecipes(opts: {
       title: r.title,
       activeMinutes: r.activeMinutes,
       totalMinutes: r.totalMinutes,
-      photo: photoUrls(r.photoPath),
+      photo: photoUrls(r.photoPath, r.photoIllustration),
       tags: r.tags,
     })),
     total: Number(rows[0]?.total ?? 0),
@@ -157,9 +158,11 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
       totalMinutes: number | null;
       source: string | null;
       photoPath: string | null;
+      photoIllustration: boolean;
     }[]
   >`
-    SELECT id, title, description, servings, active_minutes, total_minutes, source, photo_path
+    SELECT id, title, description, servings, active_minutes, total_minutes, source, photo_path,
+      photo_illustration
     FROM recipes WHERE id = ${id}
   `;
   if (!recipe) return null;
@@ -188,10 +191,10 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
     listNotes(id),
   ]);
 
-  const { photoPath, ...rest } = recipe;
+  const { photoPath, photoIllustration, ...rest } = recipe;
   return {
     ...rest,
-    photo: photoUrls(photoPath),
+    photo: photoUrls(photoPath, photoIllustration),
     tags: tags.map((t) => t.name),
     ingredientGroups: [...ingredientGroups],
     stepGroups: [...stepGroups],
@@ -299,19 +302,32 @@ export async function deleteRecipe(id: string): Promise<string | null | undefine
 }
 
 /**
- * Sets the photo path of a recipe, or clears it with `null`. Returns the previous path,
- * or `undefined` if the recipe does not exist.
+ * Sets the photo path and the illustration flag of a recipe, or clears the photo with
+ * `null`. Returns the previous path, or `undefined` if the recipe does not exist.
  */
 export async function setPhotoPath(
   id: string,
   photoPath: string | null,
+  illustration = false,
 ): Promise<string | null | undefined> {
   const [row] = await sql<{ previous: string | null }[]>`
-    UPDATE recipes r SET photo_path = ${photoPath}
+    UPDATE recipes r SET photo_path = ${photoPath}, photo_illustration = ${illustration}
     FROM recipes old WHERE old.id = r.id AND r.id = ${id}
     RETURNING old.photo_path AS previous
   `;
   return row ? row.previous : undefined;
+}
+
+/**
+ * Sets the illustration flag of the photo of a recipe. Returns `false` if the recipe
+ * does not exist or has no photo.
+ */
+export async function setPhotoIllustration(id: string, illustration: boolean): Promise<boolean> {
+  const rows = await sql`
+    UPDATE recipes SET photo_illustration = ${illustration}
+    WHERE id = ${id} AND photo_path IS NOT NULL
+  `;
+  return rows.count > 0;
 }
 
 async function insertRevision(

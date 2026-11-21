@@ -73,5 +73,6 @@ function toPhoto(photo: Photo): IntegrationPhoto {
   return {
     url: absoluteUrl(photo.url),
     sizes: photo.sizes.map(({ size, url }) => ({ size, url: absoluteUrl(url) })),
+    illustration: photo.illustration,
   };
 }

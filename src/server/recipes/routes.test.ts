@@ -47,9 +47,10 @@ function photoUrlsOf(recipe: unknown): string[] {
   return photo ? [photo.url, ...photo.sizes.map((s) => s.url)] : [];
 }
 
-function uploadPhoto(id: string, data: Blob, from = origin) {
+function uploadPhoto(id: string, data: Blob, from = origin, illustration?: string) {
   const body = new FormData();
   body.set('photo', data, 'photo.jpg');
+  if (illustration !== undefined) body.set('illustration', illustration);
   return app.request(`/api/app/recipes/${id}/photo`, {
     method: 'PUT',
     headers: { cookie, origin: from },
@@ -73,6 +74,7 @@ describe('authorization', () => {
       request('/api/app/recipes', { method: 'POST', json: recipe }),
       request(`/api/app/recipes/${id}`, { method: 'PUT', json: recipe }),
       request(`/api/app/recipes/${id}`, { method: 'DELETE' }),
+      request(`/api/app/recipes/${id}/photo`, { method: 'PATCH', json: { illustration: true } }),
       request(`/api/app/recipes/${id}/photo`, { method: 'DELETE' }),
       request(`/api/app/recipes/${id}/notes`, { method: 'POST', json: note }),
       request(`/api/app/recipes/${id}/notes/${missingId}`, { method: 'PUT', json: note }),
@@ -153,6 +155,16 @@ describe('input validation', () => {
   it('rejects a photo that is not an image', async () => {
     const id = await createRecipe({ title: 'Pulla' });
     expect((await uploadPhoto(id, new Blob(['not an image']))).status).toBe(400);
+  });
+
+  it('rejects an invalid illustration flag', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    const photo = new Blob([new Uint8Array(await jpeg())]);
+    expect((await uploadPhoto(id, photo, origin, 'yes')).status).toBe(400);
+    const patch = (json: unknown) =>
+      request(`/api/app/recipes/${id}/photo`, { method: 'PATCH', cookie, json });
+    expect((await patch({})).status).toBe(400);
+    expect((await patch({ illustration: 'true' })).status).toBe(400);
   });
 });
 
@@ -237,6 +249,39 @@ describe('recipes', () => {
     expect((await request(`/api/app/recipes/${id}`, { method: 'DELETE', cookie })).status).toBe(
       404,
     );
+  });
+
+  it('stores and changes the illustration flag of a photo', async () => {
+    const id = await createRecipe({ title: 'Pulla' });
+    const photo = new Blob([new Uint8Array(await jpeg())]);
+    const illustration = async () =>
+      ((await getJson(`/api/app/recipes/${id}`)) as Recipe).photo?.illustration;
+    const patch = (value: boolean) =>
+      request(`/api/app/recipes/${id}/photo`, {
+        method: 'PATCH',
+        cookie,
+        json: { illustration: value },
+      });
+
+    expect((await patch(true)).status).toBe(404);
+    expect((await uploadPhoto(id, photo, origin, 'true')).status).toBe(204);
+    expect(await illustration()).toBe(true);
+    expect((await patch(false)).status).toBe(204);
+    expect(await illustration()).toBe(false);
+    expect((await patch(true)).status).toBe(204);
+
+    // A new photo without the flag is a photo of the recipe.
+    expect((await uploadPhoto(id, photo)).status).toBe(204);
+    expect(await illustration()).toBe(false);
+    expect(
+      (
+        await request(`/api/app/recipes/${missingId}/photo`, {
+          method: 'PATCH',
+          cookie,
+          json: { illustration: true },
+        })
+      ).status,
+    ).toBe(404);
   });
 
   it('adds, edits and deletes notes', async () => {

@@ -85,6 +85,7 @@ describe('tools', () => {
       'search_recipes',
       'set_recipe_photo',
       'set_recipe_photo_from_url',
+      'set_recipe_photo_illustration',
       'update_recipe',
       'update_week_plan_entry',
     ]);

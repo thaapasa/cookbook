@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import type { Photo } from '../../shared/recipe.ts';
 import { PlateIcon } from './icons.tsx';
 
@@ -24,7 +26,7 @@ const fullPhotoWidth = 1600;
 /**
  * The recipe photo in a 4:3 box, or a placeholder when the recipe has no photo.
  * With `sizes`, the browser picks the smallest size that looks sharp; otherwise it
- * shows the full photo.
+ * shows the full photo. An illustration is toned with the accent color and labeled.
  */
 export function RecipePhoto(props: {
   recipeId: string;
@@ -36,6 +38,7 @@ export function RecipePhoto(props: {
   label?: string;
 }) {
   const { recipeId, photo, sizes, loading, className = '', iconSize, label } = props;
+  const { t } = useTranslation();
   if (photo) {
     // The short side is the width for a portrait photo and less than it otherwise,
     // so the browser never picks a size that is too small for the crop.
@@ -44,15 +47,30 @@ export function RecipePhoto(props: {
           ', ',
         )
       : undefined;
-    return (
+    const img = (
       <img
         src={photo.url}
         srcSet={srcSet}
         sizes={sizes}
         loading={loading}
         alt=""
-        className={`aspect-4/3 w-full object-cover ${className}`}
+        className={
+          photo.illustration
+            ? 'size-full object-cover grayscale contrast-105'
+            : `aspect-4/3 w-full object-cover ${className}`
+        }
       />
+    );
+    if (!photo.illustration) return img;
+    // The label grows with the box, so it fits a card and the recipe page.
+    return (
+      <div className={`@container relative aspect-4/3 w-full overflow-hidden ${className}`}>
+        {img}
+        <div aria-hidden className="absolute inset-0 bg-accent opacity-35 mix-blend-multiply" />
+        <span className="absolute bottom-2 left-2.5 text-xs font-semibold tracking-[0.04em] text-white uppercase text-shadow-[0_1px_3px_rgb(0_0_0/0.5)] @md:bottom-3.5 @md:left-4.5 @md:text-sm">
+          {t('recipe.illustration')}
+        </span>
+      </div>
     );
   }
   return (

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { User } from '../../shared/auth.ts';
 import { app } from '../app.ts';
 import { sql } from '../db.ts';
-import { type Author, getRecipe } from '../recipes/repository.ts';
+import { type Author, getRecipe, setPhotoPath } from '../recipes/repository.ts';
 import { addRecipe, createUser, resetDatabase } from '../test/db.ts';
 import { createMcpServer } from './server.ts';
 
@@ -227,7 +227,25 @@ describe('set_recipe_photo', () => {
     expect(res.isError).toBeFalsy();
     const photo = (await getRecipe(id))?.photo;
     expect(photo?.url).toMatch(/^\/images\/[\w-]+\.webp$/);
+    expect(photo?.illustration).toBe(false);
     expect((await app.request(photo!.url)).status).toBe(200);
+  });
+
+  it('marks the photo as an illustration', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const jpeg = await sharp({
+      create: { width: 40, height: 30, channels: 3, background: '#c84' },
+    })
+      .jpeg()
+      .toBuffer();
+
+    const data = jpeg.toString('base64');
+    expect(
+      (await callTool('set_recipe_photo', { id, data, illustration: true })).isError,
+    ).toBeFalsy();
+    expect((await getRecipe(id))?.photo?.illustration).toBe(true);
+    expect((await callTool('set_recipe_photo', { id, data })).isError).toBeFalsy();
+    expect((await getRecipe(id))?.photo?.illustration).toBe(false);
   });
 
   it('accepts a data URL', async () => {
@@ -249,6 +267,30 @@ describe('set_recipe_photo', () => {
     expect((await callTool('set_recipe_photo', { id, data })).isError).toBe(true);
     expect((await callTool('set_recipe_photo', { id, data: '%%%' })).isError).toBe(true);
     expect((await getRecipe(id))?.photo).toBeNull();
+  });
+});
+
+describe('set_recipe_photo_illustration', () => {
+  it('changes the flag of the existing photo', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    const call = (illustration: boolean) =>
+      callTool('set_recipe_photo_illustration', { id, illustration });
+    expect((await call(true)).isError).toBe(true);
+
+    await setPhotoPath(id, 'a.webp');
+    expect((await call(true)).isError).toBeFalsy();
+    expect((await getRecipe(id))?.photo).toMatchObject({
+      url: '/images/a.webp',
+      illustration: true,
+    });
+    expect((await call(false)).isError).toBeFalsy();
+    expect((await getRecipe(id))?.photo?.illustration).toBe(false);
+  });
+
+  it('requires the flag', async () => {
+    const id = await addRecipe(author, { title: 'Pulla' });
+    await setPhotoPath(id, 'a.webp');
+    expect((await callTool('set_recipe_photo_illustration', { id })).isError).toBe(true);
   });
 });
 

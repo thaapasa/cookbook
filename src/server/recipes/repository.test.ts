@@ -432,6 +432,7 @@ describe('setPhotoPath', () => {
         { size: 256, url: '/images/b.s256.webp' },
         { size: 768, url: '/images/b.s768.webp' },
       ],
+      illustration: false,
     });
   });
 

@@ -65,7 +65,7 @@ describe('getWeek', () => {
 
   it('returns the entries of each day in plan order, with recipe links', async () => {
     const recipeId = await addRecipe(author, { title: 'Uunilohi' });
-    await sql`UPDATE recipes SET photo_path = 'lohi.webp' WHERE id = ${recipeId}`;
+    await sql`UPDATE recipes SET photo_path = 'lohi.webp', photo_illustration = true WHERE id = ${recipeId}`;
     const lohi = await add('2026-10-19', 'Lohta', { note: 'tuplasatsi', recipeId });
     const pizza = await add('2026-10-19', 'Pizzaa');
     const salaatti = await add('2026-10-19', 'Salaatti', { position: 0 });
@@ -89,6 +89,7 @@ describe('getWeek', () => {
               { size: 256, url: `${site}/images/lohi.s256.webp` },
               { size: 768, url: `${site}/images/lohi.s768.webp` },
             ],
+            illustration: true,
           },
         },
       },

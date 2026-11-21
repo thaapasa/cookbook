@@ -16,6 +16,7 @@ import {
   deletePhoto,
   meQuery,
   recipeQuery,
+  setPhotoFlags,
   updateNote,
   updateRecipe,
   uploadPhoto,
@@ -87,6 +88,7 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
   });
   const [photo, setPhoto] = useState<{ file: File; url: string } | null>(null);
   const [photoRemoved, setPhotoRemoved] = useState(false);
+  const [illustration, setIllustration] = useState(recipe?.photo?.illustration ?? false);
   // Set when a new recipe is created, so that a retry after a failed photo or
   // note save updates the recipe instead of creating another one.
   const createdId = useRef<string | null>(null);
@@ -109,8 +111,11 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
         createdId.current = id;
       }
 
-      if (photo) await uploadPhoto(id, photo.file);
+      if (photo) await uploadPhoto(id, photo.file, illustration);
       else if (photoRemoved && recipe?.photo) await deletePhoto(id);
+      else if (recipe?.photo && illustration !== recipe.photo.illustration) {
+        await setPhotoFlags(id, { illustration });
+      }
 
       // Notes have no revisions, so they are saved one by one.
       const saved = new Map((recipe?.notes ?? []).map((n) => [n.id, n.text]));
@@ -191,11 +196,14 @@ function RecipeEditor({ recipe, user }: { recipe?: Recipe; user: User }) {
                 <PhotoField
                   recipeId={recipe?.id ?? 'new'}
                   url={photo?.url ?? (photoRemoved ? null : (recipe?.photo?.url ?? null))}
+                  illustration={illustration}
                   onSelect={(file) => setPhoto({ file, url: URL.createObjectURL(file) })}
                   onRemove={() => {
                     setPhoto(null);
                     setPhotoRemoved(true);
+                    setIllustration(false);
                   }}
+                  onIllustrationChange={setIllustration}
                 />
               </div>
               <div className="flex flex-[1.4_1_340px] flex-col gap-4">

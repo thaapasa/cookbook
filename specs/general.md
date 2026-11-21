@@ -48,3 +48,9 @@ Requirements that apply to the whole app.
       smallest one that looks sharp on the screen, up to 4x pixel density.
 - [x] The recipe page and the editor show the full photo.
 - [x] Clients get the photo URLs from the server and do not build them.
+- [x] A photo can be marked as an illustration ("Mallikuva"), when it shows a
+      similar dish and not the recipe as made. The flag is set with each
+      upload, and a new photo without the flag is a photo of the recipe.
+- [x] The recipe list, the recipe page and the editor show an illustration
+      in grayscale, toned with the accent color, with the label "Mallikuva" in
+      the bottom-left corner. The small thumbnails show it as it is.

@@ -46,5 +46,7 @@ week view does. Clients link to the cookbook to show a recipe.
       the recipe page, the URL of the cooking view, and the URL of the recipe
       photo and the URLs of its smaller sizes, with the size of each smaller
       size. The photo is null when the recipe has no photo.
+- [x] The photo tells whether it is an illustration, a photo of a similar
+      dish and not of the recipe as made.
 - [x] All URLs are absolute. The server reads the public address of the app
       from an environment variable.

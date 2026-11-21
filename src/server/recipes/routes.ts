@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { z } from 'zod';
 
-import { NoteInput, RecipeListQuery, SaveRecipeRequest } from '../../shared/recipe.ts';
+import { NoteInput, PhotoFlags, RecipeListQuery, SaveRecipeRequest } from '../../shared/recipe.ts';
 import { type AuthEnv, requireUser } from '../auth/routes.ts';
 import { deleteRecipeWithPhoto, removePhoto, replacePhoto } from './photos.ts';
 import {
@@ -13,6 +13,7 @@ import {
   getRecipe,
   listRecipes,
   listTags,
+  setPhotoIllustration,
   updateNote,
   updateRecipe,
 } from './repository.ts';
@@ -58,13 +59,27 @@ export const recipeRoutes = new Hono<AuthEnv>()
     zValidator('param', IdParam),
     bodyLimit({ maxSize: maxPhotoBytes }),
     async (c) => {
-      const { photo } = await c.req.parseBody();
+      const { photo, illustration } = await c.req.parseBody();
       if (!(photo instanceof File)) return c.json({ error: 'Missing photo' }, 400);
+      if (illustration !== undefined && illustration !== 'true' && illustration !== 'false') {
+        return c.json({ error: 'Invalid illustration flag' }, 400);
+      }
       const data = Buffer.from(await photo.arrayBuffer());
-      const result = await replacePhoto(c.req.valid('param').id, data);
+      const result = await replacePhoto(c.req.valid('param').id, data, illustration === 'true');
       if (result === 'not-an-image') return c.json({ error: 'Not an image' }, 400);
       if (result === 'not-found') return c.json({ error: 'Not found' }, 404);
       return c.body(null, 204);
+    },
+  )
+  .patch(
+    '/:id/photo',
+    requireUser,
+    zValidator('param', IdParam),
+    zValidator('json', PhotoFlags),
+    async (c) => {
+      const { illustration } = c.req.valid('json');
+      const updated = await setPhotoIllustration(c.req.valid('param').id, illustration);
+      return updated ? c.body(null, 204) : c.json({ error: 'Not found' }, 404);
     },
   )
   .delete('/:id/photo', requireUser, zValidator('param', IdParam), async (c) => {

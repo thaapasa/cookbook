@@ -42,6 +42,11 @@ export const IntegrationPhoto = z
         }),
       )
       .describe('Smaller sizes of the photo, smallest first.'),
+    illustration: z
+      .boolean()
+      .describe(
+        'True if the photo shows a similar dish, not this recipe as made. The cookbook shows it toned and labeled "Mallikuva".',
+      ),
   })
   .register(integrationSchemas, { id: 'Photo' });
 export type IntegrationPhoto = z.infer<typeof IntegrationPhoto>;

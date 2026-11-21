@@ -13,7 +13,8 @@ Primary keys are UUIDv7 values from PostgreSQL `uuidv7()`.
   ingredients, steps, photo and source. Only the title is required. Servings
   is free text, such as "4–6 annosta" or "1 pelti (24 palaa)". The times are in
   minutes. The source is a URL or free text. A recipe has at most one photo and
-  can have many tags.
+  can have many tags. The photo can be marked as an illustration, which
+  means it shows a similar dish and not the recipe as made.
 - **Ingredient**: amount, name and note as free text, in a fixed order within
   the recipe. Only the name is required. The amount includes the unit and can
   be a range, such as "100–120 ml". The note holds extra details, such as a
@@ -151,6 +152,22 @@ Rejected alternatives:
   the page they were on.
 - Keeping the text of the header search in component state. The header stays
   mounted across pages, so the text would follow the user to the next page.
+
+### The illustration flag belongs to the photo
+
+Whether a photo is an illustration depends on the image, not on the recipe
+text. The flag is a column next to the photo path, and every upload sets it.
+If an upload leaves the flag out, the new photo counts as a photo of the
+recipe, so a flag set for an old stock photo does not carry over to a real
+one. Like the photo, the flag is not part of the revisions. The editor and
+the `set_recipe_photo_illustration` MCP tool change the flag of a saved photo
+without an upload.
+
+Rejected alternatives:
+
+- A field of the recipe content, saved with `update_recipe`. Claude would
+  have to send the flag back on every edit, and a revision restore could pair
+  the flag with the wrong photo.
 
 ## Stack
 

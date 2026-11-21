@@ -37,11 +37,20 @@ import {
   listIngredientNames,
   listRecipes,
   listTags,
+  setPhotoIllustration,
   updateRecipe,
 } from '../recipes/repository.ts';
 import { addEntry, listEntries, removeEntry, updateEntry } from '../week-plan/repository.ts';
 
 const entryId = z.uuid().describe('Week plan entry id from get_week_plan.');
+
+const illustrationInfo =
+  'True if the image shows a similar dish and not this recipe as made, such as a stock photo or a photo of another recipe. The app tones the photo and labels it as an illustration.';
+const IllustrationFlag = z.boolean().describe(illustrationInfo);
+const NewPhotoIllustrationFlag = z
+  .boolean()
+  .optional()
+  .describe(`${illustrationInfo} Defaults to false.`);
 
 const IdResult = z.object({ id: z.uuid() });
 
@@ -199,12 +208,13 @@ export function createMcpServer(user: User): McpServer {
           .transform((s) => s.replace(/^data:[^,]*;base64,/, ''))
           .pipe(z.base64())
           .describe('The image file as base64, or as a base64 data URL.'),
+        illustration: NewPhotoIllustrationFlag,
       }),
       outputSchema: IdResult,
       annotations: { idempotentHint: true },
     },
-    async ({ id, data }) => {
-      const saved = await replacePhoto(id, Buffer.from(data, 'base64'));
+    async ({ id, data, illustration }) => {
+      const saved = await replacePhoto(id, Buffer.from(data, 'base64'), illustration);
       if (saved === 'not-found') return error(`No recipe ${id}`);
       if (saved === 'not-an-image') return error('The data is not an image');
       return result({ id });
@@ -222,11 +232,12 @@ export function createMcpServer(user: User): McpServer {
         url: z
           .url({ protocol: /^https?$/ })
           .describe('An http or https URL of the image file itself, not of a web page.'),
+        illustration: NewPhotoIllustrationFlag,
       }),
       outputSchema: IdResult,
       annotations: { idempotentHint: true },
     },
-    async ({ id, url }) => {
+    async ({ id, url, illustration }) => {
       let data: Buffer;
       try {
         data = await downloadImage(url);
@@ -234,11 +245,27 @@ export function createMcpServer(user: User): McpServer {
         if (e instanceof DownloadError) return error(e.message);
         throw e;
       }
-      const saved = await replacePhoto(id, data);
+      const saved = await replacePhoto(id, data, illustration);
       if (saved === 'not-found') return error(`No recipe ${id}`);
       if (saved === 'not-an-image') return error('The URL does not point to an image');
       return result({ id });
     },
+  );
+
+  register(
+    'set_recipe_photo_illustration',
+    {
+      title: 'Mark recipe photo as illustration',
+      description:
+        'Marks the existing photo of a recipe by id as an illustration or as a photo of the recipe, without uploading it again. Use this when the user says that the photo shows a similar dish, or that it shows the recipe after all. When setting a new photo, pass the flag to set_recipe_photo or set_recipe_photo_from_url instead.',
+      inputSchema: z.object({ id: z.uuid(), illustration: IllustrationFlag }),
+      outputSchema: IdResult,
+      annotations: { idempotentHint: true },
+    },
+    async ({ id, illustration }) =>
+      (await setPhotoIllustration(id, illustration))
+        ? result({ id })
+        : error(`No recipe ${id}, or it has no photo`),
   );
 
   register(

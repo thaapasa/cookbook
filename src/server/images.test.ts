@@ -24,14 +24,15 @@ function stem(name: string): string {
 
 describe('photoUrls', () => {
   it('returns the URLs of the full photo and its smaller sizes', () => {
-    expect(photoUrls('a.webp')).toEqual({
+    expect(photoUrls('a.webp', true)).toEqual({
       url: '/images/a.webp',
       sizes: [
         { size: 256, url: '/images/a.s256.webp' },
         { size: 768, url: '/images/a.s768.webp' },
       ],
+      illustration: true,
     });
-    expect(photoUrls(null)).toBeNull();
+    expect(photoUrls(null, false)).toBeNull();
   });
 });
 
