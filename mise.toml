@@ -19,3 +19,7 @@ postinstall = 'if [ -n "$CI" ]; then npm ci; else npm install; fi'
 description = "Start the dev server and the client in dekit"
 run = "dekit"
 raw = true
+
+[tasks.clean]
+description = "Remove the npm dependencies and the build output"
+run = "rm -rf node_modules dist build coverage .vite *.tsbuildinfo"

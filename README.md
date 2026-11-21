@@ -53,6 +53,9 @@ stop it. Press `q` to quit, and then `d` to leave the tasks running in the
 background. A running dekit keeps its own copy of the tasks, so after you edit
 `dekit.yaml`, run `dekit reload --yes` to take the changes.
 
+Run `mise clean` to remove the npm dependencies and the build output. Run
+`npm install` to install the dependencies again.
+
 The same commands also run on their own:
 
 - `npm run dev`: the server, restarted on changes. It applies pending
