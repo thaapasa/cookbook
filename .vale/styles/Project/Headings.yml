@@ -1,0 +1,71 @@
+# Copy of Google.Headings (vale-cli/Google, see .vale.ini for the version)
+# with more product names as exceptions. Add the project's own names. Don't add
+# common words such as 'Numbers' or 'Word': an exception forces its capitals.
+extends: capitalization
+message: "'%s' should use sentence-style capitalization."
+link: "https://developers.google.com/style/capitalization#capitalization-in-titles-and-headings"
+level: warning
+scope: heading
+match: $sentence
+# No `indicators: [":"]` here. That makes Vale require a capital after a colon,
+# which is the Microsoft convention this rule was originally copied from. This
+# guide says the opposite: "the first word after a colon is generally
+# lowercase" (developers.google.com/style/colons), and Colons.yml enforces
+# exactly that. See issue #58.
+exceptions:
+  - API
+  - Azure
+  - Bun
+  - Cargo
+  - CLI
+  - Cosmos
+  - CSS
+  - Docker
+  - Emmet
+  - ESLint
+  - GitHub
+  - GitLab
+  - Go
+  - gRPC
+  - Hetzner
+  - Hono
+  - HTML
+  - I
+  - JavaScript
+  - JSON
+  - Kubernetes
+  - Linux
+  - macOS
+  - Markdown
+  - Marketplace
+  - MCP
+  - mise
+  - MongoDB
+  - Node.js
+  - npm
+  - PDF
+  - PostgreSQL
+  - Prettier
+  - Python
+  - React
+  - Redis
+  - REPL
+  - Rust
+  - SQL
+  - SQLite
+  - Studio
+  - SVG
+  - Tailwind
+  - TanStack
+  - TOML
+  - TypeScript
+  - URL
+  - URLs
+  - Vale
+  - Valkey
+  - Visual
+  - Vite
+  - VS
+  - Windows
+  - YAML
+  - Zod

@@ -42,6 +42,7 @@ jobs:
           fi
       - run: npm run format:check
       - run: npm run lint
+      - run: mise run lint-prose
       - run: npm run typecheck
       - run: npm run build
       - run: npm test

@@ -1,0 +1,26 @@
+mise
+Vale
+Prettier
+dekit
+Hono
+Hetzner
+libuv
+px
+tailnet
+typecheck
+Valkey
+Zod
+# Product names that start a list item after a colon, which Google.Colons
+# flags unless they are in the vocabulary
+Node
+PostgreSQL
+React
+Tailwind
+TanStack
+# Finnish UI text and examples quoted in the docs
+annosta
+kanakeitto
+keitto
+Mallikuva
+palaa
+pelti

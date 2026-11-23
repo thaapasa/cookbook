@@ -5,21 +5,19 @@ Editing recipes in the browser.
 - [x] User can create a new recipe.
 - [x] User can edit all fields of a recipe.
 - [x] User can upload a photo for a recipe.
-- [x] User can mark the photo as an illustration, with a new photo or with
-      the saved one.
+- [x] User can mark a new photo or the saved photo as an illustration.
 - [x] User can add and remove tags.
-- [x] User can edit ingredients as rows with amount, name and note fields.
-- [x] User can add, remove, rename and reorder ingredient groups.
-- [x] User can move between ingredient fields with the keyboard and add a new
-      row from the last field.
+- [x] User can edit ingredients as rows with amount, name, and note fields.
+- [x] User can add, remove, rename, and reorder ingredient groups.
+- [x] User can move between ingredient fields with the keyboard and add a new row from the last
+      field.
 - [x] User can reorder ingredients by dragging, also between groups.
-- [x] User can edit steps as a list of text fields, and add, remove and reorder
-      them by dragging, also between groups.
-- [x] User can add, remove, rename and reorder step groups.
+- [x] User can edit steps as a list of text fields, and add, remove, and reorder them by dragging,
+      also between groups.
+- [x] User can add, remove, rename, and reorder step groups.
 - [x] User can edit and remove the notes of a recipe.
-- [x] If someone changes the recipe, its photo or its notes while the user
-      edits it, saving fails and nothing is saved. The editor says that the
-      recipe was changed meanwhile, keeps the form as it is, and offers to
-      load the recipe again, which discards the user's changes.
-- [x] Saving a new recipe opens the recipe page. Going back from there does not
-      reopen the empty editor.
+- [x] If someone changes the recipe, its photo, or its notes while the user edits it, saving fails.
+      Nothing is saved. The editor says that someone changed the recipe meanwhile, keeps the form as
+      it is, and offers to load the recipe again, which discards the user's changes.
+- [x] Saving a new recipe opens the recipe page. Going back from there doesn't reopen the empty
+      editor.

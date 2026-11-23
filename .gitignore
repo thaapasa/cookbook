@@ -37,3 +37,8 @@ design/**/*.jpeg
 design/**/*.webp
 design/**/*.gif
 design/**/*.avif
+
+# Vale styles that vale sync downloads
+/.vale/styles/*
+!/.vale/styles/Project/
+!/.vale/styles/config/

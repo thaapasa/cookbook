@@ -18,6 +18,9 @@ tasks:
   check/format:
     type: job
     cmd: npm run format
+  check/prose:
+    type: job
+    cmd: mise run prose
   check/typecheck:
     type: job
     cmd: npm run typecheck

@@ -1,16 +1,15 @@
 # Specs
 
-Requirements for the app, one file per area. Agents use these files for
-feature planning and implementation.
+Requirements for the app, one file per area. Agents use these files for feature planning and
+implementation.
 
-Each file has a heading, a short description of the area and a list of
-requirements:
+Each file has a heading, a short description of the area and a list of requirements:
 
 - `- [ ]` means planned.
 - `- [x]` means implemented.
 
-Keep requirements at the level of what a user or caller can do. Leave
-implementation details to the code.
+Keep requirements at the level of what a user or caller can do. Leave implementation details to the
+code.
 
 ## Areas
 
@@ -22,6 +21,6 @@ implementation details to the code.
 - [Revisions](revisions.md): recipe history and undo.
 - [Week plan](week-plan.md): planning the meals of each week.
 - [MCP server](mcp.md): managing recipes with Claude.
-- [Integration API](integration-api.md): the week plan for other systems,
-  such as the family dashboard.
-- [Profile](profile.md): the user's own name, password and tokens.
+- [Integration API](integration-api.md): the week plan for other systems, such as the family
+  dashboard.
+- [Profile](profile.md): the user's own name, password, and tokens.

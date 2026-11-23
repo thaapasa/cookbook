@@ -9,6 +9,8 @@ node = "24.22.2"
 postgres = "18"
 # The process manager for local development. See dekit.yaml.
 dekit = "0.10.3"
+# The prose linter for the docs. See .vale.ini.
+vale = "3.28.1"
 
 [hooks]
 # Install the npm dependencies after the tools. CI installs the exact versions
@@ -23,3 +25,26 @@ raw = true
 [tasks.clean]
 description = "Remove the npm dependencies and the build output"
 run = "rm -rf node_modules dist build coverage .vite *.tsbuildinfo"
+
+# Prose: Vale with the Google developer documentation style, on the docs only
+# (.vale.ini sets the scope). `prose` shows every alert, including
+# suggestions. `lint-prose` is the gate and fails on warnings and errors.
+[tasks.prose]
+description = "Show all prose alerts in the docs; pass paths to narrow"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+[ -d .vale/styles/Google ] || vale sync
+if [ $# -eq 0 ]; then set -- README.md ARCHITECTURE.md HOSTING.md assets/README.md specs; fi
+vale "$@"
+'''
+
+[tasks.lint-prose]
+description = "Fail on prose warnings and errors in the docs"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+[ -d .vale/styles/Google ] || vale sync
+out=$(vale --minAlertLevel warning --output line README.md ARCHITECTURE.md HOSTING.md assets/README.md specs || true)
+if [ -n "$out" ]; then echo "$out"; exit 1; fi
+'''

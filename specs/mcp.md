@@ -1,35 +1,31 @@
 # MCP server
 
-Lets Claude manage recipes on behalf of a user. Claude imports recipes from web
-pages, photos and text, adjusts existing recipes on request, and builds weekly
-shopping lists from the ingredients of planned dishes.
+Lets Claude manage recipes on behalf of a user. Claude imports recipes from web pages, photos and
+text, adjusts existing recipes on request, and builds weekly shopping lists from the ingredients of
+planned dishes.
 
-- [x] Each user has a personal MCP token. Generating it is part of the
-      [profile](profile.md) spec.
-- [x] Callers authenticate with the token as a bearer token. The token
-      identifies the user.
+- [x] Each user has a personal MCP token. Generating it is part of the [profile](profile.md) spec.
+- [x] Callers authenticate with the token as a bearer token. The token identifies the user.
 - [x] Claude can search and list recipes.
 - [x] Claude can read a recipe.
 - [x] Claude can create a recipe.
 - [x] Claude can edit a recipe, with a note on what changed.
-- [x] Claude can pass the recipe version from reading the recipe when it edits
-      it. The edit then fails if someone changed the recipe since. Without the
-      version, the edit replaces the recipe as it is.
-- [x] Changes made through MCP are recorded as made by the token's user, and
-      marked as made through MCP.
+- [x] Claude can pass the recipe version from reading the recipe when it edits it. The edit then
+      fails if someone changed the recipe since. Without the version, the edit replaces the recipe
+      as it is.
+- [x] Changes made through MCP are recorded as made by the token's user, and marked as made through
+      MCP.
 - [x] Claude can upload a photo for a recipe.
-- [x] Claude can set a recipe photo from a public image URL. The server
-      downloads the image and refuses addresses outside the public internet.
-- [x] When Claude sets a photo, by upload or from a URL, it can mark the photo
-      as an illustration.
-- [x] Claude can mark the existing photo of a recipe as an illustration or as
-      a photo of the recipe, without uploading it again.
+- [x] Claude can set a recipe photo from a public image URL. The server downloads the image and
+      refuses addresses outside the public internet.
+- [x] When Claude sets a photo, by upload or from a URL, it can mark the photo as an illustration.
+- [x] Claude can mark the existing photo of a recipe as an illustration or as a photo of the recipe,
+      without uploading it again.
 - [x] Claude can get the ingredients of several recipes in one call.
-- [x] Claude can list the existing ingredient names, to keep names consistent
-      across recipes.
+- [x] Claude can list the existing ingredient names, to keep names consistent across recipes.
 - [x] Claude can list the existing tags with the number of recipes for each.
 - [x] Claude can delete a recipe.
 - [x] Claude can add a note to a recipe.
 - [x] Claude can read the week plan for a range of dates.
-- [x] Claude can add, edit, move and remove week plan entries. The change
-      history records these changes as made through MCP.
+- [x] Claude can add, edit, move, and remove week plan entries. The change history records these
+      changes as made through MCP.

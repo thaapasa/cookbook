@@ -1,0 +1,99 @@
+# Copy of Google.Acronyms (vale-cli/Google, see .vale.ini for the version)
+# with more acronyms that readers know. Add the project's own terms to the
+# exceptions.
+extends: conditional
+message: "Spell out '%s', if it's unfamiliar to the audience."
+link: 'https://developers.google.com/style/abbreviations'
+level: suggestion
+ignorecase: false
+# Ensures that the existence of 'first' implies the existence of 'second'.
+first: '\b([A-Z]{3,5})\b'
+second: '(?:\b[A-Z][a-z]+ )+\(([A-Z]{3,5})\)'
+# ... with the exception of these:
+exceptions:
+  - ANSI
+  - API
+  - ARM
+  - ASCII
+  - ASP
+  - AWS
+  - BSD
+  - CLI
+  - CPU
+  - CRC
+  - CSS
+  - CSV
+  - DEBUG
+  - DNS
+  - DOM
+  - DPI
+  - FAQ
+  - GCC
+  - GDB
+  - GET
+  - GHCR
+  - GIF
+  - GPL
+  - GPU
+  - GTK
+  - GUI
+  - HTML
+  - HTTP
+  - HTTPS
+  - IDE
+  - ISO
+  - JAR
+  - JPEG
+  - JSON
+  - JSX
+  - JWT
+  - LESS
+  - LLDB
+  - LTS
+  - MCP
+  - MIME
+  - MIT
+  - NET
+  - NOTE
+  - NPM
+  - NVDA
+  - OSS
+  - PATH
+  - PDF
+  - PHC
+  - PHP
+  - PNG
+  - POSIX
+  - POST
+  - RAM
+  - REPL
+  - REST
+  - RFC
+  - RGB
+  - RSA
+  - SCM
+  - SCSS
+  - SDK
+  - SHA
+  - SQL
+  - SSH
+  - SSL
+  - SVG
+  - TBD
+  - TCP
+  - TLS
+  - TODO
+  - TOML
+  - TTY
+  - UDP
+  - UID
+  - URI
+  - URL
+  - USB
+  - UTC
+  - UTF
+  - UUID
+  - XML
+  - XSS
+  - YAML
+  - ZIP

@@ -1,3 +1,6 @@
 dist
 package-lock.json
 design
+# Copies of the Google Vale rules. Keep their formatting so that they diff
+# cleanly against the upstream rules.
+.vale
