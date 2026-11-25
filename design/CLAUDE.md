@@ -34,6 +34,10 @@ The board titles are in Finnish:
 - `InspoStrip`, `InspoMap`, `InspoMatrix`, `InspoPlan`: alternative views of
   the week plan history (week stream, food map, meal rhythm, planning from
   suggestions).
+- `BrowseSidebar`, `BrowseTray`, `BrowsePicker`, `BrowseDrag`: alternative
+  ways to add recipes to next week's plan from the recipe list (side panel,
+  week tray, day picker in the card, drag to a sliding week panel).
+  `BrowseTrayOpen` shows the tray open, `BrowseDragClosed` the panel closed.
 
 Each board is an HTML page with inline styles and a `DCLogic` component
 script that fills in the sample data. The boards load `support.js` from the
@@ -42,8 +46,8 @@ for colors, spacing, type and structure, and open the canvas to see them.
 
 ## Last sync
 
-- Canvas version: `1795271434-98f6`
-- Date: 2026-11-21
+- Canvas version: `1795624907-ce34`
+- Date: 2026-11-25
 
 ## Sync
 
