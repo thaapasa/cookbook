@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ApiError, login, meQuery } from '../api.ts';
 import { useGoBack } from '../back.tsx';
 import { errorClass, fieldClass, primaryButtonClass } from '../components/fieldStyles.ts';
+import { PasswordField } from '../components/PasswordField.tsx';
 
 const route = getRouteApi('/_main/login');
 
@@ -68,17 +69,15 @@ export function LoginPage() {
           <Label className={loginLabelClass}>{t('login.username')}</Label>
           <Input className={loginFieldClass} autoCapitalize="none" autoCorrect="off" />
         </TextField>
-        <TextField
+        <PasswordField
+          label={t('login.password')}
           value={password}
           onChange={setPassword}
-          isRequired
-          type="password"
           autoComplete="current-password"
           className="flex flex-col gap-2"
-        >
-          <Label className={loginLabelClass}>{t('login.password')}</Label>
-          <Input className={loginFieldClass} />
-        </TextField>
+          labelClassName={loginLabelClass}
+          inputClassName={loginFieldClass}
+        />
         {submit.isError && (
           <p role="alert" className={errorClass}>
             {t(loginErrorKey(submit.error))}

@@ -31,6 +31,7 @@ import {
   secondaryButtonClass,
 } from '../components/fieldStyles.ts';
 import { CheckIcon, CopyIcon } from '../components/icons.tsx';
+import { PasswordField } from '../components/PasswordField.tsx';
 import { PageMessage, RequireUser } from '../components/RequireUser.tsx';
 import { useFormatDate } from '../format.ts';
 
@@ -252,18 +253,16 @@ function CredentialDialog(props: {
                 <Form onSubmit={onSubmit} className="flex flex-col gap-4.5">
                   <DialogHeading>{props.buttonLabel}</DialogHeading>
                   <p className="text-pretty text-ink-soft">{props.info}</p>
-                  <TextField
+                  <PasswordField
+                    label={t('profile.currentPassword')}
                     value={currentPassword}
                     onChange={setCurrentPassword}
-                    isRequired
-                    type="password"
                     autoComplete="current-password"
                     autoFocus
                     className="flex flex-col gap-1.5"
-                  >
-                    <Label className={labelClass}>{t('profile.currentPassword')}</Label>
-                    <Input className={fieldClass} />
-                  </TextField>
+                    labelClassName={labelClass}
+                    inputClassName={fieldClass}
+                  />
                   {change.isError && (
                     <p role="alert" className={errorClass}>
                       {change.error instanceof ApiError && change.error.status === 403

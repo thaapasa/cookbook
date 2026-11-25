@@ -29,6 +29,8 @@ The requirements and the decisions that apply to the whole app.
 - [x] All actions that modify data require authentication. This includes creating, editing, and
       deleting recipes, uploading photos, and restoring revisions.
 - [x] Users log in with a username and password. A user can't log in without the password.
+- [x] Each password field has a button that shows the password as the user types it, also on the
+      iPad.
 - [x] Users are added directly to the database. The app can't add users.
 - [x] Users edit their own name and credentials on the [profile page](profile.md).
 - [x] Passwords are stored as Argon2id hashes in PHC string format. The hashes come from Node's

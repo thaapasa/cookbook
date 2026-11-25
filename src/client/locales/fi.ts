@@ -69,6 +69,8 @@ export const fi = {
     back: 'Takaisin',
     loading: 'Ladataan…',
     loadError: 'Lataus epäonnistui. Yritä uudelleen.',
+    showPassword: 'Näytä salasana',
+    hidePassword: 'Piilota salasana',
   },
   time: {
     minutes: '{{minutes}} min',
