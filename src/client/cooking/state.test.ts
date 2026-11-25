@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { MemoryStorage } from '../memory-storage.ts';
 import {
   cookingStateLifetimeMs,
   emptyCookingState,
@@ -7,28 +8,6 @@ import {
   removeExpiredCookingStates,
   saveCookingState,
 } from './state.ts';
-
-class MemoryStorage implements Storage {
-  private items = new Map<string, string>();
-  get length() {
-    return this.items.size;
-  }
-  clear() {
-    this.items.clear();
-  }
-  getItem(key: string) {
-    return this.items.get(key) ?? null;
-  }
-  key(index: number) {
-    return [...this.items.keys()][index] ?? null;
-  }
-  removeItem(key: string) {
-    this.items.delete(key);
-  }
-  setItem(key: string, value: string) {
-    this.items.set(key, value);
-  }
-}
 
 const state = { done: ['0-1', '1-0'], activeStep: 3 };
 const now = Date.parse('2026-11-10T18:00:00Z');
