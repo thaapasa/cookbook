@@ -40,8 +40,14 @@ Requirements live in `specs/`, one file per app area. See `specs/README.md` for 
 
 - Read the relevant spec before planning or implementing a feature.
 - Add new requirements as unchecked items (`- [ ]`).
+- Format the specs with Prettier after editing them: `npm run format`.
 - Tick a requirement (`- [x]`) in the same commit that implements it.
 - Ask before changing or removing an existing requirement.
+- The "Not required" sections list what the app skips on purpose. Don't build those things, and
+  don't raise them in reviews. The "Free choices" sections, and any behavior that no requirement
+  names, are yours to decide.
+- Each spec can end with an "Open questions" section. Ask the user before you implement anything
+  that depends on an open question.
 
 ## Prose linting
 
