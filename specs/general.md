@@ -122,6 +122,12 @@ agents don't raise missing backups in plans, reviews, or reports.
 The app has no targets for speed, such as a load time or a response time. If it works well on the
 owner's devices, it's fast enough. Agents don't optimize before a slow case shows up.
 
+### Keyboard-only use
+
+The family uses the app with a mouse or a touchscreen. The app doesn't need to work for someone who
+uses only a keyboard. For example, a drag-and-drop feature doesn't need a keyboard alternative.
+Agents don't spend time on keyboard-only use in plans or reviews.
+
 ## Free choices
 
 - The code's internals, such as the API between the client and the server, the database schema, and

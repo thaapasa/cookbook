@@ -108,6 +108,26 @@ Rejected alternatives:
 - Dropping the ticks of ingredients whose text has changed. It handles the rare edit at the cost of
   more code.
 
+### Drag and drop uses pointer events
+
+The editor, the week edit view, and the week panel of the recipe list share one drag-and-drop
+implementation in `src/client/editor/sortable.tsx`. It follows the pointer events of a mouse, a
+finger, or a pen, moves a copy of the item under the pointer, and asks the drop target under the
+pointer to take the item.
+
+A drag from a grip handle or from an entry in the week panel starts as soon as the pointer moves.
+Scrolling with a finger is off on those elements. The recipe cards fill the page, so a swipe over
+them must still scroll. On a touchscreen, a card drag starts only after the user touches and holds
+the card. A finger that moves before that scrolls the page as usual. While the panel is open,
+touching and holding a card drags it instead of opening the link menu of the browser.
+
+Rejected alternatives:
+
+- The HTML drag-and-drop API. On an iPad, Safari decides when a drag starts and how the dragged item
+  looks, so the app can't make it work the same as the editor's drag code.
+- A drag-and-drop library. The app already had a small implementation for the editor, and extending
+  it was less code than adapting a library to the existing lists.
+
 ### The recipe search moves to the header on wider screens
 
 On phones, the search field is on the recipe list page. From the `md` width (768 px) up, it's in the

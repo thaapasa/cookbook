@@ -24,3 +24,28 @@ The front page. Shows the recipes that match the current search and filters.
       list with the search.
 - [x] On a tablet, the header hides the text of the logo and of the new recipe button to give the
       search more room.
+
+## Week panel
+
+A panel on the side of the recipe list, where the user plans a week by dragging recipes from the
+list. Next week is the main use case.
+
+- [x] The panel is available only to logged-in users on desktops and tablets. Phones don't show it.
+- [x] A handle on the right edge of the list opens the panel. Clicking or dragging the handle opens
+      and closes the panel.
+- [x] The panel shows one week of the [week plan](week-plan.md), with all seven days. It opens on
+      next week. Arrows move to the previous and the next week.
+- [x] The panel shows all entries of each day. An entry that links to a recipe shows its photo. The
+      panel doesn't show the notes.
+- [x] User adds a recipe to a day by dragging its card from the list to the day. The new entry links
+      to the recipe, its text is the recipe title, and it goes to the end of the day.
+- [x] User can add the same recipe to many days, many recipes to one day, and the same recipe to one
+      day more than once.
+- [x] User can drag an entry from one day to another day of the week in the panel.
+- [x] User can remove an entry from its day with the × button on the entry. There is no undo, but
+      the [change history](week-plan.md#editing) records the removal.
+- [x] The app saves each change at once, as the week edit view does.
+- [x] If another user changes the week, the panel shows the change without a reload.
+- [x] A link in the panel opens the edit view of the week.
+- [x] The browser remembers whether the panel is open and which week it shows. After a day without
+      use, the panel starts closed and on next week again.

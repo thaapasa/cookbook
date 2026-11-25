@@ -20,6 +20,10 @@ export function useFormatDay() {
   const { i18n } = useTranslation();
   // The dates are calendar dates, so they are formatted in UTC to keep the day.
   const weekday = new Intl.DateTimeFormat(i18n.language, { weekday: 'long', timeZone: 'UTC' });
+  const shortWeekday = new Intl.DateTimeFormat(i18n.language, {
+    weekday: 'short',
+    timeZone: 'UTC',
+  });
   const dayMonth = new Intl.DateTimeFormat(i18n.language, {
     day: 'numeric',
     month: 'numeric',
@@ -27,11 +31,11 @@ export function useFormatDay() {
   });
   const year = new Intl.DateTimeFormat(i18n.language, { year: 'numeric', timeZone: 'UTC' });
   const utc = (date: string) => new Date(`${date}T00:00:00Z`);
+  const capitalize = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
   return {
-    weekday: (date: string) => {
-      const name = weekday.format(utc(date));
-      return name.charAt(0).toUpperCase() + name.slice(1);
-    },
+    weekday: (date: string) => capitalize(weekday.format(utc(date))),
+    /** "La" */
+    shortWeekday: (date: string) => capitalize(shortWeekday.format(utc(date))),
     dayMonth: (date: string) => dayMonth.format(utc(date)),
     /** "17.10. – 23.10.2026", with both years when the week spans two. */
     range: (start: string, end: string) => {
