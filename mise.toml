@@ -45,6 +45,10 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 [ -d .vale/styles/Google ] || vale sync
-out=$(vale --minAlertLevel warning --output line README.md ARCHITECTURE.md HOSTING.md assets/README.md specs || true)
+# Vale exits 1 on error-level alerts and above 1 when it can't run, such as
+# with a broken .vale.ini or a missing style.
+status=0
+out=$(vale --minAlertLevel warning --output line README.md ARCHITECTURE.md HOSTING.md assets/README.md specs) || status=$?
+if [ "$status" -gt 1 ]; then echo "$out"; exit "$status"; fi
 if [ -n "$out" ]; then echo "$out"; exit 1; fi
 '''
