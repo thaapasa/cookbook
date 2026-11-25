@@ -23,6 +23,13 @@ function tone(id: string): string {
 // largest candidate, so any width above the smaller sizes works here.
 const fullPhotoWidth = 1600;
 
+// An illustration is shown in grayscale under an accent-colored layer.
+const illustrationFilter = 'grayscale contrast-105';
+
+function IllustrationTone() {
+  return <span aria-hidden className="absolute inset-0 bg-accent opacity-35 mix-blend-multiply" />;
+}
+
 /**
  * The recipe photo in a 4:3 box, or a placeholder when the recipe has no photo.
  * With `sizes`, the browser picks the smallest size that looks sharp; otherwise it
@@ -56,7 +63,7 @@ export function RecipePhoto(props: {
         alt=""
         className={
           photo.illustration
-            ? 'size-full object-cover grayscale contrast-105'
+            ? `size-full object-cover ${illustrationFilter}`
             : `aspect-4/3 w-full object-cover ${className}`
         }
       />
@@ -66,7 +73,7 @@ export function RecipePhoto(props: {
     return (
       <div className={`@container relative aspect-4/3 w-full overflow-hidden ${className}`}>
         {img}
-        <div aria-hidden className="absolute inset-0 bg-accent opacity-35 mix-blend-multiply" />
+        <IllustrationTone />
         <span className="absolute bottom-2 left-2.5 text-xs font-semibold tracking-[0.04em] text-white uppercase text-shadow-[0_1px_3px_rgb(0_0_0/0.5)] @md:bottom-3.5 @md:left-4.5 @md:text-sm">
           {t('recipe.illustration')}
         </span>
@@ -83,7 +90,10 @@ export function RecipePhoto(props: {
   );
 }
 
-/** A small square recipe photo in the smallest size, or a placeholder tone when the recipe has no photo. */
+/**
+ * A small square recipe photo in the smallest size, or a placeholder tone when the recipe
+ * has no photo. An illustration is toned like in `RecipePhoto`, but has no label.
+ */
 export function RecipeThumb(props: {
   recipeId: string;
   photo: Photo | null;
@@ -93,7 +103,15 @@ export function RecipeThumb(props: {
   const { recipeId, photo, className = '', iconSize } = props;
   if (photo) {
     const url = photo.sizes[0]?.url ?? photo.url;
-    return <img src={url} alt="" className={`flex-none object-cover ${className}`} />;
+    if (!photo.illustration) {
+      return <img src={url} alt="" className={`flex-none object-cover ${className}`} />;
+    }
+    return (
+      <span className={`relative block flex-none overflow-hidden ${className}`}>
+        <img src={url} alt="" className={`size-full object-cover ${illustrationFilter}`} />
+        <IllustrationTone />
+      </span>
+    );
   }
   return (
     <span className={`grid flex-none place-items-center ${tone(recipeId)} ${className}`}>

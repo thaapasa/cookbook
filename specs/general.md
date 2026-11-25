@@ -61,8 +61,8 @@ The requirements and the decisions that apply to the whole app.
       the recipe as made. The flag is set with each upload, and a new photo without the flag is a
       photo of the recipe.
 - [x] The recipe list, the recipe page, and the editor show an illustration in grayscale, toned with
-      the accent color, with the label "Mallikuva" in the bottom-left corner. The small thumbnails
-      show it as it is.
+      the accent color, with the label "Mallikuva" in the bottom-left corner.
+- [x] The small thumbnails show an illustration toned in the same way, without the label.
 
 ## Saved data
 
