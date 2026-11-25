@@ -31,24 +31,41 @@ run = "rm -rf node_modules dist build coverage .vite *.tsbuildinfo"
 # suggestions. `lint-prose` is the gate and fails on warnings and errors.
 [tasks.prose]
 description = "Show all prose alerts in the docs; pass paths to narrow"
+depends = ["vale-sync"]
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-[ -d .vale/styles/Google ] || vale sync
 if [ $# -eq 0 ]; then set -- README.md ARCHITECTURE.md HOSTING.md assets/README.md specs; fi
 vale "$@"
 '''
 
 [tasks.lint-prose]
 description = "Fail on prose warnings and errors in the docs"
+depends = ["vale-sync"]
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
-[ -d .vale/styles/Google ] || vale sync
 # Vale exits 1 on error-level alerts and above 1 when it can't run, such as
 # with a broken .vale.ini or a missing style.
 status=0
 out=$(vale --minAlertLevel warning --output line README.md ARCHITECTURE.md HOSTING.md assets/README.md specs) || status=$?
 if [ "$status" -gt 1 ]; then echo "$out"; exit "$status"; fi
 if [ -n "$out" ]; then echo "$out"; exit 1; fi
+'''
+
+# Downloads the Vale packages when they are missing or when the Packages line
+# in .vale.ini has changed since the last download. The stamp file keeps that
+# line and is in .gitignore with the downloaded styles.
+[tasks.vale-sync]
+description = "Download the Vale packages when .vale.ini asks for other versions"
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+packages=$(grep '^Packages' .vale.ini || true)
+stamp=.vale/styles/.packages
+if [ ! -d .vale/styles/Google ] || [ "$(cat "$stamp" 2>/dev/null)" != "$packages" ]; then
+  vale sync
+  printf '%s\n' "$packages" > "$stamp"
+fi
 '''

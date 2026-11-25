@@ -203,8 +203,8 @@ function BackToTop({ besidePanel }: { besidePanel: boolean }) {
     <Button
       onPress={scrollToTop}
       aria-label={t('list.backToTop')}
-      // Keeps the button off the open week panel, whose width is set in `WeekPanel`.
-      style={besidePanel ? { right: 'calc(min(23.75rem, 40vw) + 5rem)' } : undefined}
+      // Keeps the button off the open week panel.
+      style={besidePanel ? { right: 'calc(var(--week-panel-width) + 5rem)' } : undefined}
       className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] grid size-12 cursor-pointer place-items-center rounded-full border border-line bg-card text-ink shadow-[0_6px_20px_var(--color-shadow)] outline-accent sm:right-6 sm:bottom-6"
     >
       <ChevronUpIcon size={22} />

@@ -213,7 +213,7 @@ Rejected alternatives:
   Callers authenticate with a user's personal MCP token as a bearer token.
 - **Frontend**: React, built with Vite. The server serves the built files.
 - **UI components**: [React Aria Components](https://react-spectrum.adobe.com/react-aria/),
-  unstyled. They also provide drag-and-drop reordering.
+  unstyled.
 - **Styling**: [Tailwind CSS](https://tailwindcss.com) 4 with `@tailwindcss/vite`. The design tokens
   are in `@theme`.
 - **Routing**: [TanStack Router](https://tanstack.com/router). Route and search params are typed,

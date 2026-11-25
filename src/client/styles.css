@@ -59,6 +59,9 @@
 @layer base {
   :root {
     color-scheme: light;
+
+    /* The week panel of the recipe list. The back-to-top button moves aside by this much. */
+    --week-panel-width: min(23.75rem, 40vw);
   }
 
   :root[data-theme='dark'] {

@@ -51,6 +51,9 @@ export function WeekPanel(props: {
       />
       {panel.open && (
         <WeekPlanPanel
+          // A new mount for each week, so that a change still saving for the earlier week updates
+          // that week's data, and its error doesn't show on the new week.
+          key={panel.start}
           start={panel.start}
           onStartChange={(start) => panel.update({ open: true, start })}
           onEdit={panel.touch}
@@ -148,7 +151,7 @@ function WeekPlanPanel(props: {
     <aside
       id={panelId}
       aria-labelledby="week-panel-title"
-      className="flex max-h-[calc(100dvh-3rem)] w-[min(23.75rem,40vw)] flex-col gap-3 overflow-y-auto rounded-[22px] border border-line-soft bg-card p-4.5 shadow-[0_12px_32px_var(--color-shadow)]"
+      className="flex max-h-[calc(100dvh-3rem)] w-(--week-panel-width) flex-col gap-3 overflow-y-auto rounded-[22px] border border-line-soft bg-card p-4.5 shadow-[0_12px_32px_var(--color-shadow)]"
     >
       <div className="flex items-center gap-1.5">
         <Button

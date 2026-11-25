@@ -129,10 +129,13 @@ export function useDragSource(options: {
   const cleanup = useRef<(() => void) | null>(null);
   // Set when a press turned into a drag, so the click that follows doesn't open a link.
   const dragged = useRef(false);
+  // The pointer of the last press, so that only a touch blocks the context menu.
+  const lastPointerType = useRef<string | null>(null);
   useEffect(() => () => cleanup.current?.(), []);
 
   const onPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
     if (latest.current.disabled) return;
+    lastPointerType.current = e.pointerType;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const source = e.currentTarget;
     const control = (e.target as Element).closest('button, input, textarea, select');
@@ -262,9 +265,10 @@ export function useDragSource(options: {
   return {
     onPointerDown,
     onClickCapture,
-    // A long press on a touchscreen would open the context menu of a link or a photo.
+    // A long press on a touchscreen would open the context menu of a link or a photo. A right-click
+    // with a mouse still opens it.
     onContextMenu: (e: ReactMouseEvent<HTMLElement>) => {
-      if (!latest.current.disabled) e.preventDefault();
+      if (!latest.current.disabled && lastPointerType.current === 'touch') e.preventDefault();
     },
     // The browser's own drag of links and photos would end the pointer events.
     onDragStart: (e: ReactMouseEvent<HTMLElement>) => {
